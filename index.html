@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StrexBot - Accueil</title>
+    <!-- LIGNE AJOUTÉE POUR L'ICÔNE DE L'ONGLET -->
+    <link rel="icon" type="image/png" href="S.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
@@ -16,19 +18,21 @@
                 StrexBot
             </div>
             <div id="user-section">
+                <!-- Le lien doit pointer vers la bonne API, vérifie l'URL ci-dessous -->
                 <a href="https://discord.com/api/oauth2/authorize?client_id=1379440380860174506&response_type=code&redirect_uri=https%3A%2F%2Fapi-s5et.onrender.com%2Fcallback&scope=identify" class="btn btn-primary">
                     <i class="fab fa-discord"></i> Se connecter
                 </a>
             </div>
         </nav>
 
+        <!-- Le reste de ton HTML ne change pas -->
         <header class="hero">
             <h1>Le meilleur moyen de développer votre serveur</h1>
             <p>Avec StrexBot, obtenez des membres actifs et réels facilement et gratuitement.</p>
         </header>
 
         <main>
-            <section class="features">
+             <section class="features">
                 <div class="feature-item">
                     <i class="fas fa-rocket"></i>
                     <h3>Rapide et Efficace</h3>
@@ -61,13 +65,9 @@
                 </div>
             </section>
         </main>
-
+        
         <footer class="footer">
             <p>&copy; 2025 StrexBot. Tous droits réservés.</p>
-            <div class="footer-links">
-                <a href="#">Conditions d'utilisation</a>
-                <a href="#">Politique de confidentialité</a>
-            </div>
         </footer>
     </div>
 
@@ -75,23 +75,16 @@
         // L'URL de base de ton API Python sur Render
         const API_URL = 'https://api-s5et.onrender.com';
 
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchUserData();
-        });
+        document.addEventListener('DOMContentLoaded', () => { fetchUserData(); });
 
         async function fetchUserData() {
             try {
                 const response = await fetch(`${API_URL}/api/user_data`, { credentials: 'include' });
-
                 if (response.ok) {
                     const userData = await response.json();
                     displayUserProfile(userData);
-                } else {
-                    console.log('Utilisateur non connecté.');
                 }
-            } catch (error) {
-                console.error('Erreur de communication avec l\'API:', error);
-            }
+            } catch (error) { console.error('Erreur API:', error); }
         }
 
         function displayUserProfile(userData) {
@@ -121,22 +114,8 @@
             `;
         }
         
-        function toggleDropdown() {
-            document.getElementById('dropdown-menu').classList.toggle('show');
-        }
+        function toggleDropdown() { document.getElementById('dropdown-menu').classList.toggle('show'); }
 
         window.onclick = function(event) {
             if (!event.target.closest('.user-profile')) {
-                const dropdowns = document.getElementsByClassName("dropdown-menu");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    const openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-    </script>
-
-</body>
-</html>
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => menu.classList

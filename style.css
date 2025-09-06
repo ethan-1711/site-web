@@ -1,45 +1,186 @@
-/* ===== STYLES POUR LE PROFIL UTILISATEUR CONNECTÉ ===== */
+/* style.css */
+body {
+    background-color: #2c2f33; /* Fond sombre Discord */
+    color: #ffffff; /* Texte clair */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Prend toute la hauteur de l'écran */
+}
 
-.user-profile {
+.container {
+    background-color: #23272a; /* Couleur de carte Discord */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Ombre légère */
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box; /* Inclut padding et bordure dans la largeur */
+}
+
+/* --- Navigation en haut --- */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #36393f; /* Ligne de séparation */
+}
+
+.nav-brand {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #7289da; /* Couleur Discord Blurple */
+}
+
+/* --- Styles du bouton de connexion Discord (non connecté) --- */
+.btn-discord-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #7289da; /* Discord Blurple */
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 50px; /* Bouton arrondi */
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-discord-login:hover {
+    background-color: #5f73bc;
+}
+
+.btn-discord-login .fab {
+    font-size: 1.2em;
+}
+
+/* --- Header / Titre principal --- */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    color: #ffffff;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2em;
+    color: #99aab5;
+}
+
+/* --- Sections Générales --- */
+section {
+    margin-top: 30px;
+    text-align: left;
+}
+
+h2 {
+    color: #7289da;
+    border-bottom: 2px solid #7289da;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background-color: #2c2f33;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+code {
+    background-color: #1a1c1e;
+    color: #ffffff;
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+/* --- Bouton "Inviter le Bot" en bas --- */
+.invite-button {
+    display: inline-block;
+    background-color: #7289da;
+    color: #ffffff;
+    padding: 15px 30px;
+    margin-top: 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    text-align: center;
+    width: auto;
+}
+
+.invite-button:hover {
+    background-color: #5f73bc;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #99aab5;
+    padding-top: 20px;
+    border-top: 1px solid #36393f;
+}
+
+/* --- Styles du profil utilisateur CONNECTÉ --- */
+.user-profile-connected {
     display: flex;
     align-items: center;
     gap: 15px;
-    position: relative; /* Nécessaire pour le menu déroulant */
+    position: relative; /* Pour le menu déroulant */
 }
 
 .user-balance {
     display: flex;
     align-items: center;
-    background-color: var(--card-color);
+    background-color: #36393f; /* Couleur de fond de l'élément */
     padding: 8px 15px;
-    border-radius: 50px;
+    border-radius: 50px; /* Entièrement arrondi */
     font-weight: 600;
+    color: #ffffff;
 }
 
 .coin-icon {
     width: 20px;
     height: 20px;
     margin-right: 8px;
+    /* Assure-toi que S.png est bien dans ton dossier */
 }
 
-.user-info {
+.user-info-dropdown {
     display: flex;
     align-items: center;
-    background-color: var(--card-color);
+    background-color: #36393f; /* Couleur de fond de l'élément */
     padding: 5px 15px 5px 5px;
-    border-radius: 50px;
+    border-radius: 50px; /* Entièrement arrondi */
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.user-info:hover {
-    background-color: var(--secondary-color);
+.user-info-dropdown:hover {
+    background-color: #40444b;
 }
 
 .user-avatar {
     width: 35px;
     height: 35px;
-    border-radius: 50%;
+    border-radius: 50%; /* Image de profil ronde */
     margin-right: 10px;
 }
 
@@ -52,18 +193,18 @@
 .dropdown-menu {
     display: none; /* Caché par défaut */
     position: absolute;
-    top: 55px; /* Se positionne sous le profil */
+    top: 55px; /* Positionné sous le profil */
     right: 0;
-    background-color: var(--card-color);
+    background-color: #36393f; /* Fond du menu */
     min-width: 160px;
     border-radius: 8px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    overflow: hidden; /* Pour que les coins arrondis s'appliquent aux liens */
+    z-index: 10; /* Assure qu'il est au-dessus des autres éléments */
+    overflow: hidden;
 }
 
 .dropdown-menu a {
-    color: var(--text-muted-color);
+    color: #ffffff;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -71,14 +212,14 @@
 }
 
 .dropdown-menu a:hover {
-    background-color: var(--primary-color);
-    color: var(--text-color);
+    background-color: #7289da; /* Discord Blurple au survol */
+    color: #ffffff;
 }
 
 .dropdown-divider {
     height: 1px;
     margin: 5px 0;
-    background-color: var(--secondary-color);
+    background-color: #2c2f33;
 }
 
 /* Classe pour afficher le menu avec JavaScript */
@@ -87,6 +228,42 @@
 }
 
 /* Tourne la flèche quand le menu est ouvert */
-.user-info:has(+ .dropdown-menu.show) .dropdown-arrow {
+.user-info-dropdown:has(+ .dropdown-menu.show) .dropdown-arrow {
     transform: rotate(180deg);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    .container {
+        padding: 20px;
+    }
+    header h1 {
+        font-size: 1.8em;
+    }
+    header p {
+        font-size: 1em;
+    }
+    .top-nav {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    .user-profile-connected, .btn-discord-login {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: center;
+    }
+    .dropdown-menu {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 65px;
+    }
+    .invite-button {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }

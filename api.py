@@ -19,7 +19,7 @@ DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "dEMMWohPhzv54qh
 
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://strexbot-wuxw.onrender.com") # URL de ton API
 REDIRECT_URI = f"{API_BASE_URL}/callback" # Doit correspondre à l'URL sur Discord Dev Portal
-SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://strexbot-wuxw.onrender.com") # URL de ton site statique
+SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://strexbot-site.onrender.com")
 
 # Connexion à MongoDB
 client = MongoClient(MONGO_URI)

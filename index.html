@@ -8,63 +8,79 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+
     <div class="container">
-        <nav class="top-nav">
-            <div class="nav-brand">StrexBot</div>
-            <div id="user-profile-section">
-                <a href="https://discord.com/api/oauth2/authorize?client_id=1379440380860174506&response_type=code&redirect_uri=https%3A%2F%2Fstrexbot-wuxw.onrender.com%2Fcallback&scope=identify" class="btn-discord-login">
+        <nav>
+            <div class="nav-brand">
+                <img src="S.png" alt="Logo StrexBot" class="nav-logo">
+                StrexBot
+            </div>
+            <div id="user-section">
+                <a href="https://discord.com/api/oauth2/authorize?client_id=VOTRE_ID_CLIENT&response_type=code&redirect_uri=https%3A%2F%2Fstrexbot-wuxw.onrender.com%2Fcallback&scope=identify" class="btn btn-primary">
                     <i class="fab fa-discord"></i> Se connecter
                 </a>
             </div>
         </nav>
 
-        <header>
-            <h1>Le bot qui gère votre économie et bien plus encore !</h1>
-            <p>Découvrez un système de pièces unique pour votre serveur Discord.</p>
+        <header class="hero">
+            <h1>Le meilleur moyen de développer votre serveur</h1>
+            <p>Avec StrexBot, obtenez des membres actifs et réels facilement et gratuitement.</p>
         </header>
 
         <main>
             <section class="features">
-                <h2>Fonctionnalités Principales</h2>
-                <ul>
-                    <li>🪙 Système de pièces unique et personnalisable.</li>
-                    <li>💸 Génération de codes cadeaux pour récompenser vos membres.</li>
-                    <li>🎮 Mini-jeux divertissants pour gagner des pièces.</li>
-                    <li>📊 Classements et statistiques pour animer votre communauté.</li>
-                </ul>
+                <div class="feature-item">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Rapide et Efficace</h3>
+                    <p>Recevez de nouveaux membres en quelques minutes seulement après avoir configuré le bot.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Sûr et Sécurisé</h3>
+                    <p>Notre système est conçu pour être sûr pour votre serveur et vos membres.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-users"></i>
+                    <h3>Membres Actifs</h3>
+                    <p>Nous nous concentrons sur la qualité pour apporter des membres qui participeront à votre communauté.</p>
+                </div>
             </section>
 
-            <section class="commands">
-                <h2>Commandes à connaître</h2>
-                <p>Utilisez ces commandes sur votre serveur Discord :</p>
-                <ul>
-                    <li><code>/balance</code> - Pour voir votre solde de pièces.</li>
-                    <li><code>/creer-code [montant]</code> - Pour créer un code cadeau avec vos pièces.</li>
-                    <li><code>/utiliser-code [code]</code> - Pour réclamer les pièces d'un code.</li>
-                    <li><code>/aide</code> - Pour afficher toutes les commandes.</li>
-                </ul>
+            <section class="stats">
+                <div class="stat-item">
+                    <h2>+15,000</h2>
+                    <p>Serveurs</p>
+                </div>
+                <div class="stat-item">
+                    <h2>+2,000,000</h2>
+                    <p>Utilisateurs</p>
+                </div>
+                <div class="stat-item">
+                    <h2>+500,000</h2>
+                    <p>Membres Délivrés</p>
+                </div>
             </section>
         </main>
 
-        <footer>
-            <a href="LIEN_INVITATION_BOT" class="invite-button">Inviter StrexBot</a>
+        <footer class="footer">
             <p>&copy; 2025 StrexBot. Tous droits réservés.</p>
+            <div class="footer-links">
+                <a href="#">Conditions d'utilisation</a>
+                <a href="#">Politique de confidentialité</a>
+            </div>
         </footer>
     </div>
 
     <script>
         // L'URL de base de ton API Python sur Render
-        const API_URL = 'https://strexbot-wuxw.onrender.com'; // ASSURE-TOI QUE C'EST LA BONNE URL DE TON API
+        const API_URL = 'https://strexbot-wuxw.onrender.com';
 
-        // Cette fonction se lance au chargement de la page
         document.addEventListener('DOMContentLoaded', () => {
             fetchUserData();
         });
 
-        // Fonction pour récupérer les données de l'utilisateur depuis notre API
         async function fetchUserData() {
             try {
-                // Fait une requête à l'API pour voir si l'utilisateur est connecté
                 const response = await fetch(`${API_URL}/api/user_data`, { credentials: 'include' });
 
                 if (response.ok) {
@@ -72,46 +88,45 @@
                     displayUserProfile(userData);
                 } else {
                     console.log('Utilisateur non connecté.');
-                    // Le bouton "Se connecter" reste affiché car son HTML est déjà là par défaut
                 }
             } catch (error) {
                 console.error('Erreur de communication avec l\'API:', error);
             }
         }
 
-        // Fonction pour afficher le profil utilisateur dans la barre de navigation
         function displayUserProfile(userData) {
-            const userProfileSection = document.getElementById('user-profile-section');
-
-            userProfileSection.innerHTML = `
-                <div class="user-profile-connected">
+            const userSection = document.getElementById('user-section');
+            userSection.innerHTML = `
+                <div class="user-profile">
                     <div class="user-balance">
-                        <img src="S.png" class="coin-icon" alt="Pièce"> <span>${userData.coins.toLocaleString()}</span>
+                        <img src="S.png" class="coin-icon" alt="Pièce">
+                        <span>${userData.coins.toLocaleString()}</span>
                     </div>
-                    <div class="user-info-dropdown" onclick="toggleDropdown()">
+                    <div class="user-info" onclick="toggleDropdown()">
                         <img src="${userData.avatar_url}" alt="Avatar" class="user-avatar">
-                        <span>${userData.username}</span>
                         <i class="fas fa-chevron-down dropdown-arrow"></i>
                     </div>
                     <div class="dropdown-menu" id="dropdown-menu">
-                        <a href="#">Mon Compte</a>
-                        <a href="#">Boutique</a>
-                        <a href="#">Commandes</a>
+                        <div class="dropdown-header">
+                            <img src="${userData.avatar_url}" alt="Avatar" class="dropdown-avatar">
+                            <span>${userData.username}</span>
+                        </div>
+                        <a href="#"><i class="fas fa-user"></i> Mon Compte</a>
+                        <a href="#"><i class="fas fa-store"></i> Boutique</a>
+                        <a href="#"><i class="fas fa-receipt"></i> Commandes</a>
                         <div class="dropdown-divider"></div>
-                        <a href="${API_URL}/logout">Se déconnecter</a>
+                        <a href="${API_URL}/logout"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                     </div>
                 </div>
             `;
         }
         
-        // Fonction pour ouvrir/fermer le menu déroulant
         function toggleDropdown() {
             document.getElementById('dropdown-menu').classList.toggle('show');
         }
 
-        // Ferme le menu si l'utilisateur clique en dehors
         window.onclick = function(event) {
-            if (!event.target.matches('.user-info-dropdown, .user-info-dropdown *')) {
+            if (!event.target.closest('.user-profile')) {
                 const dropdowns = document.getElementsByClassName("dropdown-menu");
                 for (let i = 0; i < dropdowns.length; i++) {
                     const openDropdown = dropdowns[i];

@@ -24,10 +24,26 @@ body {
     margin: 0 auto;
 }
 
+/* --- NOUVEAUX STYLES POUR LA BARRE DE NAVIGATION --- */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 40px; /* Espace avant le titre principal */
+}
+
+.nav-brand {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+
 /* --- Section Principale (Hero) --- */
 .hero {
     text-align: center;
-    padding: 80px 20px;
+    padding: 40px 20px; /* Padding réduit car les boutons sont partis */
 }
 
 .hero h1 {
@@ -43,26 +59,26 @@ body {
     margin: 0 auto 30px auto;
 }
 
-.hero-buttons .btn {
+/* --- STYLES DES BOUTONS (MODIFIÉS) --- */
+.btn {
     text-decoration: none;
     color: var(--text-color);
-    padding: 15px 30px;
-    border-radius: 8px;
+    padding: 12px 24px;
     font-weight: 600;
     margin: 0 10px;
-    transition: transform 0.2s;
+    transition: transform 0.2s, background-color 0.2s;
+    border-radius: 50px; /* Ajout pour les coins arrondis */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Espace entre l'icône et le texte */
 }
 
-.hero-buttons .btn:hover {
+.btn:hover {
     transform: translateY(-3px);
 }
 
 .btn.btn-primary {
     background-color: var(--primary-color);
-}
-
-.btn.btn-secondary {
-    background-color: var(--secondary-color);
 }
 
 
@@ -141,16 +157,14 @@ body {
 
 /* --- Adaptation pour mobile --- */
 @media (max-width: 768px) {
+    .nav-brand {
+        font-size: 1.4em;
+    }
     .hero h1 {
         font-size: 2.5em;
     }
     .stats {
         flex-direction: column;
         gap: 30px;
-    }
-    .hero-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
     }
 }

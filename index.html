@@ -28,7 +28,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             window.addEventListener('popstate', handleUrlChange);
             handleTokenRedirect();
-            // ... (logique de démarrage avec vérification de la maintenance)
             try {
                 const statusRes = await fetch(`${API_URL}/api/status`);
                 const statusData = await statusRes.json();
@@ -115,8 +114,53 @@
             updateUserSection();
             setupScrollAnimations();
         }
+        
+        async function renderGiftsPage() {
+            document.title = 'StrexBot - Cadeaux';
+            const container = document.getElementById('app-container');
+            const userData = await apiFetch('/api/user_data');
+            
+            if (!userData) {
+                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                return;
+            }
 
-        // --- NOUVELLE PAGE "MON COMPTE" ---
+            container.innerHTML = `
+                <div class="container">
+                     <nav>
+                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                        <div id="user-section"><!-- Placeholder --></div>
+                    </nav>
+                    <main>
+                        <div class="gifts-card">
+                            <div class="gifts-header">
+                                <h2><i class="fas fa-gift"></i> Cadeaux</h2>
+                                <button class="btn-secondary" onclick="showMyCodes()">
+                                    <i class="fas fa-list"></i> Mes codes <span id="my-codes-count" class="badge">...</span>
+                                </button>
+                            </div>
+                            <p>Créez un code cadeau à partager avec vos amis ! Les codes expirent après 24h et vous sont remboursés.</p>
+                            <p><strong>Votre solde :</strong> <span id="user-balance">${userData.coins.toLocaleString()}</span> pièces</p>
+                            <div class="gifts-actions">
+                                <input type="number" id="gift-amount" class="admin-input" placeholder="Montant à offrir...">
+                                <button class="btn btn-primary" onclick="createGift()">+ Créer</button>
+                            </div>
+                        </div>
+
+                        <div class="gifts-card" style="margin-top: 20px;">
+                            <h3>Utiliser un code</h3>
+                            <p>Un ami vous a donné un code ? Utilisez-le ici pour recevoir vos pièces !</p>
+                            <div class="gifts-actions">
+                                <input type="text" id="redeem-code-input" class="admin-input" placeholder="Entrez un code ST-...">
+                                <button class="btn btn-primary" onclick="redeemGiftCode()">Utiliser</button>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `;
+            updateUserSection();
+        }
+
         async function renderAccountPage() {
             document.title = 'StrexBot - Mon Compte';
             const container = document.getElementById('app-container');
@@ -136,9 +180,6 @@
             updateUserSection();
         }
         
-        // ... (renderGiftsPage reste le même)
-        
-        // --- Panneau d'Administration (Corrigé et Complété) ---
         async function renderAdminPage() {
             document.title = 'StrexBot - Administration';
             const container = document.getElementById('app-container');
@@ -167,7 +208,6 @@
             }
         }
         
-        // LOGIQUE COMPLÈTE DU PANNEAU ADMIN
         function loadAdminPage(page) {
             const contentArea = document.getElementById('admin-main-content');
             if (!contentArea) return;
@@ -206,13 +246,167 @@
             });
         }
         
-        // ... (toutes les autres fonctions de l'admin restent les mêmes : handleUserSearch, updateUser, etc.)
+        async function handleUserSearch(event) {
+            const query = event.target.value;
+            const resultsContainer = document.getElementById('user-search-results');
+            if (query.length < 3) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            const users = await apiFetch(`/api/admin/search_users?q=${query}`);
+            if (users) {
+                resultsContainer.innerHTML = users.map(user => `
+                    <div class="user-card" id="user-card-${user.user_id}">
+                        <div class="user-card-info">
+                            <img src="${user.avatar_url}" class="user-card-avatar">
+                            <div class="user-card-details">
+                                <strong>${user.username}</strong>
+                                <small>ID: ${user.user_id}</small>
+                                <span id="coins-${user.user_id}">Coins: ${user.coins}</span>
+                            </div>
+                        </div>
+                        <div class="user-card-actions">
+                             <input type="number" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>
+                             <button class="admin-btn ban-btn" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
         
-        // --- MENU DÉROULANT DU PROFIL (Corrigé) ---
+        async function updateUser(userId, action) {
+            const input = document.getElementById(`coins-input-${userId}`);
+            const value = (action.includes('coins')) ? input.value : null;
+            if (action.includes('coins') && (!value || parseInt(value) < 0)) {
+                showToast("Veuillez entrer un montant valide.", "error");
+                return;
+            }
+            const result = await apiFetch(`/api/admin/update_user/${userId}`, {
+                method: 'POST',
+                body: JSON.stringify({ action, value })
+            });
+            if (result) {
+                showToast("Utilisateur mis à jour !", "success");
+                document.getElementById(`coins-${userId}`).innerText = `Coins: ${result.coins}`;
+                if (action === 'ban' || action === 'unban') {
+                    handleUserSearch({ target: document.getElementById('user-search-input') });
+                }
+            }
+        }
+        
+        async function loadMaintenanceStatus() {
+            const checkbox = document.getElementById('maintenance-checkbox');
+            const saveBtn = document.getElementById('save-maintenance-btn');
+            const data = await apiFetch('/api/admin/maintenance');
+            if (data) checkbox.checked = data.maintenance_enabled;
+            saveBtn.addEventListener('click', async () => {
+                const enabled = checkbox.checked;
+                await apiFetch('/api/admin/maintenance', {
+                    method: 'POST', body: JSON.stringify({ enabled })
+                });
+                showToast('Statut de maintenance mis à jour !', 'success');
+            });
+        }
+        
+        async function handleGenerateCode() {
+            const amountInput = document.getElementById('coin-amount-input');
+            const resultDiv = document.getElementById('code-result');
+            const amount = parseInt(amountInput.value, 10);
+            if (!amount || amount <= 0) {
+                showToast('Veuillez entrer un montant valide.', 'error');
+                return;
+            }
+            const data = await apiFetch('/api/admin/generate_code', {
+                method: 'POST', body: JSON.stringify({ amount })
+            });
+            if (data) {
+                resultDiv.innerHTML = `<strong>Code:</strong> ${data.code}<br><strong>Lien:</strong> <input type="text" class="admin-input" readonly value="${data.link}">`;
+                resultDiv.style.display = 'block';
+                showToast('Code généré avec succès !', 'success');
+            }
+        }
+        
+        async function createGift() {
+            const amountInput = document.getElementById('gift-amount');
+            const amount = parseInt(amountInput.value);
+            if (!amount || amount <= 0) {
+                showToast("Veuillez entrer un montant valide.", "error");
+                return;
+            }
+            const result = await apiFetch('/api/gifts/create', { method: 'POST', body: JSON.stringify({ amount }) });
+            if (result && result.success) {
+                showToast(result.message, 'success');
+                amountInput.value = '';
+                const userData = await apiFetch('/api/user_data');
+                if (userData) document.getElementById('user-balance').innerText = userData.coins.toLocaleString();
+                updateUserSection();
+            }
+        }
+
+        async function showMyCodes() {
+            const codes = await apiFetch('/api/gifts/my_codes');
+            const listContainer = document.getElementById('my-codes-list');
+            const modal = document.getElementById('my-codes-modal');
+            const countBadge = document.getElementById('my-codes-count');
+            if (codes) {
+                if(countBadge) countBadge.innerText = codes.length;
+                if (codes.length > 0) {
+                    listContainer.innerHTML = codes.map(code => {
+                        const expires = new Date(code.expires_at + 'Z');
+                        return `
+                        <div class="my-code-item">
+                            <div class="my-code-details">
+                                <span class="code-text">${code.code}</span>
+                                <span><i class="fas fa-coins"></i> ${code.amount} pièces</span>
+                                <small>Expire le: ${expires.toLocaleString()}</small>
+                            </div>
+                            <button class="btn-delete" onclick="deleteGift('${code.code}')"><i class="fas fa-trash"></i> Supprimer & Rembourser</button>
+                        </div>`
+                    }).join('');
+                } else {
+                    listContainer.innerHTML = '<p>Vous n\'avez aucun code cadeau actif.</p>';
+                }
+                if(modal) modal.style.display = 'flex';
+            }
+        }
+        
+        async function redeemGiftCode() {
+            const codeInput = document.getElementById('redeem-code-input');
+            const code = codeInput.value.trim();
+            if (!code) {
+                showToast("Veuillez entrer un code.", "error");
+                return;
+            }
+            const result = await apiFetch('/api/gifts/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+            if (result && result.success) {
+                showToast(result.message, 'success');
+                codeInput.value = '';
+                const userData = await apiFetch('/api/user_data');
+                if (userData) document.getElementById('user-balance').innerText = userData.coins.toLocaleString();
+                updateUserSection();
+            }
+        }
+        
+        async function deleteGift(code) {
+             const result = await apiFetch('/api/gifts/delete', { method: 'POST', body: JSON.stringify({ code }) });
+             if (result && result.success) {
+                showToast(result.message, 'success');
+                showMyCodes();
+                updateUserSection();
+             }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.style.display = 'none';
+        }
+        
         async function updateUserSection() {
             const userSection = document.getElementById('user-section');
             if (!userSection) return;
-            
             const token = localStorage.getItem('jwt_token');
             if (!token) {
                  const redirectUri = encodeURIComponent(`${API_URL}/callback`);
@@ -248,21 +442,38 @@
             }
         }
 
-        // --- Le reste des fonctions utilitaires ---
-        // (apiFetch, logout, showToast, etc. restent les mêmes)
-        // Je remets le code complet pour être sûr que tout y est.
-        async function apiFetch(endpoint, options = {}) { const token = localStorage.getItem('jwt_token'); const defaultOptions = { headers: { 'Content-Type': 'application/json' } }; if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`; const mergedOptions = { ...defaultOptions, ...options }; try { const response = await fetch(`${API_URL}${endpoint}`, mergedOptions); const responseData = await response.json(); if (!response.ok) throw responseData; return responseData; } catch (error) { console.error(`Erreur API:`, error); showToast(error.error || 'Une erreur est survenue.', 'error'); throw error; } }
+        async function apiFetch(endpoint, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+            const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
+            if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+            const mergedOptions = { ...defaultOptions, ...options };
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
+                const responseData = await response.json();
+                if (!response.ok) throw responseData;
+                return responseData;
+            } catch (error) {
+                console.error(`Erreur API:`, error);
+                showToast(error.error || 'Une erreur est survenue.', 'error');
+                throw error;
+            }
+        }
         function logout() { localStorage.removeItem('jwt_token'); navigate('/'); }
-        function showToast(message, type = 'success') { const container = document.getElementById('toast-container'); if (!container) return; const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerText = message; container.appendChild(toast); setTimeout(() => { toast.style.animation = 'fadeOut 0.5s forwards'; setTimeout(() => toast.remove(), 500); }, 3000); }
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
         function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
-        function closeModal(modalId) { const modal = document.getElementById(modalId); if(modal) modal.style.display = 'none'; }
         function setupScrollAnimations() { const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 }); document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el)); }
         window.onclick = e => { if (!e.target.closest('.user-profile')) { document.querySelector('.dropdown-menu.show')?.classList.remove('show'); } };
-        // Le reste des fonctions pour l'admin (handleUserSearch, etc.) sont ici
-        async function handleUserSearch(event) { /* ... */ }
-        async function updateUser(userId, action) { /* ... */ }
-        async function loadMaintenanceStatus() { /* ... */ }
-        async function handleGenerateCode() { /* ... */ }
     </script>
 </body>
 </html>

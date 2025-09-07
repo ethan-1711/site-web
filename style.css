@@ -134,32 +134,134 @@ nav {
 /* --- Pied de page --- */
 .footer { text-align: center; padding: 40px 0; margin-top: 40px; border-top: 1px solid var(--secondary-color); color: var(--text-muted-color); }
 
-/* --- Panneau d'Administration --- */
-.error-page, .access-denied { color: #ff4d4d; text-align: center; margin-top: 100px; font-size: 2.5em; }
-.error-page a { color: var(--primary-color); text-decoration: none; display: block; margin-top: 20px; font-size: 0.7em; }
-.admin-layout { display: flex; min-height: 100vh; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--background-color); }
-.admin-sidebar { width: 250px; background-color: var(--card-color); padding: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--secondary-color); }
-.admin-sidebar-header { font-size: 1.5em; font-weight: 700; margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
-.admin-nav { display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
-.admin-nav-link { text-decoration: none; color: var(--text-muted-color); padding: 12px 15px; border-radius: 8px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
-.admin-nav-link:hover { background-color: var(--secondary-color); color: var(--text-color); }
-.admin-nav-link.active { background-color: var(--primary-color); color: var(--text-color); }
-.admin-back-home { text-decoration: none; background-color: var(--secondary-color); color: var(--text-color); padding: 12px 15px; border-radius: 8px; text-align: center; font-weight: 600; transition: background-color 0.2s; }
-.admin-back-home:hover { background-color: #444; }
-.admin-main { flex-grow: 1; padding: 40px; overflow-y: auto; }
-.admin-main h2 { font-size: 2em; margin-top: 0; margin-bottom: 30px; border-bottom: 1px solid var(--secondary-color); padding-bottom: 15px; }
+/* Correction pour rendre le bouclier parfaitement rond */
+.admin-shield {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; /* Donne une largeur et hauteur fixes */
+    height: 40px;
+    padding: 0; /* On enlève le padding pour que le cercle soit parfait */
+    border-radius: 50%; /* La magie est ici ! */
+}
+
+/* --- Styles pour le Panneau d'Administration --- */
+.error-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 2em;
+    color: #ff4d4d;
+}
+.error-page a {
+    font-size: 0.5em;
+    margin-top: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.admin-layout {
+    display: flex;
+    height: 100vh; /* Prend toute la hauteur de l'écran */
+}
+
+.admin-sidebar {
+    width: 250px;
+    background-color: var(--card-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--secondary-color);
+}
+
+.admin-sidebar-header {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1; /* Pousse le bouton "Accueil" en bas */
+}
+
+.admin-nav-link {
+    text-decoration: none;
+    color: var(--text-muted-color);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+}
+.admin-nav-link:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+.admin-nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+.admin-back-home {
+    text-decoration: none;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    padding: 12px 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.admin-back-home:hover {
+    background-color: #444;
+}
+
+.admin-main {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+.admin-main h2 {
+    font-size: 2em;
+    margin-top: 0;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--secondary-color);
+    padding-bottom: 15px;
+}
 
 /* Styles pour les pages admin spécifiques */
 .admin-input { width: 100%; box-sizing: border-box; background-color: var(--secondary-color); border: 1px solid #444; color: var(--text-color); padding: 12px; border-radius: 8px; font-size: 1em; margin-bottom: 20px; }
-.admin-btn-primary { background-color: var(--primary-color); color: var(--text-color); border: none; padding: 12px 20px; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-.admin-btn-primary:hover { opacity: 0.9; }
-.maintenance-card, .coins-card { background-color: var(--card-color); padding: 30px; border-radius: 10px; max-width: 400px; }
-.maintenance-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1.1em; }
-.code-result { margin-top: 20px; background-color: var(--secondary-color); padding: 15px; border-radius: 8px; word-break: break-all; }
+.admin-btn { background-color: var(--primary-color); color: var(--text-color); border: none; padding: 10px 18px; border-radius: 8px; font-size: 0.9em; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-left: 10px; }
+.admin-btn:hover { opacity: 0.9; }
 
-/* --- Adaptation pour mobile --- */
-@media (max-width: 768px) {
-    .hero h1 { font-size: 2.5em; }
-    .stats { flex-direction: column; gap: 30px; }
-    .nav-brand { font-size: 1.4em; }
-}
+.maintenance-card { background-color: var(--card-color); padding: 30px; border-radius: 10px; max-width: 500px; border: 1px solid var(--secondary-color); }
+.maintenance-toggle { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 1.1em; }
+.maintenance-toggle label { font-weight: 600; }
+/* Switch CSS */
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--primary-color); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+.search-results-container { margin-top: 20px; }
+.user-card { background-color: var(--secondary-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.user-card-info { display: flex; align-items: center; gap: 15px; }
+.user-card-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.user-card-details strong { display: block; }
+.user-card-details small { color: var(--text-muted-color); }
+.user-card-actions { display: flex; gap: 10px; }

@@ -37,12 +37,12 @@ nav {
     align-items: center;
     font-size: 1.8em;
     font-weight: 700;
+    gap: 15px;
 }
 
 .nav-logo {
     width: 40px;
     height: 40px;
-    margin-right: 15px;
 }
 
 /* --- Boutons --- */
@@ -56,6 +56,8 @@ nav {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    border: none;
+    cursor: pointer;
 }
 
 .btn:hover {
@@ -184,8 +186,6 @@ nav {
 .stat-item h2 { font-size: 2.8em; color: var(--primary-color); margin: 0 0 5px 0; }
 .stat-item p { font-size: 1.1em; color: var(--text-muted-color); margin: 0; }
 .footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--secondary-color); color: var(--text-muted-color); }
-.footer-links a { color: var(--text-muted-color); text-decoration: none; margin: 0 10px; transition: color 0.2s; }
-.footer-links a:hover { color: var(--primary-color); }
 
 @media (max-width: 768px) {
     .hero h1 { font-size: 2.5em; }

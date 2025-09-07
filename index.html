@@ -13,7 +13,7 @@
         <nav>
             <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
             <div id="user-section">
-                <!-- Ce lien est un placeholder, il est mis à jour par le JS -->
+                <!-- Ce lien est un placeholder, il est rempli dynamiquement par le JavaScript -->
                 <a href="#" id="login-link" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>
             </div>
         </nav>
@@ -22,7 +22,6 @@
             <p>Avec StrexBot, obtenez des membres actifs et réels facilement et gratuitement.</p>
         </header>
         <main>
-            <!-- Sections features et stats ici -->
             <section class="features">
                 <div class="feature-item"><i class="fas fa-rocket"></i><h3>Rapide et Efficace</h3><p>Recevez de nouveaux membres en quelques minutes.</p></div>
                 <div class="feature-item"><i class="fas fa-shield-alt"></i><h3>Sûr et Sécurisé</h3><p>Notre système est conçu pour être sûr pour votre serveur.</p></div>
@@ -39,39 +38,54 @@
 
     <!-- ===== JAVASCRIPT FINAL AVEC GESTION JWT ===== -->
     <script>
-        const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-        // Remplace l'URL ci-dessous par tes vraies URLs de Render
-        const API_URL = isLocal ? 'http://127.0.0.1:5000' : 'https://api-s5et.onrender.com';
+        // --- Configuration ---
+        const API_URL = 'https://api-s5et.onrender.com';
         const DISCORD_CLIENT_ID = '1379440380860174506';
 
+        // --- Logique principale au chargement de la page ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Configure le lien de connexion dynamique
             const loginLink = document.getElementById('login-link');
-            const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-            loginLink.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
+            if (loginLink) {
+                const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                loginLink.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
+            }
             
+            // Récupère le token de l'URL (si présent après une redirection)
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
+
             if (token) {
+                // Sauvegarde le token dans la mémoire du navigateur et nettoie l'URL
                 localStorage.setItem('jwt_token', token);
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
+
+            // Tente de récupérer les données de l'utilisateur (s'il y a un token sauvegardé)
             fetchUserData();
         });
 
+        // --- Fonctions de l'application ---
+
         async function fetchUserData() {
             const token = localStorage.getItem('jwt_token');
-            if (!token) { return; }
+            if (!token) { return; } // Arrête si pas de token
+
             try {
                 const response = await fetch(`${API_URL}/api/user_data`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+
                 if (response.ok) {
                     const userData = await response.json();
                     displayUserProfile(userData);
                 } else {
+                    // Si le token est invalide ou expiré, on le supprime pour éviter les erreurs futures
                     localStorage.removeItem('jwt_token');
                 }
-            } catch (error) { console.error("Erreur:", error); }
+            } catch (error) { 
+                console.error("Erreur de communication avec l'API:", error);
+            }
         }
 
         function displayUserProfile(userData) {
@@ -101,9 +115,26 @@
                 </div>`;
             }
         }
-        function logout() { localStorage.removeItem('jwt_token'); window.location.reload(); }
-        function toggleDropdown() { document.getElementById('dropdown-menu').classList.toggle('show'); }
-        window.onclick = function(event) { if (!event.target.closest('.user-profile')) { let d = document.querySelector('.dropdown-menu.show'); if(d) d.classList.remove('show'); } }
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            window.location.reload(); // Recharge la page pour afficher le bouton "Se connecter"
+        }
+
+        function toggleDropdown() {
+            const menu = document.getElementById('dropdown-menu');
+            if (menu) menu.classList.toggle('show');
+        }
+
+        // Ferme le menu si l'on clique en dehors
+        window.onclick = function(event) {
+            if (!event.target.closest('.user-profile')) {
+                const openDropdown = document.querySelector('.dropdown-menu.show');
+                if (openDropdown) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
     </script>
 </body>
 </html>

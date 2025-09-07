@@ -13,7 +13,7 @@
         <nav>
             <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
             <div id="user-section">
-                <!-- Ce lien est un placeholder, il est rempli dynamiquement par le JavaScript -->
+                <!-- Ce lien est un placeholder, il sera remplacé par le JavaScript -->
                 <a href="#" id="login-link" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>
             </div>
         </nav>
@@ -22,12 +22,14 @@
             <p>Avec StrexBot, obtenez des membres actifs et réels facilement et gratuitement.</p>
         </header>
         <main>
-            <section class="features">
+            <!-- Ajout de la classe pour l'animation -->
+            <section class="features fade-in-section">
                 <div class="feature-item"><i class="fas fa-rocket"></i><h3>Rapide et Efficace</h3><p>Recevez de nouveaux membres en quelques minutes.</p></div>
                 <div class="feature-item"><i class="fas fa-shield-alt"></i><h3>Sûr et Sécurisé</h3><p>Notre système est conçu pour être sûr pour votre serveur.</p></div>
                 <div class="feature-item"><i class="fas fa-users"></i><h3>Membres Actifs</h3><p>Nous nous concentrons sur la qualité pour votre communauté.</p></div>
             </section>
-            <section class="stats">
+            <!-- Ajout de la classe pour l'animation -->
+            <section class="stats fade-in-section">
                 <div class="stat-item"><h2>+15,000</h2><p>Serveurs</p></div>
                 <div class="stat-item"><h2>+2,000,000</h2><p>Utilisateurs</p></div>
                 <div class="stat-item"><h2>+500,000</h2><p>Membres Délivrés</p></div>
@@ -36,63 +38,61 @@
         <footer class="footer"><p>&copy; 2025 StrexBot. Tous droits réservés.</p></footer>
     </div>
 
-    <!-- ===== JAVASCRIPT FINAL AVEC GESTION JWT ===== -->
+    <!-- ===== JAVASCRIPT FINAL AVEC ANIMATIONS ET GESTION ADMIN ===== -->
     <script>
         // --- Configuration ---
         const API_URL = 'https://api-s5et.onrender.com';
         const DISCORD_CLIENT_ID = '1379440380860174506';
 
-        // --- Logique principale au chargement de la page ---
+        // --- Logique principale ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Configure le lien de connexion dynamique
             const loginLink = document.getElementById('login-link');
             if (loginLink) {
+                // On demande une permission en plus pour lire les infos du membre
                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-                loginLink.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
+                const scope = encodeURIComponent('identify guilds.members.read');
+                loginLink.href = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}`;
             }
             
-            // Récupère le token de l'URL (si présent après une redirection)
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
-
             if (token) {
-                // Sauvegarde le token dans la mémoire du navigateur et nettoie l'URL
                 localStorage.setItem('jwt_token', token);
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
-            // Tente de récupérer les données de l'utilisateur (s'il y a un token sauvegardé)
             fetchUserData();
+            setupScrollAnimations(); // On lance le script des animations
         });
 
-        // --- Fonctions de l'application ---
-
+        // --- Fonctions ---
         async function fetchUserData() {
             const token = localStorage.getItem('jwt_token');
-            if (!token) { return; } // Arrête si pas de token
+            if (!token) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/user_data`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
+                const response = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (response.ok) {
                     const userData = await response.json();
                     displayUserProfile(userData);
                 } else {
-                    // Si le token est invalide ou expiré, on le supprime pour éviter les erreurs futures
                     localStorage.removeItem('jwt_token');
                 }
-            } catch (error) { 
-                console.error("Erreur de communication avec l'API:", error);
-            }
+            } catch (error) { console.error("Erreur de communication:", error); }
         }
 
         function displayUserProfile(userData) {
             const userSection = document.getElementById('user-section');
-            if (userSection) {
-                userSection.innerHTML = `
+            if (!userSection) return;
+
+            // On construit le HTML du bouclier uniquement si l'utilisateur est admin
+            const adminShieldHtml = userData.is_admin 
+                ? `<a href="#" class="admin-shield" title="Panneau Admin"><i class="fas fa-shield-alt"></i></a>` 
+                : '';
+
+            userSection.innerHTML = `
                 <div class="user-profile">
+                    ${adminShieldHtml}
                     <div class="user-balance">
                         <img src="S.png" class="coin-icon" alt="Pièce">
                         <span>${userData.coins.toLocaleString()}</span>
@@ -113,26 +113,40 @@
                         <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                     </div>
                 </div>`;
-            }
         }
 
         function logout() {
             localStorage.removeItem('jwt_token');
-            window.location.reload(); // Recharge la page pour afficher le bouton "Se connecter"
+            window.location.reload();
         }
 
         function toggleDropdown() {
             const menu = document.getElementById('dropdown-menu');
             if (menu) menu.classList.toggle('show');
         }
+        
+        // Logique pour les animations au défilement
+        function setupScrollAnimations() {
+            const sections = document.querySelectorAll('.fade-in-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
 
-        // Ferme le menu si l'on clique en dehors
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+        
         window.onclick = function(event) {
             if (!event.target.closest('.user-profile')) {
                 const openDropdown = document.querySelector('.dropdown-menu.show');
-                if (openDropdown) {
-                    openDropdown.classList.remove('show');
-                }
+                if (openDropdown) openDropdown.classList.remove('show');
             }
         }
     </script>

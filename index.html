@@ -9,8 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
+    <!-- Le container principal sera rempli dynamiquement par le JavaScript -->
     <div id="app-container"></div>
+    <!-- Container pour les notifications "toast" -->
+    <div id="toast-container"></div>
 
+    <!-- ===== JAVASCRIPT FINAL AVEC ROUTAGE ET PANNEAU ADMIN ===== -->
     <script>
         // --- Configuration ---
         const API_URL = 'https://api-s5et.onrender.com';
@@ -19,8 +23,8 @@
         // --- Logique de "Routage" ---
         document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('popstate', handleUrlChange);
-            handleUrlChange();
             handleTokenRedirect();
+            handleUrlChange();
         });
 
         function handleTokenRedirect() {
@@ -31,9 +35,13 @@
             if (token) {
                 localStorage.setItem('jwt_token', token);
                 window.history.replaceState({}, document.title, window.location.pathname);
-                handleUrlChange();
             } else if (error) {
-                renderErrorPage(error);
+                let message = "Une erreur est survenue.";
+                if (error === 'maintenance') message = "Le site est actuellement en maintenance.";
+                if (error === 'banned') message = "Votre accès à ce service a été suspendu.";
+                if (error === 'auth_failed') message = "L'authentification avec Discord a échoué.";
+                const container = document.getElementById('app-container');
+                container.innerHTML = `<div class="error-page"><h1>${message}</h1><a href="/">Retour à l'accueil</a></div>`;
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -42,10 +50,10 @@
             const path = window.location.pathname;
             if (path.startsWith('/admin')) {
                 renderAdminPage();
-            } else if (path.startsWith('/redeem/')) {
-                const code = path.split('/redeem/')[1];
-                renderRedeemPage(code);
-            } else {
+            } else if (path.startsWith('/redeem')) {
+                renderRedeemPage();
+            }
+            else {
                 renderHomePage();
             }
         }
@@ -57,15 +65,6 @@
 
         // --- Fonctions de Rendu des Pages ---
 
-        function renderErrorPage(errorType) {
-            const container = document.getElementById('app-container');
-            let message = "Une erreur est survenue.";
-            if (errorType === 'maintenance') message = "Le site est actuellement en maintenance.";
-            if (errorType === 'banned') message = "Votre accès à ce service a été suspendu.";
-            if (errorType === 'auth_failed') message = "L'authentification avec Discord a échoué.";
-            container.innerHTML = `<div class="error-page"><h1>${message}</h1><a href="/">Retour à l'accueil</a></div>`;
-        }
-
         async function renderHomePage() {
             document.title = 'StrexBot - Accueil';
             const container = document.getElementById('app-container');
@@ -73,7 +72,7 @@
                 <div class="container">
                     <nav>
                         <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"></div>
+                        <div id="user-section"><!-- Placeholder --></div>
                     </nav>
                     <header class="hero">
                         <h1 class="gradient-text">Le meilleur moyen de développer votre serveur</h1>
@@ -103,22 +102,25 @@
             const container = document.getElementById('app-container');
             const token = localStorage.getItem('jwt_token');
 
-            if (!token) { renderErrorPage('auth_required'); return; }
+            if (!token) {
+                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Vous devez être connecté.</p><a href="/">Retour</a></div>`;
+                return;
+            }
 
             try {
                 const userData = await apiFetch('/api/user_data');
                 if (!userData || !userData.is_admin) throw new Error('Non admin');
-                
+
                 container.innerHTML = `
                     <div class="admin-layout">
                         <aside class="admin-sidebar">
-                            <div class="admin-sidebar-header"><img src="/S.png" alt="Logo" class="nav-logo"><span>StrexBot Admin</span></div>
+                            <div class="admin-sidebar-header"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot Admin</div>
                             <nav class="admin-nav">
-                                <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i><span>Utilisateurs</span></a>
-                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i><span>Maintenance</span></a>
-                                <a href="#" class="admin-nav-link" data-page="coins"><i class="fas fa-coins"></i><span>Coins</span></a>
+                                <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
+                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Maintenance</span></a>
+                                <a href="#" class="admin-nav-link" data-page="coins"><i class="fas fa-coins"></i> <span>Coins</span></a>
                             </nav>
-                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i><span>Retour</span></a>
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i> <span>Retour à l'accueil</span></a>
                         </aside>
                         <main id="admin-main-content" class="admin-main"></main>
                     </div>
@@ -126,58 +128,71 @@
                 loadAdminPage('users');
                 setupAdminNav();
             } catch (e) {
-                renderErrorPage('admin_required');
+                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Permissions insuffisantes.</p><a href="/">Retour</a></div>`;
             }
         }
         
-        async function renderRedeemPage(code) {
-             document.title = 'StrexBot - Utiliser un code';
-             const container = document.getElementById('app-container');
-             const token = localStorage.getItem('jwt_token');
-
-             if (!token) {
-                container.innerHTML = `<div class="container"><div class="redeem-card"><h1>Connectez-vous d'abord</h1><p>Vous devez être connecté pour utiliser un code.</p><a href="/" class="admin-btn">Retour à l'accueil</a></div></div>`;
-                return;
-             }
-             
-             container.innerHTML = `<div class="container"><div id="redeem-card" class="redeem-card">Chargement...</div></div>`;
-             const redeemCard = document.getElementById('redeem-card');
-
-             try {
-                const codeInfo = await apiFetch(`/api/redeem/${code}`);
-                redeemCard.innerHTML = `
-                    <h2>Réclamer un Code</h2>
-                    <p>Vous êtes sur le point de réclamer un code pour <strong>${codeInfo.amount}</strong> pièces.</p>
-                    <button id="claim-code-btn" class="admin-btn">Réclamer les pièces</button>
+        async function renderRedeemPage() {
+            document.title = 'StrexBot - Utiliser un code';
+            const container = document.getElementById('app-container');
+            const code = window.location.pathname.split('/')[2];
+            
+            container.innerHTML = `
+                <div class="redeem-card">
+                    <h2>Utiliser un Code Cadeau</h2>
+                    <p>Vous êtes sur le point d'utiliser le code : <strong>${code}</strong></p>
+                    <button id="redeem-btn" class="btn btn-primary">Réclamer les pièces</button>
                     <div id="redeem-message"></div>
-                `;
-                document.getElementById('claim-code-btn').addEventListener('click', async () => {
-                    try {
-                        const result = await apiFetch(`/api/redeem/${code}`, { method: 'POST' });
-                        document.getElementById('redeem-message').innerHTML = `<p class="success">${result.message} Votre nouveau solde est de ${result.new_balance} pièces.</p>`;
-                        document.getElementById('claim-code-btn').disabled = true;
-                    } catch (error) {
-                        document.getElementById('redeem-message').innerHTML = `<p class="error">${error.message}</p>`;
-                    }
-                });
-             } catch (error) {
-                redeemCard.innerHTML = `<h2>Erreur</h2><p class="error">${error.message}</p><a href="/" class="admin-btn">Retour à l'accueil</a>`;
-             }
-        }
-        
-        // --- Fonctions de l'Admin Panel ---
+                    <a href="/" class="admin-back-home" style="margin-top: 20px; justify-content: center;">Retour à l'accueil</a>
+                </div>
+            `;
 
+            document.getElementById('redeem-btn').addEventListener('click', async () => {
+                const messageDiv = document.getElementById('redeem-message');
+                try {
+                    const result = await apiFetch(`/api/redeem/${code}`, { method: 'POST' });
+                    if (result.success) {
+                        messageDiv.innerHTML = `<p class="success">${result.message}</p>`;
+                        showToast(`Nouveau solde : ${result.new_balance}`, 'success');
+                    } else {
+                         messageDiv.innerHTML = `<p class="error">${result.error}</p>`;
+                    }
+                } catch (apiError) {
+                    messageDiv.innerHTML = `<p class="error">${apiError.error || 'Une erreur est survenue.'}</p>`;
+                }
+            });
+        }
+
+
+        // --- Logique du Panneau d'Administration ---
+        
         function loadAdminPage(page) {
             const contentArea = document.getElementById('admin-main-content');
             if (!contentArea) return;
+            
              if (page === 'users') {
                  contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
                  document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
              } else if (page === 'maintenance') {
-                contentArea.innerHTML = `<h2>Mode Maintenance</h2><div class="maintenance-card"><div class="maintenance-toggle"><label for="maintenance-checkbox">Activer la maintenance</label><label class="switch"><input type="checkbox" id="maintenance-checkbox"><span class="slider"></span></label></div><button id="save-maintenance-btn" class="admin-btn">Enregistrer</button></div>`;
+                contentArea.innerHTML = `<h2>Mode Maintenance</h2>
+                    <div class="maintenance-card">
+                        <div class="maintenance-toggle">
+                            <label for="maintenance-checkbox">Activer la maintenance</label>
+                            <label class="switch">
+                                <input type="checkbox" id="maintenance-checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button id="save-maintenance-btn" class="admin-btn">Enregistrer</button>
+                    </div>`;
                 loadMaintenanceStatus();
              } else if (page === 'coins') {
-                 contentArea.innerHTML = `<h2>Générer un Code de Coins</h2><div class="coins-card"><input type="number" id="coin-amount-input" class="admin-input" placeholder="Montant en pièces..." min="1"><button id="generate-code-btn" class="admin-btn">Générer le code</button><div id="code-result" class="code-result" style="display: none;"></div></div>`;
+                 contentArea.innerHTML = `<h2>Générer un Code de Coins</h2>
+                    <div class="coins-card">
+                         <input type="number" id="coin-amount-input" class="admin-input" placeholder="Montant en pièces..." min="1">
+                         <button id="generate-code-btn" class="admin-btn">Générer le code</button>
+                         <div id="code-result" class="code-result" style="display: none;"></div>
+                    </div>`;
                 document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCode);
              }
         }
@@ -186,76 +201,81 @@
             document.querySelectorAll('.admin-nav-link').forEach(link => {
                 link.addEventListener('click', e => {
                     e.preventDefault();
-                    document.querySelector('.admin-nav-link.active')?.classList.remove('active');
+                    document.querySelector('.admin-nav-link.active').classList.remove('active');
                     e.currentTarget.classList.add('active');
                     loadAdminPage(e.currentTarget.dataset.page);
                 });
             });
         }
         
-        let searchTimeout;
-        function handleUserSearch(event) {
-            clearTimeout(searchTimeout);
+        async function handleUserSearch(event) {
             const query = event.target.value;
             const resultsContainer = document.getElementById('user-search-results');
-            if (query.length < 2) { resultsContainer.innerHTML = ''; return; }
-            searchTimeout = setTimeout(async () => {
-                const users = await apiFetch(`/api/admin/search_users?q=${query}`);
-                if (users) {
-                    resultsContainer.innerHTML = users.map(user => `
-                        <div class="user-card">
+            if (query.length < 3) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            const users = await apiFetch(`/api/admin/search_users?q=${query}`);
+            if (users) {
+                resultsContainer.innerHTML = users.map(user => `
+                    <div class="user-card" id="user-card-${user.user_id}">
+                        <div class="user-card-info">
                             <img src="${user.avatar_url}" class="user-card-avatar">
                             <div class="user-card-details">
                                 <strong>${user.username}</strong>
                                 <small>ID: ${user.user_id}</small>
-                                <span class="user-card-coins" id="coins-${user.user_id}">${user.coins} pièces</span>
-                            </div>
-                            <div class="user-card-actions">
-                                <input type="number" class="admin-input small-input" placeholder="Montant" id="value-${user.user_id}">
-                                <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'add')">+</button>
-                                <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'remove')">-</button>
-                                <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set')">Définir</button>
-                                <button class="admin-btn ban-btn" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                                <span id="coins-${user.user_id}">Coins: ${user.coins}</span>
                             </div>
                         </div>
-                    `).join('');
-                }
-            }, 300);
+                        <div class="user-card-actions">
+                             <input type="number" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>
+                             <button class="admin-btn ban-btn" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
-
+        
         async function updateUser(userId, action) {
-            const valueInput = document.getElementById(`value-${userId}`);
-            const value = (action === 'ban' || action === 'unban') ? null : valueInput.value;
+            const input = document.getElementById(`coins-input-${userId}`);
+            const value = (action.includes('coins')) ? input.value : null;
 
-            if (!value && value !== 0 && (action !== 'ban' && action !== 'unban')) {
-                alert('Veuillez entrer un montant.');
+            if (action.includes('coins') && (!value || parseInt(value) < 0)) {
+                showToast("Veuillez entrer un montant valide.", "error");
                 return;
             }
 
-            try {
-                const updatedUser = await apiFetch(`/api/admin/update_user/${userId}`, {
-                    method: 'POST', body: JSON.stringify({ action, value })
-                });
-                if(updatedUser && updatedUser.coins !== undefined) {
-                    document.getElementById(`coins-${userId}`).innerText = `${updatedUser.coins} pièces`;
+            const result = await apiFetch(`/api/admin/update_user/${userId}`, {
+                method: 'POST',
+                body: JSON.stringify({ action, value })
+            });
+
+            if (result) {
+                showToast("Utilisateur mis à jour avec succès !", "success");
+                document.getElementById(`coins-${userId}`).innerText = `Coins: ${result.coins}`;
+                // Mettre à jour le bouton ban/unban si nécessaire
+                if (action === 'ban' || action === 'unban') {
+                    handleUserSearch({ target: document.getElementById('user-search-input') });
                 }
-                alert(`Action "${action}" effectuée pour l'utilisateur ${userId} !`);
-                if (valueInput) valueInput.value = '';
-            } catch(e) { /* L'erreur est déjà gérée par apiFetch */ }
+            }
         }
         
         async function loadMaintenanceStatus() {
             const checkbox = document.getElementById('maintenance-checkbox');
             const saveBtn = document.getElementById('save-maintenance-btn');
-            const response = await apiFetch('/api/admin/maintenance');
-            if (response) checkbox.checked = response.maintenance_enabled;
-            
+            const data = await apiFetch('/api/admin/maintenance');
+            if (data) {
+                checkbox.checked = data.maintenance_enabled;
+            }
             saveBtn.addEventListener('click', async () => {
                 const enabled = checkbox.checked;
                 await apiFetch('/api/admin/maintenance', {
                     method: 'POST', body: JSON.stringify({ enabled })
                 });
-                alert('Statut de maintenance mis à jour !');
+                showToast('Statut de maintenance mis à jour !', 'success');
             });
         }
         
@@ -263,14 +283,17 @@
             const amountInput = document.getElementById('coin-amount-input');
             const resultDiv = document.getElementById('code-result');
             const amount = parseInt(amountInput.value, 10);
-            if (!amount || amount <= 0) { alert('Veuillez entrer un montant valide.'); return; }
-            
-            const response = await apiFetch('/api/admin/generate_code', {
+            if (!amount || amount <= 0) {
+                showToast('Veuillez entrer un montant valide.', 'error');
+                return;
+            }
+            const data = await apiFetch('/api/admin/generate_code', {
                 method: 'POST', body: JSON.stringify({ amount })
             });
-            if (response) {
-                resultDiv.innerHTML = `<strong>Code:</strong> ${response.code}<br><strong>Lien:</strong> <input type="text" class="admin-input" readonly value="${response.link}">`;
+            if (data) {
+                resultDiv.innerHTML = `<strong>Code:</strong> ${data.code}<br><strong>Lien:</strong> <input type="text" class="admin-input" readonly value="${data.link}">`;
                 resultDiv.style.display = 'block';
+                showToast('Code généré avec succès !', 'success');
             }
         }
 
@@ -278,29 +301,40 @@
         
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
+            if (!token && !endpoint.includes('/callback')) { // Pas besoin de token pour le callback
+                 if (options.method === 'POST') showToast("Vous n'êtes pas connecté.", "error");
+                 return null;
+            }
+
             const defaultOptions = {
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             };
-            if(token) { defaultOptions.headers['Authorization'] = `Bearer ${token}`; }
-            
+            if (token) {
+                defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+            }
+
             const mergedOptions = { ...defaultOptions, ...options };
             try {
                 const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
-                const data = await response.json();
-                if (!response.ok) { throw new Error(data.error || 'Erreur inconnue'); }
-                return data;
+                const responseData = await response.json();
+                if (!response.ok) {
+                    throw responseData;
+                }
+                return responseData;
             } catch (error) {
-                console.error(`Erreur API: ${error.message}`);
-                alert(`Erreur: ${error.message}`);
-                throw error;
+                console.error(`Erreur API:`, error);
+                showToast(error.error || 'Une erreur est survenue.', 'error');
+                return null;
             }
         }
-        
+
         async function updateUserSection() {
             const userSection = document.getElementById('user-section');
             if (!userSection) return;
+            
             const token = localStorage.getItem('jwt_token');
-
             if (!token) {
                  const redirectUri = encodeURIComponent(`${API_URL}/callback`);
                  const scope = encodeURIComponent('identify guilds.members.read');
@@ -308,8 +342,8 @@
                  return;
             }
 
-            try {
-                const userData = await apiFetch('/api/user_data');
+            const userData = await apiFetch('/api/user_data');
+            if (userData) {
                 const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-shield-alt"></i></a>` : '';
                 userSection.innerHTML = `
                     <div class="user-profile">
@@ -328,7 +362,21 @@
                             <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                         </div>
                     </div>`;
-            } catch (error) { logout(); }
+            } else {
+                logout();
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         }
 
         function logout() {

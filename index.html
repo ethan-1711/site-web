@@ -403,6 +403,453 @@
             const modal = document.getElementById(modalId);
             if(modal) modal.style.display = 'none';
         }
+        <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StrexBot</title>
+    <link rel="icon" type="image/png" href="S.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div id="app-container"></div>
+    <div id="toast-container"></div>
+    <div id="my-codes-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('my-codes-modal')">&times;</button>
+            <h2>Mes Codes Cadeaux Actifs</h2>
+            <div id="my-codes-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const API_URL = 'https://api-s5et.onrender.com';
+        const DISCORD_CLIENT_ID = '1379440380860174506';
+
+        // --- Démarrage de l'Application ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            window.addEventListener('popstate', handleUrlChange);
+            handleTokenRedirect();
+            try {
+                const statusRes = await fetch(`${API_URL}/api/status`);
+                const statusData = await statusRes.json();
+                if (statusData.maintenance) {
+                    const token = localStorage.getItem('jwt_token');
+                    let isAdmin = false;
+                    if (token) {
+                        const userRes = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (userRes.ok) isAdmin = (await userRes.json()).is_admin;
+                    }
+                    if (isAdmin) handleUrlChange();
+                    else renderMaintenancePage();
+                } else {
+                    handleUrlChange();
+                }
+            } catch (error) {
+                console.error("Erreur au démarrage:", error);
+                handleUrlChange();
+            }
+        });
+
+        function handleTokenRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const error = urlParams.get('error');
+            if (token) {
+                localStorage.setItem('jwt_token', token);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (error) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // --- Routeur JavaScript (Corrigé) ---
+        function handleUrlChange() {
+            const path = window.location.pathname;
+            if (path.startsWith('/admin')) renderAdminPage();
+            else if (path.startsWith('/gifts')) renderGiftsPage();
+            else if (path.startsWith('/account')) renderAccountPage();
+            else renderHomePage();
+        }
+
+        function navigate(path) {
+            window.history.pushState({}, '', path);
+            handleUrlChange();
+        }
+
+        // --- Fonctions de Rendu des Pages ---
+
+        function renderMaintenancePage() {
+            document.title = 'StrexBot - Maintenance';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `<div class="error-page"><h1>Maintenance</h1><p>Le site est actuellement en cours de maintenance. Veuillez réessayer plus tard.</p></div>`;
+        }
+        
+        async function renderHomePage() {
+            document.title = 'StrexBot - Accueil';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                        <div id="user-section"><!-- Placeholder --></div>
+                    </nav>
+                    <header class="hero">
+                        <h1 class="gradient-text">Le meilleur moyen de développer votre serveur</h1>
+                        <p>Avec StrexBot, obtenez des membres actifs et réels facilement et gratuitement.</p>
+                    </header>
+                    <main>
+                         <section class="features fade-in-section">
+                            <div class="feature-item"><i class="fas fa-rocket"></i><h3>Rapide et Efficace</h3><p>Recevez de nouveaux membres en quelques minutes.</p></div>
+                            <div class="feature-item"><i class="fas fa-shield-alt"></i><h3>Sûr et Sécurisé</h3><p>Notre système est conçu pour être sûr pour votre serveur.</p></div>
+                            <div class="feature-item"><i class="fas fa-users"></i><h3>Membres Actifs</h3><p>Nous nous concentrons sur la qualité pour votre communauté.</p></div>
+                         </section>
+                         <section class="stats fade-in-section">
+                            <div class="stat-item"><h2>+15,000</h2><p>Serveurs</p></div>
+                            <div class="stat-item"><h2>+2,000,000</h2><p>Utilisateurs</p></div>
+                            <div class="stat-item"><h2>+500,000</h2><p>Membres Délivrés</p></div>
+                         </section>
+                    </main>
+                    <footer class="footer"><p>&copy; 2025 StrexBot. Tous droits réservés.</p></footer>
+                </div>
+            `;
+            updateUserSection();
+            setupScrollAnimations();
+        }
+        
+        async function renderGiftsPage() {
+            document.title = 'StrexBot - Cadeaux';
+            const container = document.getElementById('app-container');
+            const userData = await apiFetch('/api/user_data');
+            
+            if (!userData) {
+                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="container">
+                     <nav>
+                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                        <div id="user-section"><!-- Placeholder --></div>
+                    </nav>
+                    <main>
+                        <div class="gifts-card">
+                            <div class="gifts-header">
+                                <h2><i class="fas fa-gift"></i> Cadeaux</h2>
+                                <button class="btn-secondary" onclick="showMyCodes()">
+                                    <i class="fas fa-list"></i> Mes codes <span id="my-codes-count" class="badge">...</span>
+                                </button>
+                            </div>
+                            <p>Créez un code cadeau à partager avec vos amis ! Les codes expirent après 24h et vous sont remboursés.</p>
+                            <p><strong>Votre solde :</strong> <span id="user-balance">${userData.coins.toLocaleString()}</span> pièces</p>
+                            <div class="gifts-actions">
+                                <input type="number" id="gift-amount" class="admin-input" placeholder="Montant à offrir...">
+                                <button class="btn btn-primary" onclick="createGift()">+ Créer</button>
+                            </div>
+                        </div>
+
+                        <div class="gifts-card" style="margin-top: 20px;">
+                            <h3>Utiliser un code</h3>
+                            <p>Un ami vous a donné un code ? Utilisez-le ici pour recevoir vos pièces !</p>
+                            <div class="gifts-actions">
+                                <input type="text" id="redeem-code-input" class="admin-input" placeholder="Entrez un code ST-...">
+                                <button class="btn btn-primary" onclick="redeemGiftCode()">Utiliser</button>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `;
+            updateUserSection();
+            loadMyCodes(); // Charger automatiquement le nombre de codes
+        }
+
+        async function renderAccountPage() {
+            document.title = 'StrexBot - Mon Compte';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                 <div class="container">
+                     <nav>
+                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                        <div id="user-section"><!-- Placeholder --></div>
+                    </nav>
+                    <main>
+                        <div class="gifts-card">
+                             <h2><i class="fas fa-user-circle"></i> Mon Compte</h2>
+                             <p>Cette page est en cours de construction. Revenez bientôt !</p>
+                        </div>
+                    </main>
+                </div>`;
+            updateUserSection();
+        }
+        
+        async function renderAdminPage() {
+            document.title = 'StrexBot - Administration';
+            const container = document.getElementById('app-container');
+            try {
+                const userData = await apiFetch('/api/user_data');
+                if (!userData || !userData.is_admin) throw new Error('Non admin');
+
+                container.innerHTML = `
+                    <div class="admin-layout">
+                        <aside class="admin-sidebar">
+                            <div class="admin-sidebar-header"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot Admin</div>
+                            <nav class="admin-nav">
+                                <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
+                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Maintenance</span></a>
+                            </nav>
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i> <span>Retour à l'accueil</span></a>
+                        </aside>
+                        <main id="admin-main-content" class="admin-main"></main>
+                    </div>
+                `;
+                loadAdminPage('users');
+                setupAdminNav();
+            } catch (e) {
+                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Permissions insuffisantes.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour</a></div>`;
+            }
+        }
+        
+        function loadAdminPage(page) {
+            const contentArea = document.getElementById('admin-main-content');
+            if (!contentArea) return;
+             if (page === 'users') {
+                 contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
+                 document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
+             } else if (page === 'maintenance') {
+                contentArea.innerHTML = `<h2>Mode Maintenance</h2>
+                    <div class="maintenance-card">
+                        <div class="maintenance-toggle">
+                            <label for="maintenance-checkbox">Activer la maintenance</label>
+                            <label class="switch"><input type="checkbox" id="maintenance-checkbox"><span class="slider"></span></label>
+                        </div>
+                        <button id="save-maintenance-btn" class="admin-btn">Enregistrer</button>
+                    </div>`;
+                loadMaintenanceStatus();
+             }
+        }
+        
+        function setupAdminNav() {
+            document.querySelectorAll('.admin-nav-link').forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.querySelector('.admin-nav-link.active')?.classList.remove('active');
+                    e.currentTarget.classList.add('active');
+                    loadAdminPage(e.currentTarget.dataset.page);
+                });
+            });
+        }
+        
+        async function handleUserSearch(event) {
+            const query = event.target.value.trim();
+            const resultsContainer = document.getElementById('user-search-results');
+            if (query.length < 3) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            const users = await apiFetch(`/api/admin/search_users?q=${encodeURIComponent(query)}`);
+            if (users && Array.isArray(users)) {
+                resultsContainer.innerHTML = users.map(user => `
+                    <div class="user-card" id="user-card-${user.user_id}">
+                        <div class="user-card-info">
+                            <img src="${user.avatar_url}" class="user-card-avatar">
+                            <div class="user-card-details">
+                                <strong>${user.username}</strong>
+                                <small>ID: ${user.user_id}</small>
+                                <span id="coins-${user.user_id}">Coins: ${user.coins}</span>
+                            </div>
+                        </div>
+                        <div class="user-card-actions">
+                             <input type="number" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
+                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>
+                             <button class="admin-btn ban-btn" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                resultsContainer.innerHTML = '<p>Aucun utilisateur trouvé.</p>';
+            }
+        }
+        
+        async function updateUser(userId, action) {
+            const input = document.getElementById(`coins-input-${userId}`);
+            const value = (action.includes('coins')) ? input.value : null;
+            if (action.includes('coins') && (!value || parseInt(value) < 0)) {
+                showToast("Veuillez entrer un montant valide.", "error");
+                return;
+            }
+            const result = await apiFetch(`/api/admin/update_user/${userId}`, {
+                method: 'POST',
+                body: JSON.stringify({ action, value })
+            });
+            if (result) {
+                showToast("Utilisateur mis à jour !", "success");
+                document.getElementById(`coins-${userId}`).innerText = `Coins: ${result.coins}`;
+                if (action === 'ban' || action === 'unban') {
+                    handleUserSearch({ target: document.getElementById('user-search-input') });
+                }
+            }
+        }
+        
+        async function loadMaintenanceStatus() {
+            const checkbox = document.getElementById('maintenance-checkbox');
+            const saveBtn = document.getElementById('save-maintenance-btn');
+            
+            try {
+                const data = await apiFetch('/api/admin/maintenance');
+                if (data) {
+                    checkbox.checked = data.maintenance_enabled;
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du statut de maintenance:', error);
+            }
+            
+            saveBtn.addEventListener('click', async () => {
+                const enabled = checkbox.checked;
+                try {
+                    const result = await apiFetch('/api/admin/maintenance', {
+                        method: 'POST', 
+                        body: JSON.stringify({ enabled })
+                    });
+                    if (result) {
+                        showToast('Statut de maintenance mis à jour !', 'success');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la sauvegarde:', error);
+                    showToast('Erreur lors de la sauvegarde', 'error');
+                }
+            });
+        }
+        
+        async function createGift() {
+            const amountInput = document.getElementById('gift-amount');
+            const amount = parseInt(amountInput.value);
+            
+            if (!amount || amount <= 0) {
+                showToast("Veuillez entrer un montant valide.", "error");
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/api/gifts/create', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ amount }) 
+                });
+                
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                    amountInput.value = '';
+                    await updateUserSection();
+                    await loadMyCodes();
+                }
+            } catch (error) {
+                if (error.error === "Pas assez de pièces") {
+                    showToast("Vous n'avez pas assez de pièces pour créer ce cadeau.", "error");
+                } else {
+                    showToast(error.error || "Une erreur est survenue.", "error");
+                }
+            }
+        }
+
+        async function loadMyCodes() {
+            try {
+                const codes = await apiFetch('/api/gifts/my_codes');
+                const countBadge = document.getElementById('my-codes-count');
+                if (codes && countBadge) {
+                    countBadge.innerText = codes.length || '0';
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des codes:', error);
+            }
+        }
+
+        async function showMyCodes() {
+            try {
+                const codes = await apiFetch('/api/gifts/my_codes');
+                const listContainer = document.getElementById('my-codes-list');
+                const modal = document.getElementById('my-codes-modal');
+                
+                if (codes && Array.isArray(codes)) {
+                    if (codes.length > 0) {
+                        listContainer.innerHTML = codes.map(code => {
+                            const expires = new Date(code.expires_at + 'Z');
+                            return `
+                            <div class="my-code-item">
+                                <div class="my-code-details">
+                                    <span class="code-text">${code.code}</span>
+                                    <span><i class="fas fa-coins"></i> ${code.amount} pièces</span>
+                                    <small>Expire le: ${expires.toLocaleString()}</small>
+                                </div>
+                                <button class="btn-delete" onclick="deleteGift('${code.code}')"><i class="fas fa-trash"></i> Supprimer & Rembourser</button>
+                            </div>`
+                        }).join('');
+                    } else {
+                        listContainer.innerHTML = '<p>Vous n\'avez aucun code cadeau actif.</p>';
+                    }
+                    
+                    if (modal) modal.style.display = 'flex';
+                } else {
+                    listContainer.innerHTML = '<p>Erreur lors du chargement des codes.</p>';
+                    if (modal) modal.style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast("Erreur lors du chargement des codes", "error");
+            }
+        }
+        
+        async function redeemGiftCode() {
+            const codeInput = document.getElementById('redeem-code-input');
+            const code = codeInput.value.trim();
+            
+            if (!code) {
+                showToast("Veuillez entrer un code.", "error");
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/api/gifts/redeem', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+                
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                    codeInput.value = '';
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
+        }
+        
+        async function deleteGift(code) {
+            try {
+                const result = await apiFetch('/api/gifts/delete', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+                
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                    await showMyCodes(); // Recharger la liste
+                    await updateUserSection(); // Mettre à jour le solde
+                    await loadMyCodes(); // Mettre à jour le compteur
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.style.display = 'none';
+        }
         
         async function updateUserSection() {
             const userSection = document.getElementById('user-section');
@@ -434,6 +881,12 @@
                                 <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                             </div>
                         </div>`;
+                    
+                    // Mettre à jour le solde dans la page des cadeaux si on y est
+                    const balanceElement = document.getElementById('user-balance');
+                    if (balanceElement) {
+                        balanceElement.innerText = userData.coins.toLocaleString();
+                    }
                 } else {
                     logout();
                 }
@@ -444,21 +897,32 @@
 
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
-            const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
+            const defaultOptions = { 
+                headers: { 'Content-Type': 'application/json' } 
+            };
             if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+            
             const mergedOptions = { ...defaultOptions, ...options };
+            
             try {
                 const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
                 const responseData = await response.json();
-                if (!response.ok) throw responseData;
+                
+                if (!response.ok) {
+                    throw responseData;
+                }
                 return responseData;
             } catch (error) {
-                console.error(`Erreur API:`, error);
-                showToast(error.error || 'Une erreur est survenue.', 'error');
+                console.error(`Erreur API (${endpoint}):`, error);
                 throw error;
             }
         }
-        function logout() { localStorage.removeItem('jwt_token'); navigate('/'); }
+        
+        function logout() { 
+            localStorage.removeItem('jwt_token'); 
+            navigate('/'); 
+        }
+        
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -471,9 +935,25 @@
                 setTimeout(() => toast.remove(), 500);
             }, 3000);
         }
-        function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
-        function setupScrollAnimations() { const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { threshold: 0.1 }); document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el)); }
-        window.onclick = e => { if (!e.target.closest('.user-profile')) { document.querySelector('.dropdown-menu.show')?.classList.remove('show'); } };
+        
+        function toggleDropdown() { 
+            document.getElementById('dropdown-menu')?.classList.toggle('show'); 
+        }
+        
+        function setupScrollAnimations() { 
+            const observer = new IntersectionObserver(entries => { 
+                entries.forEach(entry => { 
+                    if (entry.isIntersecting) entry.target.classList.add('visible'); 
+                }); 
+            }, { threshold: 0.1 }); 
+            document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el)); 
+        }
+        
+        window.onclick = e => { 
+            if (!e.target.closest('.user-profile')) { 
+                document.querySelector('.dropdown-menu.show')?.classList.remove('show'); 
+            } 
+        };
     </script>
 </body>
 </html>

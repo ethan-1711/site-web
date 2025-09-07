@@ -21,6 +21,7 @@
         // --- Logique de "Routage" ---
         // Décide quelle page afficher en fonction de l'URL au chargement
         document.addEventListener('DOMContentLoaded', () => {
+            window.addEventListener('popstate', handleUrlChange); // Gère les boutons "précédent/suivant" du navigateur
             handleUrlChange();
             handleTokenRedirect();
         });
@@ -35,7 +36,7 @@
                 localStorage.setItem('jwt_token', token);
                 // On nettoie l'URL et on recharge pour afficher le profil
                 window.history.replaceState({}, document.title, window.location.pathname);
-                window.location.reload();
+                handleUrlChange();
             } else if (error) {
                 // Affiche un message d'erreur clair à l'utilisateur
                 const container = document.getElementById('app-container');
@@ -56,6 +57,12 @@
             } else {
                 renderHomePage();
             }
+        }
+        
+        // Fonction pour naviguer sans recharger la page
+        function navigate(path) {
+            window.history.pushState({}, '', path);
+            handleUrlChange();
         }
 
         // --- Fonctions de Rendu des Pages ---
@@ -100,15 +107,15 @@
             const token = localStorage.getItem('jwt_token');
 
             if (!token) {
-                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><a href="/">Retour à l'accueil</a></div>`;
+                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/">Retour à l'accueil</a></div>`;
                 return;
             }
 
             try {
                 const response = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
-                if (!response.ok) throw new Error();
+                if (!response.ok) throw new Error('Token invalide');
                 const userData = await response.json();
-                if (!userData.is_admin) throw new Error();
+                if (!userData.is_admin) throw new Error('Non admin');
 
                 // Si tout est OK, on affiche le panneau
                 container.innerHTML = `
@@ -120,7 +127,7 @@
                                 <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> Maintenance</a>
                                 <a href="#" class="admin-nav-link" data-page="coins"><i class="fas fa-coins"></i> Coins</a>
                             </nav>
-                            <a href="/" class="admin-back-home"><i class="fas fa-home"></i> Retour à l'accueil</a>
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i> Retour à l'accueil</a>
                         </aside>
                         <main id="admin-main-content" class="admin-main"></main>
                     </div>
@@ -128,24 +135,40 @@
                 loadAdminPage('users');
                 setupAdminNav();
             } catch (e) {
-                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><a href="/">Retour à l'accueil</a></div>`;
+                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Vous n'avez pas les permissions nécessaires.</p><a href="/">Retour à l'accueil</a></div>`;
             }
         }
 
-        // --- Logique du Panneau d'Administration (les fonctions appelées par renderAdminPage) ---
+        // --- Logique du Panneau d'Administration ---
         
         function loadAdminPage(page) {
             const contentArea = document.getElementById('admin-main-content');
             if (!contentArea) return;
-            // ... (logique pour charger le contenu de chaque page admin)
-            // Cet exemple est simplifié, nous ajouterons la logique complète plus tard
+            
              if (page === 'users') {
-                 contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results"></div>`;
-                 document.getElementById('user-search-input').addEventListener('input', (e) => console.log('Recherche:', e.target.value));
+                 contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
+                 document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
              } else if (page === 'maintenance') {
-                 contentArea.innerHTML = `<h2>Mode Maintenance</h2><p>Contenu de la page de maintenance.</p>`;
+                contentArea.innerHTML = `<h2>Mode Maintenance</h2>
+                    <div class="maintenance-card">
+                        <div class="maintenance-toggle">
+                            <label for="maintenance-checkbox">Activer la maintenance</label>
+                            <label class="switch">
+                                <input type="checkbox" id="maintenance-checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button id="save-maintenance-btn" class="admin-btn">Enregistrer</button>
+                    </div>`;
+                loadMaintenanceStatus();
              } else if (page === 'coins') {
-                 contentArea.innerHTML = `<h2>Générer un Code</h2><p>Contenu de la page des codes.</p>`;
+                 contentArea.innerHTML = `<h2>Générer un Code de Coins</h2>
+                    <div class="coins-card">
+                         <input type="number" id="coin-amount-input" class="admin-input" placeholder="Montant en pièces..." min="1">
+                         <button id="generate-code-btn" class="admin-btn">Générer le code</button>
+                         <div id="code-result" class="code-result" style="display: none;"></div>
+                    </div>`;
+                document.getElementById('generate-code-btn').addEventListener('click', handleGenerateCode);
              }
         }
         
@@ -158,6 +181,89 @@
                     loadAdminPage(e.currentTarget.dataset.page);
                 });
             });
+        }
+        
+        async function handleUserSearch(event) {
+            const query = event.target.value;
+            const resultsContainer = document.getElementById('user-search-results');
+            if (query.length < 3) {
+                resultsContainer.innerHTML = '';
+                return;
+            }
+            const response = await adminApiFetch(`/api/admin/search_users?q=${query}`);
+            if (response) {
+                resultsContainer.innerHTML = response.map(user => `
+                    <div class="user-card">
+                        <div class="user-card-info">
+                            <img src="${user.avatar_url}" class="user-card-avatar">
+                            <div class="user-card-details">
+                                <strong>${user.username}</strong>
+                                <small>ID: ${user.user_id} | Coins: ${user.coins}</small>
+                            </div>
+                        </div>
+                        <div class="user-card-actions">
+                            <button class="admin-btn">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        async function loadMaintenanceStatus() {
+            const checkbox = document.getElementById('maintenance-checkbox');
+            const saveBtn = document.getElementById('save-maintenance-btn');
+            const response = await adminApiFetch('/api/admin/maintenance');
+            if (response) {
+                checkbox.checked = response.maintenance_enabled;
+            }
+            saveBtn.addEventListener('click', async () => {
+                const enabled = checkbox.checked;
+                await adminApiFetch('/api/admin/maintenance', {
+                    method: 'POST',
+                    body: JSON.stringify({ enabled })
+                });
+                alert('Statut de maintenance mis à jour !');
+            });
+        }
+        
+        async function handleGenerateCode() {
+            const amountInput = document.getElementById('coin-amount-input');
+            const resultDiv = document.getElementById('code-result');
+            const amount = parseInt(amountInput.value, 10);
+            if (!amount || amount <= 0) {
+                alert('Veuillez entrer un montant valide.');
+                return;
+            }
+            const response = await adminApiFetch('/api/admin/generate_code', {
+                method: 'POST',
+                body: JSON.stringify({ amount })
+            });
+            if (response) {
+                resultDiv.innerHTML = `<strong>Code:</strong> ${response.code}<br><strong>Lien:</strong> ${response.link}`;
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        async function adminApiFetch(endpoint, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            const mergedOptions = { ...defaultOptions, ...options };
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
+                if (!response.ok) {
+                    throw new Error('La requête a échoué');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`Erreur API: ${error}`);
+                alert('Une erreur est survenue.');
+                return null;
+            }
         }
         
         // --- Fonctions Utilitaires (Communes ou pour la page d'accueil) ---
@@ -178,7 +284,7 @@
                 const response = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (response.ok) {
                     const userData = await response.json();
-                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" class="admin-shield" title="Panneau Admin"><i class="fas fa-shield-alt"></i></a>` : '';
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-shield-alt"></i></a>` : '';
                     userSection.innerHTML = `
                         <div class="user-profile">
                             ${adminShieldHtml}
@@ -204,7 +310,7 @@
 
         function logout() {
             localStorage.removeItem('jwt_token');
-            window.location.href = '/';
+            navigate('/');
         }
 
         function toggleDropdown() {

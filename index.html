@@ -113,6 +113,128 @@
             `;
             updateUserSection();
             setupScrollAnimations();
+        }<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StrexBot</title>
+    <link rel="icon" type="image/png" href="S.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div id="app-container"></div>
+    <div id="toast-container"></div>
+    <div id="my-codes-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('my-codes-modal')">&times;</button>
+            <h2><i class="fas fa-gift"></i> Mes Codes Cadeaux</h2>
+            <div id="my-codes-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const API_URL = 'https://api-s5et.onrender.com';
+        const DISCORD_CLIENT_ID = '1379440380860174506';
+
+        // --- Démarrage de l'Application ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            window.addEventListener('popstate', handleUrlChange);
+            handleTokenRedirect();
+            try {
+                const statusRes = await fetch(`${API_URL}/api/status`);
+                const statusData = await statusRes.json();
+                if (statusData.maintenance) {
+                    const token = localStorage.getItem('jwt_token');
+                    let isAdmin = false;
+                    if (token) {
+                        const userRes = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (userRes.ok) isAdmin = (await userRes.json()).is_admin;
+                    }
+                    if (isAdmin) handleUrlChange();
+                    else renderMaintenancePage();
+                } else {
+                    handleUrlChange();
+                }
+            } catch (error) {
+                console.error("Erreur au démarrage:", error);
+                handleUrlChange();
+            }
+        });
+
+        function handleTokenRedirect() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const error = urlParams.get('error');
+            if (token) {
+                localStorage.setItem('jwt_token', token);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (error) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        // --- Routeur JavaScript ---
+        function handleUrlChange() {
+            const path = window.location.pathname;
+            if (path.startsWith('/admin')) renderAdminPage();
+            else if (path.startsWith('/gifts')) renderGiftsPage();
+            else if (path.startsWith('/account')) renderAccountPage();
+            else if (path.startsWith('/daily')) renderDailyPage();
+            else if (path.startsWith('/redeem/')) {
+                const code = path.split('/redeem/')[1];
+                renderRedeemPage(code);
+            }
+            else renderHomePage();
+        }
+
+        function navigate(path) {
+            window.history.pushState({}, '', path);
+            handleUrlChange();
+        }
+
+        // --- Fonctions de Rendu des Pages ---
+
+        function renderMaintenancePage() {
+            document.title = 'StrexBot - Maintenance';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `<div class="error-page"><h1><i class="fas fa-tools"></i> Maintenance</h1><p>Le site est actuellement en cours de maintenance. Veuillez réessayer plus tard.</p></div>`;
+        }
+        
+        async function renderHomePage() {
+            document.title = 'StrexBot - Accueil';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <header class="hero">
+                        <h1 class="gradient-text">Le meilleur moyen de développer votre serveur</h1>
+                        <p>Avec StrexBot, obtenez des commandes à portée de main.</p>
+                    </header>
+                    <main>
+                         <section class="features fade-in-section">
+                            <div class="feature-item"><i class="fas fa-rocket"></i><h3>Rapide et Efficace</h3><p>Utilisez des préfixes rapides pour des réponses instantanées.</p></div>
+                            <div class="feature-item"><i class="fas fa-shield-alt"></i><h3>Sûr et Sécurisé</h3><p>Notre système est conçu pour la sécurité de votre serveur et de vos données.</p></div>
+                            <div class="feature-item"><i class="fas fa-cogs"></i><h3>Commandes Intuitives</h3><p>Nous nous concentrons sur la qualité et la simplicité d'utilisation du bot.</p></div>
+                         </section>
+                         <section class="stats fade-in-section">
+                            <div class="stat-item"><h2>+10</h2><p>Serveurs</p></div>
+                            <div class="stat-item"><h2>+34</h2><p>Utilisateurs</p></div>
+                            <div class="stat-item"><h2>+44</h2><p>Membres Délivrés</p></div>
+                         </section>
+                    </main>
+                    <footer class="footer"><p>&copy; 2025 StrexBot. Tous droits réservés.</p></footer>
+                </div>
+            `;
+            updateUserSection();
+            setupScrollAnimations();
         }
         
         async function renderGiftsPage() {
@@ -121,45 +243,173 @@
             const userData = await apiFetch('/api/user_data');
             
             if (!userData) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                renderLoginPagePrompt();
                 return;
             }
 
             container.innerHTML = `
                 <div class="container">
                      <nav>
-                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"><!-- Placeholder --></div>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
                     </nav>
-                    <main>
-                        <div class="gifts-card">
-                            <div class="gifts-header">
-                                <h2><i class="fas fa-gift"></i> Cadeaux</h2>
-                                <button class="btn-secondary" onclick="showMyCodes()">
-                                    <i class="fas fa-list"></i> Mes codes <span id="my-codes-count" class="badge">...</span>
-                                </button>
+                    <main class="gifts-main">
+                        <div class="gifts-hero">
+                            <i class="fas fa-gift gift-hero-icon"></i>
+                            <h1>Centre de Cadeaux</h1>
+                            <p>Partagez la richesse avec vos amis !</p>
+                        </div>
+
+                        <div class="gifts-grid">
+                            <div class="gift-card create-gift-card">
+                                <div class="gift-card-header">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <h3>Créer un Code</h3>
+                                </div>
+                                <p>Transformez vos pièces en code cadeau à partager.</p>
+                                <div class="balance-display">
+                                    <img src="Coin.png" class="balance-coin" alt="Coin">
+                                    <span id="user-balance">${userData.coins.toLocaleString()}</span>
+                                </div>
+                                <div class="gift-input-group">
+                                    <input type="number" id="gift-amount" placeholder="Montant..." min="1">
+                                    <button class="create-gift-btn" onclick="createGift()">
+                                        <i class="fas fa-magic"></i> Créer
+                                    </button>
+                                </div>
+                                <small class="gift-note">Les codes expirent après 24h et sont remboursés s'ils ne sont pas utilisés.</small>
                             </div>
-                            <p>Créez un code cadeau à partager avec vos amis ! Les codes expirent après 24h et vous sont remboursés.</p>
-                            <p><strong>Votre solde :</strong> <span id="user-balance">${userData.coins.toLocaleString()}</span> pièces</p>
-                            <div class="gifts-actions">
-                                <input type="number" id="gift-amount" class="admin-input" placeholder="Montant à offrir...">
-                                <button class="btn btn-primary" onclick="createGift()">+ Créer</button>
+
+                            <div class="gift-card redeem-gift-card">
+                                <div class="gift-card-header">
+                                    <i class="fas fa-unlock-alt"></i>
+                                    <h3>Utiliser un Code</h3>
+                                </div>
+                                <p>Un ami vous a donné un code ? Réclamez vos pièces !</p>
+                                <div class="gift-input-group">
+                                    <input type="text" id="redeem-code-input" placeholder="ST-XXXXXX">
+                                    <button class="redeem-gift-btn" onclick="redeemGiftCode()">
+                                        <i class="fas fa-gift"></i> Utiliser
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="gifts-card" style="margin-top: 20px;">
-                            <h3>Utiliser un code</h3>
-                            <p>Un ami vous a donné un code ? Utilisez-le ici pour recevoir vos pièces !</p>
-                            <div class="gifts-actions">
-                                <input type="text" id="redeem-code-input" class="admin-input" placeholder="Entrez un code ST-...">
-                                <button class="btn btn-primary" onclick="redeemGiftCode()">Utiliser</button>
-                            </div>
+                        <div class="my-codes-section">
+                            <button class="view-codes-btn" onclick="showMyCodes()">
+                                <i class="fas fa-list"></i>
+                                Mes Codes Actifs
+                                <span id="my-codes-count" class="codes-count">...</span>
+                            </button>
                         </div>
                     </main>
                 </div>
             `;
             updateUserSection();
-            loadMyCodes(); // Charger automatiquement le nombre de codes
+            loadMyCodes();
+        }
+
+        async function renderDailyPage() {
+            document.title = 'StrexBot - Récompense Quotidienne';
+            const container = document.getElementById('app-container');
+            const userData = await apiFetch('/api/user_data');
+            
+            if (!userData) {
+                renderLoginPagePrompt();
+                return;
+            }
+
+            const dailyStatus = await apiFetch('/api/daily/status');
+
+            container.innerHTML = `
+                <div class="container">
+                     <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="daily-main">
+                        <div class="daily-hero">
+                            <div class="daily-coin-animation">
+                                <img src="Coin.png" class="daily-coin-image" alt="Coin">
+                            </div>
+                            <h1>Récompense Quotidienne</h1>
+                            <p>Réclamez votre pièce gratuite chaque jour !</p>
+                        </div>
+
+                        <div class="daily-card">
+                            <div id="daily-status-container" class="daily-status ${dailyStatus.can_claim ? 'can-claim' : 'cannot-claim'}">
+                                <div class="daily-reward-display">
+                                    <img src="Coin.png" class="reward-coin" alt="Coin">
+                                    <span class="reward-amount">+1</span>
+                                </div>
+                                <div class="daily-info">
+                                    ${dailyStatus.can_claim ? 
+                                        '<h3>Récompense Disponible !</h3><p>Cliquez pour réclamer votre pièce quotidienne.</p>' :
+                                        '<h3>Déjà Réclamé</h3><p>Revenez demain pour votre prochaine récompense.</p>'
+                                    }
+                                </div>
+                                <button id="daily-claim-btn" class="daily-claim-btn ${!dailyStatus.can_claim ? 'disabled' : ''}" 
+                                        onclick="claimDailyReward()" ${!dailyStatus.can_claim ? 'disabled' : ''}>
+                                    <i class="fas fa-hand-sparkles"></i>
+                                    <span id="claim-btn-text">${dailyStatus.can_claim ? 'Réclamer' : 'Réclamé'}</span>
+                                </button>
+                            </div>
+                            
+                            ${!dailyStatus.can_claim ? `
+                                <div class="next-claim-timer">
+                                    <i class="fas fa-clock"></i>
+                                    Prochaine récompense disponible dans <span id="countdown">...</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </main>
+                </div>
+            `;
+            if (!dailyStatus.can_claim) {
+                startCountdown(dailyStatus.next_claim);
+            }
+            updateUserSection();
+        }
+
+        async function renderRedeemPage(code) {
+            document.title = 'StrexBot - Utiliser un Code';
+            const container = document.getElementById('app-container');
+            
+            container.innerHTML = `
+                <div class="container">
+                     <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="redeem-main">
+                        <div class="redeem-card">
+                            <i class="fas fa-gift redeem-icon"></i>
+                            <h1>Utiliser un Code Cadeau</h1>
+                            <p>Vous êtes sur le point d'utiliser le code :</p>
+                            <div class="code-display">
+                                <i class="fas fa-ticket-alt"></i>
+                                <span class="code-text">${code}</span>
+                            </div>
+                            <button class="redeem-confirm-btn" onclick="redeemSpecificCode('${code}')">
+                                <i class="fas fa-check-circle"></i>
+                                Confirmer et Réclamer
+                            </button>
+                            <p class="redeem-note">Connectez-vous pour que les pièces soient ajoutées à votre compte.</p>
+                        </div>
+                    </main>
+                </div>
+            `;
+            await updateUserSection();
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                 showToast("Veuillez vous connecter pour utiliser ce code.", "error");
+            }
         }
 
         async function renderAccountPage() {
@@ -168,8 +418,10 @@
             container.innerHTML = `
                  <div class="container">
                      <nav>
-                        <div class="nav-brand"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"><!-- Placeholder --></div>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
                     </nav>
                     <main>
                         <div class="gifts-card">
@@ -191,83 +443,138 @@
                 container.innerHTML = `
                     <div class="admin-layout">
                         <aside class="admin-sidebar">
-                            <div class="admin-sidebar-header"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot Admin</div>
+                            <div class="admin-sidebar-header" onclick="navigate('/')" style="cursor: pointer;">
+                                <img src="/S.png" alt="Logo" class="nav-logo"> 
+                                <span>Admin Panel</span>
+                            </div>
                             <nav class="admin-nav">
-                                <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
-                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Maintenance</span></a>
+                                <a href="#" class="admin-nav-link active" data-page="users" onclick="switchAdminTab(this, 'users')">
+                                    <i class="fas fa-users"></i> 
+                                    <span>Utilisateurs</span>
+                                </a>
+                                <a href="#" class="admin-nav-link" data-page="maintenance" onclick="switchAdminTab(this, 'maintenance')">
+                                    <i class="fas fa-tools"></i> 
+                                    <span>Maintenance</span>
+                                </a>
                             </nav>
-                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i> <span>Retour à l'accueil</span></a>
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home">
+                                <i class="fas fa-home"></i> 
+                                <span>Retour à l'accueil</span>
+                            </a>
                         </aside>
-                        <main id="admin-main-content" class="admin-main"></main>
+                        <main class="admin-main">
+                            <div class="admin-header">
+                                <h1 id="admin-page-title"></h1>
+                                <div class="admin-user-info">
+                                    <img src="${userData.avatar_url}" class="admin-avatar" alt="Avatar">
+                                    <span>${userData.username}</span>
+                                </div>
+                            </div>
+                            <div id="admin-main-content"></div>
+                        </main>
                     </div>
                 `;
                 loadAdminPage('users');
-                setupAdminNav();
             } catch (e) {
-                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Permissions insuffisantes.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour</a></div>`;
+                container.innerHTML = `<div class="error-page"><h1><i class="fas fa-ban"></i> Accès Refusé</h1><p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retourner à l'accueil</a></div>`;
             }
         }
         
+        function switchAdminTab(element, page) {
+            event.preventDefault();
+            document.querySelector('.admin-nav-link.active')?.classList.remove('active');
+            element.classList.add('active');
+            loadAdminPage(page);
+        }
+
         function loadAdminPage(page) {
             const contentArea = document.getElementById('admin-main-content');
-            if (!contentArea) return;
+            const titleArea = document.getElementById('admin-page-title');
+            if (!contentArea || !titleArea) return;
+
              if (page === 'users') {
-                 contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
+                 titleArea.innerText = 'Gestion des Utilisateurs';
+                 contentArea.innerHTML = `
+                    <div class="admin-section">
+                        <div class="admin-search-container">
+                            <input type="text" id="user-search-input" class="admin-search-input" placeholder="Rechercher par ID ou pseudo...">
+                            <i class="fas fa-search search-icon"></i>
+                        </div>
+                        <div id="user-search-results" class="search-results-container">
+                            <div class="no-results"><i class="fas fa-keyboard"></i><p>Commencez à taper pour rechercher un utilisateur.</p></div>
+                        </div>
+                    </div>`;
                  document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
              } else if (page === 'maintenance') {
-                contentArea.innerHTML = `<h2>Mode Maintenance</h2>
-                    <div class="maintenance-card">
-                        <div class="maintenance-toggle">
-                            <label for="maintenance-checkbox">Activer la maintenance</label>
-                            <label class="switch"><input type="checkbox" id="maintenance-checkbox"><span class="slider"></span></label>
+                titleArea.innerText = 'Mode Maintenance';
+                contentArea.innerHTML = `
+                    <div class="admin-section">
+                        <div class="maintenance-card">
+                            <div class="maintenance-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p>Activez ce mode pour bloquer l'accès au site aux utilisateurs non-administrateurs. Utile pour les mises à jour.</p>
+                            </div>
+                            <div class="maintenance-toggle">
+                                <label for="maintenance-checkbox">Activer le mode maintenance</label>
+                                <label class="switch">
+                                    <input type="checkbox" id="maintenance-checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <button id="save-maintenance-btn" class="admin-btn save-btn">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
                         </div>
-                        <button id="save-maintenance-btn" class="admin-btn">Enregistrer</button>
                     </div>`;
                 loadMaintenanceStatus();
              }
-        }
-        
-        function setupAdminNav() {
-            document.querySelectorAll('.admin-nav-link').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    document.querySelector('.admin-nav-link.active')?.classList.remove('active');
-                    e.currentTarget.classList.add('active');
-                    loadAdminPage(e.currentTarget.dataset.page);
-                });
-            });
         }
         
         async function handleUserSearch(event) {
             const query = event.target.value.trim();
             const resultsContainer = document.getElementById('user-search-results');
             if (query.length < 3) {
-                resultsContainer.innerHTML = '';
+                resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-keyboard"></i><p>Commencez à taper pour rechercher un utilisateur (3 caractères min).</p></div>';
                 return;
             }
             const users = await apiFetch(`/api/admin/search_users?q=${encodeURIComponent(query)}`);
-            if (users && Array.isArray(users)) {
+            if (users && Array.isArray(users) && users.length > 0) {
                 resultsContainer.innerHTML = users.map(user => `
                     <div class="user-card" id="user-card-${user.user_id}">
                         <div class="user-card-info">
-                            <img src="${user.avatar_url}" class="user-card-avatar">
+                            <img src="${user.avatar_url}" class="user-card-avatar" alt="Avatar">
                             <div class="user-card-details">
                                 <strong>${user.username}</strong>
                                 <small>ID: ${user.user_id}</small>
-                                <span id="coins-${user.user_id}">Coins: ${user.coins}</span>
+                                <span id="coins-${user.user_id}" class="user-coins">
+                                    <img src="Coin.png" class="coin-mini" alt="Coin"> ${user.coins}
+                                </span>
+                                <span class="user-status ${user.banned ? 'banned' : 'active'}">
+                                    <i class="fas fa-circle"></i> ${user.banned ? 'Banni' : 'Actif'}
+                                </span>
                             </div>
                         </div>
                         <div class="user-card-actions">
-                             <input type="number" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
-                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
-                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
-                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>
-                             <button class="admin-btn ban-btn" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                             <input type="number" class="admin-input-small" id="coins-input-${user.user_id}" placeholder="Montant">
+                             <button class="action-btn set-btn" onclick="updateUser('${user.user_id}', 'set_coins')" title="Définir">
+                                <i class="fas fa-equals"></i>
+                             </button>
+                             <button class="action-btn add-btn" onclick="updateUser('${user.user_id}', 'add_coins')" title="Ajouter">
+                                <i class="fas fa-plus"></i>
+                             </button>
+                             <button class="action-btn remove-btn" onclick="updateUser('${user.user_id}', 'remove_coins')" title="Retirer">
+                                <i class="fas fa-minus"></i>
+                             </button>
+                             <button class="action-btn ${user.banned ? 'unban-btn' : 'ban-btn'}" 
+                                     onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')" 
+                                     title="${user.banned ? 'Débannir' : 'Bannir'}">
+                                <i class="fas fa-${user.banned ? 'unlock' : 'ban'}"></i>
+                             </button>
                         </div>
                     </div>
                 `).join('');
             } else {
-                resultsContainer.innerHTML = '<p>Aucun utilisateur trouvé.</p>';
+                resultsContainer.innerHTML = '<div class="no-results"><i class="fas fa-search"></i><p>Aucun utilisateur trouvé pour cette recherche.</p></div>';
             }
         }
         
@@ -284,9 +591,19 @@
             });
             if (result) {
                 showToast("Utilisateur mis à jour !", "success");
-                document.getElementById(`coins-${userId}`).innerText = `Coins: ${result.coins}`;
+                document.getElementById(`coins-${userId}`).innerHTML = `<img src="Coin.png" class="coin-mini" alt="Coin"> ${result.coins}`;
+                if (input) input.value = '';
                 if (action === 'ban' || action === 'unban') {
-                    handleUserSearch({ target: document.getElementById('user-search-input') });
+                    // Refresh only the affected card instead of the whole list
+                    const card = document.getElementById(`user-card-${userId}`);
+                    const status = card.querySelector('.user-status');
+                    const banBtn = card.querySelector('.ban-btn, .unban-btn');
+                    status.className = `user-status ${result.banned ? 'banned' : 'active'}`;
+                    status.innerHTML = `<i class="fas fa-circle"></i> ${result.banned ? 'Banni' : 'Actif'}`;
+                    banBtn.className = `action-btn ${result.banned ? 'unban-btn' : 'ban-btn'}`;
+                    banBtn.title = result.banned ? 'Débannir' : 'Bannir';
+                    banBtn.innerHTML = `<i class="fas fa-${result.banned ? 'unlock' : 'ban'}"></i>`;
+                    banBtn.setAttribute('onclick', `updateUser('${userId}', '${result.banned ? 'unban' : 'ban'}')`);
                 }
             }
         }
@@ -294,15 +611,12 @@
         async function loadMaintenanceStatus() {
             const checkbox = document.getElementById('maintenance-checkbox');
             const saveBtn = document.getElementById('save-maintenance-btn');
+            if(!checkbox || !saveBtn) return;
             
             try {
                 const data = await apiFetch('/api/admin/maintenance');
-                if (data) {
-                    checkbox.checked = data.maintenance_enabled;
-                }
-            } catch (error) {
-                console.error('Erreur lors du chargement du statut de maintenance:', error);
-            }
+                if (data) checkbox.checked = data.maintenance_enabled;
+            } catch (error) { console.error('Erreur:', error); }
             
             saveBtn.addEventListener('click', async () => {
                 const enabled = checkbox.checked;
@@ -311,11 +625,8 @@
                         method: 'POST', 
                         body: JSON.stringify({ enabled })
                     });
-                    if (result) {
-                        showToast('Statut de maintenance mis à jour !', 'success');
-                    }
+                    if (result) showToast('Statut de maintenance mis à jour !', 'success');
                 } catch (error) {
-                    console.error('Erreur lors de la sauvegarde:', error);
                     showToast('Erreur lors de la sauvegarde', 'error');
                 }
             });
@@ -337,18 +648,55 @@
                 });
                 
                 if (result && result.success) {
-                    showToast(result.message, 'success');
+                    showGiftCreatedModal(result.code, result.redeem_link);
                     amountInput.value = '';
                     await updateUserSection();
                     await loadMyCodes();
                 }
             } catch (error) {
-                if (error.error === "Pas assez de pièces") {
-                    showToast("Vous n'avez pas assez de pièces pour créer ce cadeau.", "error");
-                } else {
-                    showToast(error.error || "Une erreur est survenue.", "error");
-                }
+                showToast(error.error || "Une erreur est survenue.", "error");
             }
+        }
+
+        function showGiftCreatedModal(code, link) {
+            // Close any existing modal
+            const existingModal = document.querySelector('.gift-created-modal');
+            if(existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay gift-created-modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content gift-created-content">
+                    <button class="modal-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                    <div class="gift-created-header">
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h2>Code Créé avec Succès !</h2>
+                    </div>
+                    <div class="gift-created-body">
+                        <div class="code-result">
+                            <label>Votre Code :</label>
+                            <div class="code-copy-group">
+                                <input type="text" value="${code}" readonly class="code-input">
+                                <button onclick="copyToClipboard('${code}', this)" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="link-result">
+                            <label>Lien de Partage :</label>
+                            <div class="code-copy-group">
+                                <input type="text" value="${link}" readonly class="link-input">
+                                <button onclick="copyToClipboard('${link}', this)" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="gift-note">Partagez ce code ou ce lien avec vos amis. Le code expire dans 24h.</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         async function loadMyCodes() {
@@ -358,9 +706,7 @@
                 if (codes && countBadge) {
                     countBadge.innerText = codes.length || '0';
                 }
-            } catch (error) {
-                console.error('Erreur lors du chargement des codes:', error);
-            }
+            } catch (error) { console.error('Erreur:', error); }
         }
 
         async function showMyCodes() {
@@ -376,37 +722,45 @@
                             return `
                             <div class="my-code-item">
                                 <div class="my-code-details">
-                                    <span class="code-text">${code.code}</span>
-                                    <span><i class="fas fa-coins"></i> ${code.amount} pièces</span>
-                                    <small>Expire le: ${expires.toLocaleString()}</small>
+                                    <div class="code-text-modal">${code.code}</div>
+                                    <div class="code-amount">
+                                        <img src="Coin.png" class="code-coin" alt="Coin"> ${code.amount}
+                                    </div>
+                                    <small class="code-expires">Expire le: ${expires.toLocaleString()}</small>
                                 </div>
-                                <button class="btn-delete" onclick="deleteGift('${code.code}')"><i class="fas fa-trash"></i> Supprimer & Rembourser</button>
+                                <div class="my-code-actions">
+                                    <button onclick="copyToClipboard('${code.redeem_link}', this)" class="copy-btn-modal" title="Copier le lien"><i class="fas fa-link"></i></button>
+                                    <button onclick="deleteGift('${code.code}')" class="delete-btn-modal" title="Supprimer & Rembourser"><i class="fas fa-trash"></i></button>
+                                </div>
                             </div>`
                         }).join('');
                     } else {
-                        listContainer.innerHTML = '<p>Vous n\'avez aucun code cadeau actif.</p>';
+                        listContainer.innerHTML = '<div class="no-results"><i class="fas fa-box-open"></i><p>Vous n\'avez aucun code cadeau actif.</p></div>';
                     }
-                    
-                    if (modal) modal.style.display = 'flex';
-                } else {
-                    listContainer.innerHTML = '<p>Erreur lors du chargement des codes.</p>';
                     if (modal) modal.style.display = 'flex';
                 }
             } catch (error) {
-                console.error('Erreur:', error);
-                showToast("Erreur lors du chargement des codes", "error");
+                showToast("Erreur lors du chargement de vos codes.", "error");
             }
         }
         
         async function redeemGiftCode() {
             const codeInput = document.getElementById('redeem-code-input');
             const code = codeInput.value.trim();
-            
             if (!code) {
                 showToast("Veuillez entrer un code.", "error");
                 return;
             }
-            
+            redeemSpecificCode(code, () => {
+                if(codeInput) codeInput.value = '';
+            });
+        }
+
+        async function redeemSpecificCode(code, callback) {
+            if (!localStorage.getItem('jwt_token')) {
+                showToast("Veuillez vous connecter d'abord.", "error");
+                return;
+            }
             try {
                 const result = await apiFetch('/api/gifts/redeem', { 
                     method: 'POST', 
@@ -415,8 +769,11 @@
                 
                 if (result && result.success) {
                     showToast(result.message, 'success');
-                    codeInput.value = '';
+                    if (callback) callback();
                     await updateUserSection();
+                    if(window.location.pathname.startsWith('/redeem/')) {
+                        setTimeout(() => navigate('/gifts'), 1000);
+                    }
                 }
             } catch (error) {
                 showToast(error.error || "Une erreur est survenue.", "error");
@@ -432,18 +789,34 @@
                 
                 if (result && result.success) {
                     showToast(result.message, 'success');
-                    await showMyCodes(); // Recharger la liste
-                    await updateUserSection(); // Mettre à jour le solde
-                    await loadMyCodes(); // Mettre à jour le compteur
+                    await showMyCodes();
+                    await updateUserSection();
+                    await loadMyCodes();
                 }
             } catch (error) {
                 showToast(error.error || "Une erreur est survenue.", "error");
             }
         }
-        
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if(modal) modal.style.display = 'none';
+
+        async function claimDailyReward() {
+            const btn = document.getElementById('daily-claim-btn');
+            if (btn.disabled) return;
+            btn.disabled = true;
+
+            try {
+                const result = await apiFetch('/api/daily/claim', { method: 'POST' });
+                if(result && result.success) {
+                    showToast(result.message, 'success');
+                    await updateUserSection();
+                    // Update UI without full reload
+                    document.getElementById('daily-status-container').classList.replace('can-claim', 'cannot-claim');
+                    document.getElementById('claim-btn-text').innerText = 'Réclamé';
+                    showToast("Récompense réclamée ! +1 pièce.", "success");
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur inconnue.", "error");
+                btn.disabled = false;
+            }
         }
         
         async function updateUserSection() {
@@ -459,29 +832,30 @@
             try {
                 const userData = await apiFetch('/api/user_data');
                 if (userData) {
-                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-shield-alt"></i></a>` : '';
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
                     userSection.innerHTML = `
                         <div class="user-profile">
                             ${adminShieldHtml}
-                            <div class="user-balance"><img src="S.png" class="coin-icon"><span>${userData.coins.toLocaleString()}</span></div>
+                            <div class="user-balance" onclick="navigate('/daily')" title="Récompense Quotidienne">
+                                <img src="Coin.png" class="coin-icon" alt="Coin">
+                                <span>${userData.coins.toLocaleString()}</span>
+                            </div>
                             <div class="user-info" onclick="toggleDropdown()">
-                                <img src="${userData.avatar_url}" class="user-avatar">
+                                <img src="${userData.avatar_url}" class="user-avatar" alt="Avatar">
                                 <i class="fas fa-chevron-down dropdown-arrow"></i>
                             </div>
                             <div class="dropdown-menu" id="dropdown-menu">
-                                <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
+                                <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar" alt="Avatar"><span>${userData.username}</span></div>
                                 <a href="/account" onclick="event.preventDefault(); navigate('/account')"><i class="fas fa-user-circle"></i> Mon Compte</a>
                                 <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
+                                <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                             </div>
                         </div>`;
                     
-                    // Mettre à jour le solde dans la page des cadeaux si on y est
                     const balanceElement = document.getElementById('user-balance');
-                    if (balanceElement) {
-                        balanceElement.innerText = userData.coins.toLocaleString();
-                    }
+                    if (balanceElement) balanceElement.innerText = userData.coins.toLocaleString();
                 } else {
                     logout();
                 }
@@ -503,19 +877,32 @@
                 const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
                 const responseData = await response.json();
                 
-                if (!response.ok) {
-                    throw responseData;
-                }
+                if (!response.ok) throw responseData;
                 return responseData;
             } catch (error) {
                 console.error(`Erreur API (${endpoint}):`, error);
+                if (error.error === "Token invalide") {
+                    showToast("Votre session a expiré. Veuillez vous reconnecter.", "error");
+                    logout();
+                }
                 throw error;
             }
         }
-        
+
+        // --- Fonctions Utilitaires ---
         function logout() { 
             localStorage.removeItem('jwt_token'); 
             navigate('/'); 
+        }
+
+        function renderLoginPagePrompt() {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `<div class="error-page"><h1><i class="fas fa-lock"></i> Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retourner à l'accueil</a></div>`;
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.style.display = 'none';
         }
         
         function showToast(message, type = 'success') {
@@ -523,7 +910,7 @@
             if (!container) return;
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.innerText = message;
+            toast.innerHTML = message;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.style.animation = 'fadeOut 0.5s forwards';
@@ -533,6 +920,17 @@
         
         function toggleDropdown() { 
             document.getElementById('dropdown-menu')?.classList.toggle('show'); 
+        }
+
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copié !', 'success');
+                if (element) {
+                    const originalIcon = element.innerHTML;
+                    element.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => { element.innerHTML = originalIcon; }, 1500);
+                }
+            });
         }
         
         function setupScrollAnimations() { 
@@ -544,6 +942,33 @@
             document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el)); 
         }
         
+        let countdownInterval;
+        function startCountdown(targetDateISO) {
+            clearInterval(countdownInterval);
+            const countdownElement = document.getElementById('countdown');
+            if(!countdownElement) return;
+
+            const targetDate = new Date(targetDateISO).getTime();
+
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.innerHTML = "Maintenant !";
+                    window.location.reload(); // Recharger pour mettre à jour l'état du bouton
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
+
         window.onclick = e => { 
             if (!e.target.closest('.user-profile')) { 
                 document.querySelector('.dropdown-menu.show')?.classList.remove('show'); 

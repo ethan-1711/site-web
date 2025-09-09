@@ -67,7 +67,19 @@ body {
 @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
 
 /* --- Navigation --- */
-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: rgba(26, 26, 34, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px 30px; }
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: rgba(26, 26, 34, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 15px 30px;
+    position: relative;   /* <--- AJOUTE ÇA */
+    z-index: 200;         /* <--- ET ÇA */
+}
 .nav-brand { display: flex; align-items: center; font-size: 1.8em; font-weight: 700; color: var(--text-color); transition: all 0.3s ease; }
 .nav-brand:hover { transform: scale(1.05); }
 .nav-logo { width: 45px; height: 45px; margin-right: 15px; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; }

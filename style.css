@@ -125,7 +125,13 @@ nav { display: flex; justify-content: space-between; align-items: center; margin
 .gifts-hero, .daily-hero { text-align: center; padding: 40px 20px 60px; }
 .gifts-hero h1, .daily-hero h1 { font-size: 3.5em; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; }
 .gifts-hero p, .daily-hero p { font-size: 1.2em; color: var(--text-muted-color); max-width: 600px; margin: 0 auto; }
-.gifts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px; }
+.gifts-grid .gift-card .balance-display img.balance-coin {
+    width: 30px; /* ou une taille adaptée */
+    height: 30px;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 5px; /* espace entre l'image et le texte */
+}
 .gift-card { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
 .gift-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); border-color: var(--border-hover); }
 .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }

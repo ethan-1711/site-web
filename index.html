@@ -169,7 +169,7 @@
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                            <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}S.png" alt="Logo" class="nav-logo"> StrexBot
                         </div>
                         <div id="user-section"></div>
                     </nav>
@@ -178,7 +178,7 @@
                             <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
                             <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
                         </div>
-                        
+                
                         <div class="gifts-grid">
                             <div class="gift-card primary-card">
                                 <div class="card-header">
@@ -187,14 +187,14 @@
                                 </div>
                                 <p>Transformez vos pièces en cadeaux magiques à partager !</p>
                                 <div class="balance-display">
-                                    <img src="Coin.png" class="balance-coin">
+                                    <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}Coin.png" class="balance-coin">
                                     <span id="user-balance">${userData.coins.toLocaleString()}</span>‎ pièces disponibles
                                 </div>
                                 <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
                                     <i class="fas fa-plus-circle"></i> Créer un Code
                                 </button>
                             </div>
-                            
+                    
                             <div class="gift-card secondary-card">
                                 <div class="card-header">
                                     <i class="fas fa-receipt"></i>
@@ -222,6 +222,7 @@
                                     <input type="text" id="redeem-code-input" placeholder="Entrez le code ST-..." value="${prefilledCode}">
                                     <button class="btn-redeem" onclick="redeemGiftCode()"><i class="fas fa-check-circle"></i> Utiliser</button>
                                 </div>
+                                ${prefilledCode ? `<div style="margin-top: 15px; padding: 10px; background: rgba(34, 197, 94, 0.2); border-radius: 8px; color: #22c55e; text-align: center;"><i class="fas fa-info-circle"></i> Code détecté automatiquement ! Cliquez sur "Utiliser" pour le réclamer.</div>` : ''}
                             </div>
                         </div>
                     </main>

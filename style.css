@@ -174,6 +174,14 @@ nav {
 .redeem-card { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid var(--border-color); }
 .redeem-header i { color: var(--success-color); }
 .redeem-input-group { display: flex; gap: 15px; margin-top: 20px; }
+/* Ajoute ce bloc pour gérer l'alignement sur mobile */
+.redeem-input-group input {
+    flex-grow: 1; /* Permet au champ de prendre toute la place disponible */
+    min-width: 0; /* Correction nécessaire pour le flexbox */
+}
+.btn-redeem {
+    flex-shrink: 0; /* Empêche le bouton de rétrécir */
+}
 .redeem-input-group input { flex: 1; padding: 15px; background: var(--secondary-color); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-color); font-family: 'Courier New', monospace; font-size: 1.1em; text-transform: uppercase; transition: all .2s; }
 .redeem-input-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2); }
 .btn-redeem { padding: 0 25px; background: linear-gradient(135deg, var(--success-color), #16a34a); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }

@@ -734,22 +734,39 @@
         }
 
         async function claimGlobalOffer() {
-            // 'event' est automatiquement disponible quand appelé par onclick
             const btn = event.target;
+            const offerBox = btn.closest('.global-offer-box');
+    
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    
+
             try {
                 const result = await apiFetch('/api/offer/claim', { method: 'POST' });
                 if (result.success) {
                     showToast(result.message, "success");
-                    document.getElementById('global-offer-container').innerHTML = ''; // Fait disparaître l'offre
-                    await updateUserSection(); // Met à jour le solde de pièces
+            
+                    // Animation de descente
+                    offerBox.style.transition = 'all 0.5s ease-out';
+                    offerBox.style.transform = 'translateY(-20px)';
+                    offerBox.style.opacity = '0';
+            
+                    setTimeout(() => {
+                        document.getElementById('global-offer-container').innerHTML = '';
+                    }, 500);
+            
+                    await updateUserSection();
                 }
             } catch (error) {
                 showToast(error.error || "Une erreur est survenue.", "error");
-                // On cache l'offre si elle a déjà été réclamée par quelqu'un d'autre
-                document.getElementById('global-offer-container').innerHTML = '';
+        
+                // Animation de sortie en cas d'erreur aussi
+                offerBox.style.transition = 'all 0.5s ease-out';
+                offerBox.style.transform = 'translateY(-20px)';
+                offerBox.style.opacity = '0';
+        
+                setTimeout(() => {
+                    document.getElementById('global-offer-container').innerHTML = '';
+                }, 500);
             }
         }
 

@@ -296,24 +296,26 @@
             try {
                 const userData = await apiFetch('/api/user_data');
                 if (!userData || !userData.is_admin) throw new Error('Non admin');
-
+        
                 container.innerHTML = `
                     <div class="admin-layout">
                         <aside class="admin-sidebar">
-                            <div class="admin-sidebar-header" onclick="navigate('/')" style="cursor: pointer;"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot Admin</div>
+                            <div class="admin-sidebar-header" ...>StrexBot Admin</div>
+        
                             <nav class="admin-nav">
                                 <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
+                                <a href="#" class="admin-nav-link" data-page="offer"><i class="fas fa-gift"></i> <span>Offre</span></a>
                                 <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Maintenance</span></a>
                             </nav>
-                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home"><i class="fas fa-home"></i> <span>Retour à l'accueil</span></a>
+                            <a href="/" ... class="admin-back-home">...</a>
                         </aside>
                         <main id="admin-main-content" class="admin-main"></main>
                     </div>
                 `;
-                loadAdminPage('users');
+                loadAdminPage('users'); // On charge la page 'users' par défaut
                 setupAdminNav();
             } catch (e) {
-                container.innerHTML = `<div class="error-page"><h1>Accès Refusé</h1><p>Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                // ...
             }
         }
         

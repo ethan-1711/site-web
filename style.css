@@ -157,7 +157,23 @@ nav {
     vertical-align: middle;
     margin-right: 5px; /* espace entre l'image et le texte */
 }
-.gift-card { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+
+.gifts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px; /* Espacement uniforme entre toutes les cartes */
+    margin-bottom: 40px;
+}
+
+.gift-card {
+    background: rgba(26, 26, 34, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    height: fit-content; /* Assure que toutes les cartes ont la même logique de hauteur */
+}
 .gift-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); border-color: var(--border-hover); }
 .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
 .card-header i { font-size: 2em; color: var(--primary-color); }
@@ -172,7 +188,7 @@ nav {
 .btn-gift-action.secondary:hover { background: var(--border-hover); box-shadow: none; }
 /* --- Section Redeem améliorée --- */
 .redeem-section {
-    margin-top: 40px;
+    margin-top: 0; /* Supprimer la marge pour l'aligner avec la grid */
 }
 
 .redeem-card {
@@ -181,8 +197,8 @@ nav {
     border-radius: 20px;
     padding: 30px;
     border: 1px solid var(--border-color);
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: none; /* Supprimer la limitation de largeur */
+    margin: 0; /* Supprimer le centrage automatique */
 }
 
 .redeem-header {
@@ -209,7 +225,19 @@ nav {
     margin-bottom: 25px;
     font-size: 1.05em;
 }
+.gifts-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
 
+@media (max-width: 768px) {
+    .gifts-grid, .gifts-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
 .redeem-input-group {
     display: flex;
     gap: 15px;
@@ -635,12 +663,23 @@ input:checked + .slider:before { transform: translateX(26px); }
     border-radius: 8px;
 }
 
-/* --- RESPONSIVE MOBILE POUR L'OFFRE --- */
+/* --- Offre Globale centrée --- */
+#global-offer-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 120px; /* Hauteur minimum pour le centrage */
+}
+
 @media (max-width: 768px) {
     #global-offer-container {
-        margin: 20px auto 30px auto;
-        padding: 0 10px;
+        margin: 30px auto;
+        min-height: 150px;
     }
+}
     
     .global-offer-box {
         flex-direction: column;
@@ -716,24 +755,26 @@ input:checked + .slider:before { transform: translateX(26px); }
     background: rgba(34, 197, 94, 0.1);
     color: var(--success-color);
 }
-/* Supprimer les contours bleus au focus */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus,
-.btn:focus,
-*:focus {
+/* Supprimer TOUS les contours bleus définitivement */
+*,
+*:before,
+*:after,
+button,
+input,
+select,
+textarea,
+a,
+div,
+span {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
     outline: none !important;
     box-shadow: none !important;
 }
 
-/* Pour les liens aussi */
-a:focus {
-    outline: none !important;
-}
-
-/* Garder une indication visuelle subtile pour l'accessibilité */
-button:focus-visible,
-.btn:focus-visible {
-    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3) !important;
+/* Permettre la sélection de texte dans les inputs */
+input, textarea {
+    -webkit-user-select: text !important;
+    user-select: text !important;
 }

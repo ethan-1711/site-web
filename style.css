@@ -828,16 +828,16 @@ input, textarea {
 }
 
 .features, .stats { 
-    margin: 40px 0; /* Réduire de 80px à 60px */
+    margin: 20px 0; /* Réduire de 80px à 60px */
 }
 
 .stats {
-    margin-bottom: 40px; /* Rapprocher du footer */
+    margin-bottom: 20px; /* Rapprocher du footer */
 }
 
 @media (max-width: 768px) {
     .features, .stats {
-        margin: 40px 0; /* Encore plus proche sur mobile */
+        margin: 20px 0; /* Encore plus proche sur mobile */
     }
 }
     

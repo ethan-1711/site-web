@@ -778,3 +778,64 @@ input, textarea {
     -webkit-user-select: text !important;
     user-select: text !important;
 }
+.stats {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    background: rgba(26, 26, 34, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 50px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    flex-wrap: wrap; /* Permet le wrap si nécessaire */
+    gap: 20px;
+}
+
+.stat-item {
+    flex: 1;
+    min-width: 120px; /* Largeur minimum pour chaque stat */
+}
+
+.stat-item h2 {
+    font-size: 3.5em;
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+    font-weight: 800;
+}
+
+.stat-item p {
+    font-size: 1.2em;
+    color: var(--text-muted-color);
+    margin: 0;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .stats {
+        padding: 30px 15px;
+        justify-content: space-between; /* Garde l'alignement horizontal */
+    }
+    
+    .stat-item h2 {
+        font-size: 2.5em;
+    }
+    
+    .stat-item p {
+        font-size: 1em;
+    }
+}
+
+/* Ne pas changer en colonne même sur très petit écran */
+@media (max-width: 480px) {
+    .stats {
+        gap: 10px;
+    }
+    
+    .stat-item h2 {
+        font-size: 2em;
+    }
+    
+    .stat-item p {
+        font-size: 0.9em;
+    }
+}

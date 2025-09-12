@@ -195,7 +195,14 @@
                                     <i class="fas fa-magic"></i>
                                     <h3>Créer un Cadeau</h3>
                                 </div>
-                                <!-- reste du contenu -->
+                                <p>Transformez vos pièces en cadeaux magiques à partager !</p>
+                                <div class="balance-display">
+                                    <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}Coin.png" class="balance-coin">
+                                    <span id="user-balance">${userData.coins.toLocaleString()}</span>‎ pièces disponibles
+                                </div>
+                                <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
+                                    <i class="fas fa-plus-circle"></i> Créer un Code
+                                </button>
                             </div>
 
                             <div class="gift-card secondary-card">
@@ -203,10 +210,17 @@
                                     <i class="fas fa-receipt"></i>
                                     <h3>Mes Codes</h3>
                                 </div>
-                                <!-- reste du contenu -->
+                                <p>Gérez tous vos codes cadeaux actifs ou expirés.</p>
+                                <div class="codes-count">
+                                    <span id="my-codes-count" class="count-badge">...</span>
+                                    <span>codes actifs</span>
+                                </div>
+                                <button class="btn-gift-action secondary" onclick="showMyCodes()">
+                                    <i class="fas fa-list"></i> Voir mes Codes
+                                </button>
                             </div>
 
-                            <div class="gift-card"> <!-- Supprimer la classe redeem-card -->
+                            <div class="gift-card">
                                 <div class="card-header">
                                     <i class="fas fa-ticket-alt"></i>
                                     <h3>Utiliser un Code Cadeau</h3>

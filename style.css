@@ -435,3 +435,24 @@ input:checked + .slider:before { transform: translateX(26px); }
     flex-direction: column;
     gap: 15px;
 }
+/* Supprimer les contours bleus au focus */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+.btn:focus,
+*:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Pour les liens aussi */
+a:focus {
+    outline: none !important;
+}
+
+/* Garder une indication visuelle subtile pour l'accessibilité */
+button:focus-visible,
+.btn:focus-visible {
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.3) !important;
+}

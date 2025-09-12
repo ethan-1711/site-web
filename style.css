@@ -85,7 +85,7 @@ nav {
 .nav-logo { width: 45px; height: 45px; margin-right: 15px; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; }
 
 /* --- Hero (Accueil) --- */
-.hero { text-align: center; padding: 60px 20px; margin-bottom: 20px; }
+.hero { text-align: center; padding: 20px 20px; margin-bottom: 40px; }
 .hero h1 { font-size: 4em; font-weight: 800; margin-bottom: 25px; line-height: 1.2; }
 .hero p { font-size: 1.3em; color: var(--text-muted-color); max-width: 700px; margin: 0 auto 40px auto; font-weight: 400; }
 .gradient-text, .gradient-icon { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; z-index: 1; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3)); }
@@ -828,11 +828,11 @@ input, textarea {
 }
 
 .features, .stats { 
-    margin: 5px 0; /* Réduire de 80px à 60px */
+    margin: 60px 0; /* Réduire de 80px à 60px */
 }
 
 .stats {
-    margin-bottom: 40px; /* Rapprocher du footer */
+    margin-bottom: 60px; /* Rapprocher du footer */
 }
 
 @media (max-width: 768px) {

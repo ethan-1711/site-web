@@ -365,3 +365,73 @@ input:checked + .slider:before { transform: translateX(26px); }
 .transaction-amount.negative {
     color: var(--error-color);
 }
+
+/* --- Offre Globale sur la Page d'Accueil --- */
+#global-offer-container {
+    max-width: 800px;
+    margin: -20px auto 40px auto;
+}
+
+.global-offer-box {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(124, 58, 237, 0.2));
+    border: 1px solid var(--primary-color);
+    border-radius: 16px;
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    backdrop-filter: blur(5px);
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.5s;
+}
+
+.offer-icon {
+    font-size: 2.5em;
+}
+
+.offer-details {
+    flex-grow: 1;
+}
+
+.offer-message {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.2em;
+    color: var(--text-color);
+}
+
+.offer-amount {
+    margin: 0;
+    color: var(--text-muted-color);
+}
+
+.btn-claim-offer {
+    background-color: var(--success-color);
+    color: white;
+    font-family: inherit;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-claim-offer:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+}
+
+.offer-login-prompt {
+    margin: 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+#create-offer-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}

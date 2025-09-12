@@ -832,11 +832,35 @@
         
         function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
         
-        function setupScrollAnimations() { 
-            const observer = new IntersectionObserver(entries => { 
-                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); 
-            }, { threshold: 0.1 }); 
-            document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el)); 
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        if (entry.target.classList.contains('features')) {
+                            // Animation séquentielle pour mobile
+                            const isMobile = window.innerWidth <= 768;
+                            const featureItems = entry.target.querySelectorAll('.feature-item');
+                            
+                            if (isMobile) {
+                                featureItems.forEach((item, index) => {
+                                    setTimeout(() => {
+                                        item.classList.add('visible');
+                                    }, index * 200); // 200ms de délai entre chaque carte
+                                });
+                            } else {
+                                featureItems.forEach(item => {
+                                    item.classList.add('visible');
+                                });
+                            }
+                            entry.target.classList.add('visible');
+                        } else {
+                            entry.target.classList.add('visible');
+                        }
+                    }
+                });
+            }, { threshold: 0.1 });
+    
+            document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el));
         }
 
         function copyToClipboard(text) {

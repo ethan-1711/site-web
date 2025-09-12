@@ -233,21 +233,6 @@
                                 ${prefilledCode ? `<div class="redeem-success-notice"><i class="fas fa-magic"></i> Code détecté automatiquement ! Cliquez sur "Utiliser" pour le réclamer.</div>` : ''}
                             </div>
                         </div>
-
-                        <div class="redeem-section">
-                            <div class="redeem-card">
-                                <div class="redeem-header">
-                                    <i class="fas fa-ticket-alt"></i>
-                                    <h3>Utiliser un Code Cadeau</h3>
-                                </div>
-                                <p>Un ami vous a envoyé un code ? Utilisez-le ici pour recevoir vos pièces !</p>
-                                <div class="redeem-input-group">
-                                    <input type="text" id="redeem-code-input" placeholder="Entrez le code ST-..." value="${prefilledCode}">
-                                    <button class="btn-redeem" onclick="redeemGiftCode()"><i class="fas fa-check-circle"></i> Utiliser</button>
-                                </div>
-                                ${prefilledCode ? `<div style="margin-top: 15px; padding: 10px; background: rgba(34, 197, 94, 0.2); border-radius: 8px; color: #22c55e; text-align: center;"><i class="fas fa-info-circle"></i> Code détecté automatiquement ! Cliquez sur "Utiliser" pour le réclamer.</div>` : ''}
-                            </div>
-                        </div>
                     </main>
                 </div>
             `;

@@ -290,3 +290,10 @@ input:checked + .slider:before { transform: translateX(26px); }
     .my-code-item { flex-direction: column; gap: 10px; align-items: center; text-align: center; }
     .maintenance-toggle { flex-direction: column; text-align: center; gap: 15px; }
 }
+
+.account-main { max-width: 1000px; margin: 0 auto; }
+.account-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; margin-top: 30px; }
+.account-card { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid var(--border-color); }
+.account-card h3 { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; font-size: 1.4em; }
+.pricing-info { display: flex; flex-direction: column; gap: 15px; }
+.price-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--secondary-color); border-radius: 10px; font-weight: 600; }

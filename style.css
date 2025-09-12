@@ -304,3 +304,64 @@ input:checked + .slider:before { transform: translateX(26px); }
 .account-card h3 { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; font-size: 1.4em; }
 .pricing-info { display: flex; flex-direction: column; gap: 15px; }
 .price-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--secondary-color); border-radius: 10px; font-weight: 600; }
+/* --- Page Mon Compte / Historique --- */
+.account-main h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.transactions-list {
+    background-color: var(--card-color);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-reason {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+.transaction-timestamp {
+    font-size: 0.9em;
+    color: var(--text-muted-color);
+}
+
+.transaction-amount {
+    font-size: 1.2em;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.transaction-amount.positive {
+    color: var(--success-color);
+}
+
+.transaction-amount.negative {
+    color: var(--error-color);
+}

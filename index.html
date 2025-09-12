@@ -686,13 +686,17 @@
             }
         }
 
+        // Colle ce code dans la balise <script> de ton index.html
+
         async function loadGlobalOffer() {
             const container = document.getElementById('global-offer-container');
             if (!container) return;
         
             try {
                 const offer = await apiFetch('/api/offer/status');
-                if (offer.active) {
+                
+                // On vérifie explicitement si offer.active est true
+                if (offer && offer.active === true) {
                     const token = localStorage.getItem('jwt_token');
                     const claimButtonHtml = token 
                         ? `<button class="btn-claim-offer" onclick="claimGlobalOffer()">Réclamer !</button>`
@@ -707,18 +711,22 @@
                             </div>
                             ${claimButtonHtml}
                         </div>`;
+                } else {
+                    // S'il n'y a pas d'offre, on s'assure que la zone est vide
+                    container.innerHTML = '';
                 }
             } catch (error) {
-                // Ne rien faire en cas d'erreur pour ne pas polluer la page
-                console.error("Erreur chargement offre globale:", error);
+                console.error("Erreur lors du chargement de l'offre globale:", error);
+                container.innerHTML = ''; // On cache en cas d'erreur
             }
         }
 
         async function claimGlobalOffer() {
+            // 'event' est automatiquement disponible quand appelé par onclick
             const btn = event.target;
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
+    
             try {
                 const result = await apiFetch('/api/offer/claim', { method: 'POST' });
                 if (result.success) {
@@ -728,7 +736,8 @@
                 }
             } catch (error) {
                 showToast(error.error || "Une erreur est survenue.", "error");
-                btn.innerHTML = 'Déjà réclamé !'; // Change le texte du bouton en cas d'erreur (ex: déjà pris)
+                // On cache l'offre si elle a déjà été réclamée par quelqu'un d'autre
+                document.getElementById('global-offer-container').innerHTML = '';
             }
         }
 

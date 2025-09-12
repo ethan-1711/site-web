@@ -173,7 +173,6 @@ nav {
 .redeem-section { margin-top: 40px; }
 .redeem-card { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid var(--border-color); }
 .redeem-header i { color: var(--success-color); }
-.redeem-input-group { display: flex; gap: 15px; margin-top: 20px; }
 /* Ajoute ce bloc pour gérer l'alignement sur mobile */
 .redeem-input-group input {
     flex-grow: 1; /* Permet au champ de prendre toute la place disponible */

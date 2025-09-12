@@ -825,11 +825,19 @@ input, textarea {
     }
 }
 
-/* Ne pas changer en colonne même sur très petit écran */
-@media (max-width: 480px) {
-    .stats {
-        gap: 10px;
+.features, .stats { 
+    margin: 60px 0; /* Réduire de 80px à 60px */
+}
+
+.stats {
+    margin-bottom: 60px; /* Rapprocher du footer */
+}
+
+@media (max-width: 768px) {
+    .features, .stats {
+        margin: 40px 0; /* Encore plus proche sur mobile */
     }
+}
     
     .stat-item h2 {
         font-size: 2em;

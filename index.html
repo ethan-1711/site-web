@@ -640,13 +640,8 @@
         async function renderAccountPage() {
             document.title = 'StrexBot - Mon Compte';
             const container = document.getElementById('app-container');
-            const userData = await apiFetch('/api/user_data').catch(() => null);
             
-            if (!userData) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
-                return;
-            }
-        
+            // Affiche une structure de base pendant le chargement
             container.innerHTML = `
                 <div class="container">
                     <nav>
@@ -655,46 +650,41 @@
                     </nav>
                     <main>
                         <div class="account-main">
-                            <h1><i class="fas fa-user-circle"></i> Mon Compte</h1>
-                    
-                            <div class="account-grid">
-                                <div class="account-card">
-                                    <h3><i class="fas fa-server"></i> Mes Serveurs</h3>
-                                    <p>Gérez les commandes de vos serveurs Discord</p>
-                                    <div id="servers-list">
-                                        <p>Fonctionnalité en développement...</p>
-                                        <p>Bientôt vous pourrez :</p>
-                                        <ul>
-                                            <li>Voir vos serveurs Discord</li>
-                                            <li>Acheter des commandes pour chaque serveur</li>
-                                            <li>Gérer les crédits de commandes</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                
-                                <div class="account-card">
-                                    <h3><i class="fas fa-info-circle"></i> Tarification</h3>
-                                    <p>Prix des commandes pour vos serveurs</p>
-                                    <div class="pricing-info">
-                                        <div class="price-item">
-                                            <span>1 commande</span>
-                                            <span><img src="Coin.png" class="coin-mini"> 0.10</span>
-                                        </div>
-                                        <div class="price-item">
-                                            <span>10 commandes</span>
-                                            <span><img src="Coin.png" class="coin-mini"> 1.00</span>
-                                        </div>
-                                        <div class="price-item">
-                                            <span>100 commandes</span>
-                                            <span><img src="Coin.png" class="coin-mini"> 10.00</span>
-                                        </div>
-                                    </div>
-                                </div>
+                            <h1><i class="fas fa-history"></i> Mon Historique</h1>
+                            <div class="transactions-list" id="transactions-list">
+                                <p>Chargement de l'historique...</p>
                             </div>
                         </div>
                     </main>
                 </div>`;
             updateUserSection();
+
+            // Récupère et affiche les transactions
+            try {
+                const transactions = await apiFetch('/api/user/transactions');
+                const listContainer = document.getElementById('transactions-list');
+
+                if (transactions && transactions.length > 0) {
+                    listContainer.innerHTML = transactions.map(t => {
+                        const date = new Date(t.timestamp);
+                        const amountClass = t.amount >= 0 ? 'positive' : 'negative';
+                        const sign = t.amount >= 0 ? '+' : '';
+
+                        return `
+                        <div class="transaction-item">
+                            <div class="transaction-details">
+                                <span class="transaction-reason">${t.reason}</span>
+                                <span class="transaction-timestamp">${date.toLocaleString()}</span>
+                            </div>
+                            <span class="transaction-amount ${amountClass}">${sign}${t.amount}</span>
+                        </div>`;
+                    }).join('');
+                } else {
+                    listContainer.innerHTML = '<p>Aucune transaction récente.</p>';
+                }
+            } catch (error) {
+                document.getElementById('transactions-list').innerHTML = '<p>Erreur lors du chargement de l\'historique.</p>';
+            }
         }
 
         async function apiFetch(endpoint, options = {}) {

@@ -694,31 +694,43 @@
             if (!container) return;
         
             try {
+                const token = localStorage.getItem('jwt_token');
+                if (!token) {
+                    container.innerHTML = '';
+                    return;
+                }
+        
                 const offer = await apiFetch('/api/offer/status');
                 
-                // On vérifie explicitement si offer.active est true
                 if (offer && offer.active === true) {
-                    const token = localStorage.getItem('jwt_token');
-                    const claimButtonHtml = token 
-                        ? `<button class="btn-claim-offer" onclick="claimGlobalOffer()">Réclamer !</button>`
-                        : `<p class="offer-login-prompt">Connectez-vous pour réclamer cette offre !</p>`;
-        
-                    container.innerHTML = `
-                        <div class="global-offer-box">
-                            <div class="offer-icon">🎁</div>
-                            <div class="offer-details">
-                                <p class="offer-message">${offer.message}</p>
-                                <p class="offer-amount">${offer.amount} pièces à gagner !</p>
-                            </div>
-                            ${claimButtonHtml}
-                        </div>`;
+                    if (offer.already_claimed) {
+                        // L'utilisateur a déjà réclamé
+                        container.innerHTML = `
+                            <div class="global-offer-box" style="opacity: 0.6;">
+                                <div class="offer-icon">✅</div>
+                                <div class="offer-details">
+                                    <p class="offer-message">Offre déjà réclamée</p>
+                                    <p class="offer-amount">Vous avez déjà reçu ${offer.amount} pièces !</p>
+                                </div>
+                            </div>`;
+                    } else {
+                        // L'utilisateur peut réclamer
+                        container.innerHTML = `
+                            <div class="global-offer-box">
+                                <div class="offer-icon">🎁</div>
+                                <div class="offer-details">
+                                    <p class="offer-message">${offer.message}</p>
+                                    <p class="offer-amount">${offer.amount} pièces à gagner !</p>
+                                </div>
+                                <button class="btn-claim-offer" onclick="claimGlobalOffer()">Réclamer !</button>
+                            </div>`;
+                    }
                 } else {
-                    // S'il n'y a pas d'offre, on s'assure que la zone est vide
                     container.innerHTML = '';
                 }
             } catch (error) {
                 console.error("Erreur lors du chargement de l'offre globale:", error);
-                container.innerHTML = ''; // On cache en cas d'erreur
+                container.innerHTML = '';
             }
         }
 

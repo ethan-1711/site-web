@@ -1,1 +1,12 @@
-/* /index.html    200
+
+# Rediriger toutes les routes vers index.html pour le routage côté client
+# Sauf les fichiers statiques (images, CSS, JS, etc.)
+
+# Servir les fichiers statiques normalement
+/S.png         /S.png         200
+/Coin.png      /Coin.png      200  
+/style.css     /style.css     200
+/api/*         https://api-s5et.onrender.com/api/:splat  200
+
+# Rediriger toutes les autres routes vers index.html pour le SPA
+/*             /index.html    200

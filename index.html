@@ -249,6 +249,9 @@
                                 <div class="card-header">
                                     <i class="fas fa-magic"></i>
                                     <h3>Créer un Cadeau</h3>
+                                    <button class="btn-my-codes" onclick="showMyCodes()">
+                                        <i class="fas fa-list"></i> Mes codes (<span id="codes-count-header">...</span>)
+                                    </button>
                                 </div>
                                 <p>Transformez vos pièces en cadeaux magiques à partager !</p>
                                 <div class="balance-display">
@@ -539,14 +542,27 @@
         }
 
         async function loadMyCodes() {
-            const countBadge = document.getElementById('my-codes-count');
-            if (countBadge) {
-                try {
-                    const codes = await apiFetch('/api/gifts/my_codes');
-                    countBadge.innerText = codes.length || '0';
-                } catch {
-                    countBadge.innerText = '0';
+            try {
+                const codes = await apiFetch('/api/gifts/my_codes');
+                const count = codes.length || 0;
+        
+                // Mettre à jour le compteur dans la carte "Mes Codes"
+                const countBadge = document.getElementById('my-codes-count');
+                if (countBadge) {
+                    countBadge.innerText = count;
                 }
+        
+                // Mettre à jour le compteur dans le header de la carte "Créer un Cadeau"
+                const headerCount = document.getElementById('codes-count-header');
+                if (headerCount) {
+                    headerCount.innerText = count;
+                }
+            } catch {
+                const countBadge = document.getElementById('my-codes-count');
+                if (countBadge) countBadge.innerText = '0';
+        
+                const headerCount = document.getElementById('codes-count-header');
+                if (headerCount) headerCount.innerText = '0';
             }
         }
 

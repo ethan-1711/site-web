@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StrexBot</title>
-    <link rel="icon" type="image/png" href="S.png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="/S.png">
+    <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <meta property="og:title" content="StrexBot">
@@ -133,7 +133,7 @@
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
                         </div>
                         <div id="user-section"></div>
                     </nav>
@@ -179,7 +179,7 @@
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}S.png" alt="Logo" class="nav-logo"> StrexBot
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
                         </div>
                         <div id="user-section"></div>
                     </nav>
@@ -197,7 +197,7 @@
                                 </div>
                                 <p>Transformez vos pièces en cadeaux magiques à partager !</p>
                                 <div class="balance-display">
-                                    <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}Coin.png" class="balance-coin">
+                                    <img src="${window.location.pathname.startsWith('/redeem/') ? '../' : ''}/Coin.png" class="balance-coin">
                                     <span id="user-balance">${userData.coins.toLocaleString()}</span>‎ pièces disponibles
                                 </div>
                                 <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
@@ -252,13 +252,13 @@
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="S.png" alt="Logo" class="nav-logo"> StrexBot
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
                         </div>
                         <div id="user-section"></div>
                     </nav>
                     <main class="daily-main">
                         <div class="daily-hero">
-                            <h1><img src="Coin.png" class="daily-title-coin"> Récompense Quotidienne</h1>
+                            <h1><img src="/Coin.png" class="daily-title-coin"> Récompense Quotidienne</h1>
                             <p>Revenez chaque jour pour réclamer une pièce gratuite et augmenter votre solde !</p>
                         </div>
                         <div id="daily-card-container">
@@ -277,7 +277,7 @@
             container.innerHTML = `
                  <div class="container">
                      <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot</div>
                         <div id="user-section"></div>
                     </nav>
                     <main>

@@ -396,6 +396,25 @@
                 if (result && result.success) {
                     showToast(result.message, 'success');
 
+                    if (result && result.success) {
+                        showToast(result.message, 'success');
+    
+                        // Si on est sur une page de redeem directe, rafraîchir ET rediriger
+                        if (window.location.pathname.startsWith('/redeem/')) {
+                            setTimeout(() => {
+                                navigate('/');
+                                location.reload(); // AJOUTEZ CETTE LIGNE
+                            }, 2000);
+                        } else {
+                            const inputElement = document.getElementById('redeem-code-input');
+                            if (inputElement) {
+                                inputElement.value = '';
+                            }
+                        }
+    
+                        await updateUserSection();
+                    }
+
                     if (window.location.pathname.startsWith('/redeem/')) {
                         setTimeout(() => navigate('/'), 2000);
                     } else {

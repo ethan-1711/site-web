@@ -698,19 +698,40 @@
             }
         }
         
-        async function redeemGiftCode() {
-            const codeInput = document.getElementById('redeem-code-input');
-            const code = codeInput.value.trim();
+        async function redeemGiftCode(directCode = null) {
+            let code; // AJOUTEZ CETTE LIGNE
+    
+            if (directCode) {
+                code = directCode;
+            } else {
+                const inputElement = document.getElementById('redeem-code-input');
+                if (inputElement) {
+                    code = inputElement.value.trim();
+                } else {
+                    code = '';
+                }
+            }
+    
             if (!code) {
                 showToast("Veuillez entrer un code.", "error");
                 return;
             }
-            
+    
             try {
-                const result = await apiFetch('/api/gifts/redeem', { method: 'POST', body: JSON.stringify({ code }) });
+                const result = await apiFetch('/api/gifts/redeem', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+        
                 if (result && result.success) {
                     showToast(result.message, 'success');
-                    codeInput.value = '';
+            
+                    // REMPLACEZ codeInput.value = ''; PAR :
+                    const inputElement = document.getElementById('redeem-code-input');
+                    if (inputElement) {
+                        inputElement.value = '';
+                    }
+            
                     await updateUserSection();
                 }
             } catch (error) {

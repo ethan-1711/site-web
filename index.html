@@ -169,12 +169,67 @@
             document.title = 'StrexBot - Cadeaux';
             const container = document.getElementById('app-container');
             const userData = await apiFetch('/api/user_data').catch(() => null);
-            
+    
             if (!userData) {
                 container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
                 return;
             }
 
+            // SI C'EST UNE PAGE DE REDEEM DIRECTE
+            if (prefilledCode && prefilledCode.startsWith('ST-')) {
+                // Récupérer les infos du code cadeau
+                const giftInfo = await getGiftCodeInfo(prefilledCode);
+        
+                container.innerHTML = `
+                    <div class="container">
+                        <nav>
+                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                                <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                            </div>
+                            <div id="user-section"></div>
+                        </nav>
+                        <main class="redeem-landing">
+                            <div class="redeem-hero">
+                                <div class="gift-icon-large">🎁</div>
+                                <h1>Vous avez reçu un cadeau !</h1>
+                                <p>Un ami généreux vous a envoyé des pièces StrexBot</p>
+                            </div>
+                    
+                            <div class="gift-preview-card">
+                                <div class="gift-amount-display">
+                                    <img src="/Coin.png" class="gift-coin-large">
+                                    <span class="gift-amount-number">${giftInfo ? giftInfo.amount : '?'}</span>
+                                    <span class="gift-amount-text">pièces</span>
+                                </div>
+                        
+                                <div class="gift-code-display">
+                                    <span class="gift-code">Code: ${prefilledCode}</span>
+                                </div>
+                        
+                                ${giftInfo && giftInfo.valid ? 
+                                    `<button class="btn-claim-gift-large" onclick="redeemGiftCode('${prefilledCode}')">
+                                        <i class="fas fa-gift"></i> Réclamer mon cadeau
+                                    </button>` :
+                                    `<div class="gift-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Ce code cadeau n'est plus valide
+                                    </div>`
+                                }
+                        
+                                <p class="gift-footer">
+                                    <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')">
+                                        Gérer mes propres codes cadeaux
+                                    </a>
+                                </p>
+                            </div>
+                        </main>
+                    </div>
+                `;
+                updateUserSection();
+                return;
+            }
+
+            // SINON, AFFICHER LA PAGE CADEAUX NORMALE
             container.innerHTML = `
                 <div class="container">
                     <nav>
@@ -184,60 +239,61 @@
                         <div id="user-section"></div>
                     </nav>
                     <main class="gifts-main">
+                        <!-- Votre code actuel de la page gifts normale -->
                         <div class="gifts-hero">
                             <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
                             <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
                         </div>
                 
-                        <div class="gifts-content">
-                            <div class="gift-card primary-card">
-                                <div class="card-header">
-                                    <i class="fas fa-magic"></i>
-                                    <h3>Créer un Cadeau</h3>
-                                </div>
-                                <p>Transformez vos pièces en cadeaux magiques à partager !</p>
-                                <div class="balance-display">
-                                    <img src="/Coin.png" class="balance-coin">
-                                    <span id="user-balance">${userData.coins.toLocaleString()}</span>‎ pièces disponibles
-                                </div>
-                                <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
-                                    <i class="fas fa-plus-circle"></i> Créer un Code
-                                </button>
-                            </div>
-
-                            <div class="gift-card secondary-card">
-                                <div class="card-header">
-                                    <i class="fas fa-receipt"></i>
-                                    <h3>Mes Codes</h3>
-                                </div>
-                                <p>Gérez tous vos codes cadeaux actifs ou expirés.</p>
-                                <div class="codes-count">
-                                    <span id="my-codes-count" class="count-badge">...</span>
-                                    <span>codes actifs</span>
-                                </div>
-                                <button class="btn-gift-action secondary" onclick="showMyCodes()">
-                                    <i class="fas fa-list"></i> Voir mes Codes
-                                </button>
-                            </div>
-
-                            <div class="gift-card">
-                                <div class="card-header">
-                                    <i class="fas fa-ticket-alt"></i>
-                                    <h3>Utiliser un Code Cadeau</h3>
-                                </div>
-                                <p>Un ami vous a envoyé un code ? Utilisez-le ici pour recevoir vos pièces !</p>
-                                <div class="redeem-input-group">
-                                    <input type="text" id="redeem-code-input" placeholder="Entrez le code ST-..." value="${prefilledCode}">
-                                    <button class="btn-redeem" onclick="redeemGiftCode()"><i class="fas fa-check-circle"></i> Utiliser</button>
-                                </div>
-                                ${prefilledCode ? `<div class="redeem-success-notice"><i class="fas fa-magic"></i> Code détecté automatiquement ! Cliquez sur "Utiliser" pour le réclamer.</div>` : ''}
-                            </div>
-                        </div>
+                        <!-- ... reste de votre code actuel ... -->
                     </main>
                 </div>
             `;
             updateUserSection();
             loadMyCodes();
+        }
+
+        // Nouvelle fonction pour récupérer les infos d'un code cadeau
+        async function getGiftCodeInfo(code) {
+            try {
+                // Vous devrez créer cette route API qui retourne juste les infos du code sans le réclamer
+                const response = await apiFetch(`/api/gifts/info/${code}`);
+                return response;
+            } catch (error) {
+                return { valid: false, amount: 0 };
+            }
+        }
+
+        // Modifier la fonction redeemGiftCode pour accepter un code en paramètre
+        async function redeemGiftCode(directCode = null) {
+            const code = directCode || document.getElementById('redeem-code-input')?.value.trim();
+    
+            if (!code) {
+                showToast("Veuillez entrer un code.", "error");
+                return;
+            }
+    
+            try {
+                const result = await apiFetch('/api/gifts/redeem', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+        
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+            
+                    // Si on est sur une page de redeem directe, rediriger vers l'accueil
+                    if (window.location.pathname.startsWith('/redeem/')) {
+                        setTimeout(() => navigate('/'), 2000);
+                    } else if (document.getElementById('redeem-code-input')) {
+                        document.getElementById('redeem-code-input').value = '';
+                    }
+            
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
         }
 
         async function renderDailyPage() {

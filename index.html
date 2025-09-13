@@ -289,7 +289,7 @@
                                         <span class="gift-code">Code: ${prefilledCode}</span>
                                     </div>
                     
-                                    <button class="btn-claim-gift-large" onclick="redeemGiftCode('${prefilledCode}')">
+                                    <button class="btn-claim-gift-large" onclick="claimDirectGift('${prefilledCode}')">
                                         <i class="fas fa-gift"></i> Réclamer mon cadeau
                                     </button>` :
                                     `<div class="gift-error">
@@ -352,6 +352,10 @@
             `;
             updateUserSection();
             loadMyCodes();
+        }
+
+        function claimDirectGift(code) {
+            redeemGiftCode(code);
         }
 
         // 3. Votre fonction redeemGiftCode corrigée

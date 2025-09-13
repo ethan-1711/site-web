@@ -169,7 +169,7 @@
             document.title = 'StrexBot - Cadeaux';
             const container = document.getElementById('app-container');
             const userData = await apiFetch('/api/user_data').catch(() => null);
-    
+
             if (!userData) {
                 container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
                 return;
@@ -191,10 +191,10 @@
                         <main class="redeem-landing">
                             <div class="redeem-hero">
                                 <div class="gift-icon-large">🎁</div>
-                                <h1>Cadeau invalide</h1>
-                                <p>Ce code cadeau n'est plus disponible</p>
+                                <h1>${giftInfo && giftInfo.valid ? 'Cadeau trouvé !' : 'Cadeau invalide'}</h1>
+                                <p>${giftInfo && giftInfo.valid ? 'Un cadeau vous attend !' : 'Ce code cadeau n\'est plus disponible'}</p>
                             </div>
-                    
+            
                             <div class="gift-preview-card">
                                 ${giftInfo && giftInfo.valid ? 
                                     `<div class="gift-amount-display">
@@ -202,20 +202,20 @@
                                         <span class="gift-amount-number">${giftInfo.amount}</span>
                                         <span class="gift-amount-text">pièces</span>
                                     </div>
-                            
+                    
                                     <div class="gift-code-display">
-                                <span class="gift-code">Code: ${prefilledCode}</span>
+                                        <span class="gift-code">Code: ${prefilledCode}</span>
                                     </div>
-                            
+                    
                                     <button class="btn-claim-gift-large" onclick="redeemGiftCode('${prefilledCode}')">
                                         <i class="fas fa-gift"></i> Réclamer mon cadeau
                                     </button>` :
                                     `<div class="gift-error">
                                         <i class="fas fa-exclamation-triangle"></i>
-                                        Cadeau invalide
+                                        ${giftInfo ? giftInfo.error : 'Code invalide'}
                                     </div>`
                                 }
-                        
+                
                                 <p class="gift-footer">
                                     <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')">
                                         Gérer mes propres codes cadeaux
@@ -229,7 +229,7 @@
                 return;
             }
 
-            // PAGE GIFTS NORMALE - AJOUTEZ TOUT VOTRE CONTENU ORIGINAL ICI
+            // PAGE GIFTS NORMALE - Votre contenu original ici
             container.innerHTML = `
                 <div class="container">
                     <nav>
@@ -243,7 +243,7 @@
                             <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
                             <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
                         </div>
-        
+
                         <div class="gifts-content">
                             <div class="gift-card primary-card">
                                 <div class="card-header">
@@ -263,7 +263,31 @@
                                 </button>
                             </div>
 
-                            <!-- Ajoutez tout le reste de votre contenu gifts original ici -->
+                            <div class="gift-card">
+                                <div class="card-header">
+                                    <i class="fas fa-magic"></i>
+                                    <h3>Utiliser un Code</h3>
+                                </div>
+                                <p>Vous avez reçu un code cadeau ? Utilisez-le ici !</p>
+                                <div class="redeem-section">
+                                    <input type="text" id="redeem-code-input" placeholder="ST-XXXXXXXX" class="code-input">
+                                    <button class="btn-redeem" onclick="redeemGiftCode()">
+                                        <i class="fas fa-gift"></i> Utiliser
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="gift-card">
+                                <div class="card-header">
+                                    <i class="fas fa-list"></i>
+                                    <h3>Mes Codes Actifs</h3>
+                                    <span class="codes-badge" id="my-codes-count">0</span>
+                                </div>
+                                <p>Gérez vos codes cadeaux créés et partagez-les avec vos amis.</p>
+                                <button class="btn-my-codes" onclick="showMyCodes()">
+                                    <i class="fas fa-eye"></i> Voir mes codes
+                                </button>
+                            </div>
                         </div>
                     </main>
                 </div>

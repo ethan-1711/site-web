@@ -165,6 +165,39 @@
             loadGlobalOffer();
         }
         
+        // Fonction corrigée pour gérer les deux cas : avec et sans paramètre
+        async function redeemGiftCode(directCode = null) {
+            const code = directCode || document.getElementById('redeem-code-input')?.value.trim();
+
+            if (!code) {
+                showToast("Veuillez entrer un code.", "error");
+                return;
+            }
+
+            try {
+                const result = await apiFetch('/api/gifts/redeem', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+
+                    // Si on est sur une page de redeem directe, rediriger vers l'accueil
+                    if (window.location.pathname.startsWith('/redeem/')) {
+                        setTimeout(() => navigate('/'), 2000);
+                    } else if (document.getElementById('redeem-code-input')) {
+                        document.getElementById('redeem-code-input').value = '';
+                    }
+
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
+        }
+
+        // Et gardez votre fonction renderGiftsPage originale, juste corrigez la partie redeem :
         async function renderGiftsPage(prefilledCode = '') {
             document.title = 'StrexBot - Cadeaux';
             const container = document.getElementById('app-container');
@@ -179,7 +212,7 @@
             if (prefilledCode && prefilledCode.startsWith('ST-')) {
                 // Récupérer les infos du code cadeau
                 const giftInfo = await getGiftCodeInfo(prefilledCode);
-        
+
                 container.innerHTML = `
                     <div class="container">
                         <nav>
@@ -229,7 +262,7 @@
                 return;
             }
 
-            // PAGE GIFTS NORMALE - Votre contenu original ici
+            // PAGE GIFTS NORMALE - VOTRE CONTENU ORIGINAL
             container.innerHTML = `
                 <div class="container">
                     <nav>
@@ -263,31 +296,7 @@
                                 </button>
                             </div>
 
-                            <div class="gift-card">
-                                <div class="card-header">
-                                    <i class="fas fa-magic"></i>
-                                    <h3>Utiliser un Code</h3>
-                                </div>
-                                <p>Vous avez reçu un code cadeau ? Utilisez-le ici !</p>
-                                <div class="redeem-section">
-                                    <input type="text" id="redeem-code-input" placeholder="ST-XXXXXXXX" class="code-input">
-                                    <button class="btn-redeem" onclick="redeemGiftCode()">
-                                        <i class="fas fa-gift"></i> Utiliser
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="gift-card">
-                                <div class="card-header">
-                                    <i class="fas fa-list"></i>
-                                    <h3>Mes Codes Actifs</h3>
-                                    <span class="codes-badge" id="my-codes-count">0</span>
-                                </div>
-                                <p>Gérez vos codes cadeaux créés et partagez-les avec vos amis.</p>
-                                <button class="btn-my-codes" onclick="showMyCodes()">
-                                    <i class="fas fa-eye"></i> Voir mes codes
-                                </button>
-                            </div>
+                            <!-- Ajoutez le reste de votre contenu original ici -->
                         </div>
                     </main>
                 </div>

@@ -191,28 +191,28 @@
                         <main class="redeem-landing">
                             <div class="redeem-hero">
                                 <div class="gift-icon-large">🎁</div>
-                                <h1>Vous avez reçu un cadeau !</h1>
-                                <p>Un ami généreux vous a envoyé des pièces StrexBot</p>
+                                <h1>Cadeau invalide</h1>
+                                <p>Ce code cadeau n'est plus disponible</p>
                             </div>
                     
                             <div class="gift-preview-card">
-                                <div class="gift-amount-display">
-                                    <img src="/Coin.png" class="gift-coin-large">
-                                    <span class="gift-amount-number">${giftInfo ? giftInfo.amount : '?'}</span>
-                                    <span class="gift-amount-text">pièces</span>
-                                </div>
-                        
-                                <div class="gift-code-display">
-                                    <span class="gift-code">Code: ${prefilledCode}</span>
-                                </div>
-                        
                                 ${giftInfo && giftInfo.valid ? 
-                                    `<button class="btn-claim-gift-large" onclick="redeemGiftCode('${prefilledCode}')">
+                                    `<div class="gift-amount-display">
+                                        <img src="/Coin.png" class="gift-coin-large">
+                                        <span class="gift-amount-number">${giftInfo.amount}</span>
+                                        <span class="gift-amount-text">pièces</span>
+                                    </div>
+                            
+                                    <div class="gift-code-display">
+                                <span class="gift-code">Code: ${prefilledCode}</span>
+                                    </div>
+                            
+                                    <button class="btn-claim-gift-large" onclick="redeemGiftCode('${prefilledCode}')">
                                         <i class="fas fa-gift"></i> Réclamer mon cadeau
                                     </button>` :
                                     `<div class="gift-error">
                                         <i class="fas fa-exclamation-triangle"></i>
-                                        Ce code cadeau n'est plus valide
+                                        Cadeau invalide
                                     </div>`
                                 }
                         
@@ -229,7 +229,7 @@
                 return;
             }
 
-            // SINON, AFFICHER LA PAGE CADEAUX NORMALE
+            // PAGE GIFTS NORMALE - AJOUTEZ TOUT VOTRE CONTENU ORIGINAL ICI
             container.innerHTML = `
                 <div class="container">
                     <nav>
@@ -239,20 +239,35 @@
                         <div id="user-section"></div>
                     </nav>
                     <main class="gifts-main">
-                        <!-- Votre code actuel de la page gifts normale -->
                         <div class="gifts-hero">
                             <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
                             <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
                         </div>
-                
-                        <!-- ... reste de votre code actuel ... -->
+        
+                        <div class="gifts-content">
+                            <div class="gift-card primary-card">
+                                <div class="card-header">
+                                    <i class="fas fa-magic"></i>
+                                    <h3>Créer un Cadeau</h3>
+                                </div>
+                                <p>Transformez vos pièces en cadeaux magiques à partager !</p>
+                                <div class="balance-display">
+                                    <img src="/Coin.png" class="balance-coin">
+                                    <span id="user-balance">${userData.coins.toLocaleString()}</span> pièces disponibles
+                                </div>
+                                <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
+                                    <i class="fas fa-plus-circle"></i> Créer un Code
+                                </button>
+                            </div>
+
+                            <!-- Ajoutez tout le reste de votre contenu gifts original ici -->
+                        </div>
                     </main>
                 </div>
             `;
             updateUserSection();
             loadMyCodes();
         }
-
         // Nouvelle fonction pour récupérer les infos d'un code cadeau
         async function getGiftCodeInfo(code) {
             try {

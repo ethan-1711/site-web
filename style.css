@@ -1089,60 +1089,65 @@ input, textarea {
         padding: 6px 12px;
     }
 }
-/* Contrôle strict du scroll */
-html, body {
+/* Contrôle du scroll - Version corrigée */
+html {
     height: 100%;
     overflow-x: hidden;
 }
 
 body {
+    margin: 0;
+    padding: 0;
     min-height: 100vh;
-    max-height: 100vh;
-    overflow-y: auto;
-    overscroll-behavior: none; /* Empêche le bounce scroll */
+    overflow-x: hidden;
+    overscroll-behavior-y: contain; /* Limite le bounce scroll */
 }
 
 #app-container {
     min-height: 100vh;
-    max-height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    padding-bottom: 0; /* Supprime le padding bas */
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
+    padding: 20px;
+    padding-bottom: 20px; /* Limite le padding bas */
     box-sizing: border-box;
-    height: fit-content;
 }
 
-/* Empêche le scroll excessif sur toutes les pages */
-.hero, .gifts-main, .daily-main, .admin-main {
-    padding-bottom: 20px; /* Réduit le padding bas */
+/* Réduire les espacements qui créent du scroll excessif */
+.hero {
+    margin-bottom: 30px; /* Réduire de 40px à 30px */
+}
+
+.features, .stats {
+    margin: 40px 0; /* Réduire de 60px à 40px */
 }
 
 .footer {
-    margin-top: 20px; /* Réduit l'espacement */
-    padding: 20px 0; /* Réduit le padding */
+    margin-top: 30px; /* Réduire de 40px à 30px */
+    padding: 30px 0; /* Réduire de 40px à 30px */
 }
 
-/* Sur mobile, contrôle encore plus strict */
+/* Sur mobile, encore plus strict */
 @media (max-width: 768px) {
+    #app-container {
+        padding: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .hero {
+        margin-bottom: 20px;
+    }
+    
+    .features, .stats {
+        margin: 20px 0;
+    }
+    
+    .footer {
+        margin-top: 20px;
+        padding: 20px 0;
+    }
+    
+    /* Empêche le scroll bounce sur mobile */
     body {
-        position: fixed;
-        width: 100%;
-        height: 100vh;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: none;
-    }
-    
-    #app-container {
-        height: 100vh;
-        padding: 10px;
-        padding-bottom: 10px;
     }
 }

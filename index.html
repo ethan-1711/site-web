@@ -1,36 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Mon Application</title>
-  
-  <script type="text/javascript">
-    // Ce script récupère le chemin depuis le paramètre 'p' dans l'URL
-    // et le remet dans la barre d'adresse pour que votre routeur d'application
-    // puisse le lire correctement.
-    var l = window.location;
-    if (l.search) {
-      var q = {};
-      l.search.slice(1).split('&').forEach(function (v) {
-        var a = v.split('=');
-        q[a[0]] = a.slice(1).join('=').replace(/~and~/g, '&');
-      });
-      if (q.p) {
-        window.history.replaceState(null, null,
-          l.pathname.slice(0, -1) + (q.p || '') +
-          (q.q ? ('?' + q.q) : '') +
-          l.hash
-        );
-      }
-    }
-  </script>
-  
-</head>
-    
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StrexBot</title>
+
+    <script type="text/javascript">
+      // Ce script récupère le chemin depuis le paramètre 'p' dans l'URL
+      // et le remet dans la barre d'adresse pour que votre routeur d'application
+      // puisse le lire correctement.
+      var l = window.location;
+      if (l.search) {
+        var q = {};
+        l.search.slice(1).split('&').forEach(function (v) {
+          var a = v.split('=');
+          q[a[0]] = a.slice(1).join('=').replace(/~and~/g, '&');
+        });
+        if (q.p) {
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + (q.p || '') +
+            (q.q ? ('?' + q.q) : '') +
+            l.hash
+          );
+        }
+      }
+    </script>
+  
     <link rel="icon" type="image/png" href="/S.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -42,6 +37,33 @@
     <meta property="og:type" content="website">
     <meta name="theme-color" content="#f59e0b">
 </head>
+
+<body>
+    <div id="app-container"></div>
+    <div id="toast-container"></div>
+    
+    <div id="my-codes-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('my-codes-modal')">&times;</button>
+            <h2><i class="fas fa-list"></i> Mes Codes Cadeaux Actifs</h2>
+            <div id="my-codes-list"></div>
+        </div>
+    </div>
+
+    <div id="create-gift-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('create-gift-modal')">&times;</button>
+            <h2><i class="fas fa-gift"></i> Créer un Code Cadeau</h2>
+            <div class="gift-creation-content">
+                <p>Créez un code cadeau unique pour partager vos pièces avec vos amis!</p>
+                <div class="amount-selector">
+                    <label for="gift-amount">Montant à offrir</label>
+                    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 <body>
     <div id="app-container"></div>
     <div id="toast-container"></div>

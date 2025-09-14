@@ -1144,3 +1144,14 @@ body {
     .features, .stats { margin: 15px 0; }
     .footer { margin-top: 15px; padding: 15px 0; }
 }
+.amount-selector input { 
+    width: 100%; 
+    padding: 12px; 
+    background-color: var(--secondary-color); 
+    border: 1px solid var(--border-color); 
+    border-radius: 8px; 
+    color: white; 
+    font-size: 1.2em; 
+    text-align: center; 
+    margin-bottom: 15px;
+}

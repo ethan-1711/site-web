@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StrexBot - Récompense Quotidienne</title>
+    <link rel="icon" type="image/png" href="/S.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <meta property="og:title" content="StrexBot - Récompense Quotidienne">
+    <meta property="og:description" content="Réclamez votre récompense quotidienne sur StrexBot.">
+    <meta property="og:url" content="https://strexbot.xyz/daily">
+    <meta property="og:image" content="https://strexbot.xyz/S.png">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#f59e0b">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+            </div>
+            <div id="user-section"></div>
+        </nav>
+        <main class="daily-main">
+            <div class="daily-hero">
+                <h1><img src="/Coin.png" class="daily-title-coin"> Récompense Quotidienne</h1>
+                <p>Revenez chaque jour pour réclamer une pièce gratuite et augmenter votre solde !</p>
+            </div>
+            <div id="daily-card-container">
+                 <div class="daily-card"><p>Chargement...</p></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        // --- Configuration ---
+        const API_URL = 'https://api-s5et.onrender.com';
+        const SITE_URL = 'https://strexbot.xyz';
+        const DISCORD_CLIENT_ID = '1379440380860174506';
+
+        // --- Démarrage de l'Application ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!localStorage.getItem('jwt_token')) {
+                window.location.href = '/';
+                return;
+            }
+            updateUserSection();
+            loadDailyStatus();
+        });
+
+        function navigate(path) {
+            window.location.href = path;
+        }
+
+        // --- Fonctions Daily Reward ---
+        async function loadDailyStatus() {
+            const container = document.getElementById('daily-card-container');
+            try {
+                const status = await apiFetch('/api/daily/status');
+                if (status.can_claim) {
+                    container.innerHTML = `
+                    <div class="daily-card">
+                        <div class="daily-coin-animation">
+                            <div class="coin-glow"></div>
+                            <img src="/Coin.png" alt="Pièce" class="daily-coin available">
+                        </div>
+                        <h2>Votre pièce quotidienne vous attend !</h2>
+                        <p>Cliquez sur le bouton ci-dessous pour réclamer votre récompense.</p>
+                        <button id="claim-btn" class="btn-claim-daily" onclick="claimDaily()">
+                            <i class="fas fa-hand-holding-usd"></i> Réclamer 1 pièce
+                        </button>
+                    </div>`;
+                } else {
+                     container.innerHTML = `
+                    <div class="daily-card">
+                         <div class="daily-coin-animation">
+                            <img src="/Coin.png" alt="Pièce" class="daily-coin claimed">
+                        </div>
+                        <h2>Déjà réclamé !</h2>
+                        <p>Vous avez déjà récupéré votre pièce aujourd'hui. Revenez demain !</p>
+                        <div id="countdown-timer" class="countdown"></div>
+                    </div>`;
+                    startCountdown(status.next_claim);
+                }
+            } catch (error) {
+                 container.innerHTML = `<div class="daily-card"><p>Erreur lors du chargement du statut.</p></div>`;
+            }
+        }
+
+        async function claimDaily() {
+            const claimBtn = document.getElementById('claim-btn');
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
+
+            try {
+                const result = await apiFetch('/api/daily/claim', { method: 'POST' });
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                    await loadDailyStatus();
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", 'error');
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '<i class="fas fa-hand-holding-usd"></i> Réclamer 1 pièce';
+            }
+        }
+
+        function startCountdown(endDate) {
+            const countdownElement = document.getElementById('countdown-timer');
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = new Date(endDate).getTime() - now;
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                countdownElement.innerHTML = `Prochaine récompense dans : <strong>${hours}h ${minutes}m ${seconds}s</strong>`;
+                
+                if (distance < 0) {
+                    clearInterval(interval);
+                    loadDailyStatus();
+                }
+            }, 1000);
+        }
+
+        // --- Fonctions Utilitaires ---
+        async function updateUserSection() {
+            const userSection = document.getElementById('user-section');
+            if (!userSection) return;
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                 const scope = encodeURIComponent('identify guilds.members.read');
+                 userSection.innerHTML = `<a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>`;
+                 return;
+            }
+            try {
+                const userData = await apiFetch('/api/user_data');
+                if (userData) {
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin.html" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
+                    userSection.innerHTML = `
+                        <div class="user-profile">
+                            ${adminShieldHtml}
+                            <div class="user-balance" onclick="navigate('/daily.html')" title="Récompense quotidienne">
+                                <img src="/Coin.png" class="coin-icon"><span>${userData.coins.toLocaleString()}</span>
+                            </div>
+                            <div class="user-info" onclick="toggleDropdown()">
+                                <img src="${userData.avatar_url}" class="user-avatar">
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </div>
+                            <div class="dropdown-menu" id="dropdown-menu">
+                                <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
+                                <a href="/account.html"><i class="fas fa-user-circle"></i> Mon Compte</a>
+                                <a href="/gifts.html"><i class="fas fa-gift"></i> Cadeaux</a>
+                                <a href="/daily.html"><i class="fas fa-calendar-check"></i> Quotidien</a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
+                            </div>
+                        </div>`;
+                    
+                    const balanceElement = document.getElementById('user-balance');
+                    if (balanceElement) balanceElement.innerText = userData.coins.toLocaleString();
+                } else {
+                    logout();
+                }
+            } catch { logout(); }
+        }
+
+        async function apiFetch(endpoint, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+            const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
+            if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+            const mergedOptions = { ...defaultOptions, ...options };
+            
+            const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
+            const responseData = await response.json();
+            if (!response.ok) throw responseData;
+            return responseData;
+        }
+        
+        function logout() { localStorage.removeItem('jwt_token'); window.location.href = '/'; }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+        
+        function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
+        
+        window.onclick = e => { if (!e.target.closest('.user-profile')) document.querySelector('.dropdown-menu.show')?.classList.remove('show'); };
+    </script>
+</body>
+</html>

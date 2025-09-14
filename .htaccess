@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# Rediriger /daily vers /Page Web/daily.html
+RewriteRule ^daily/?$ /Page Web/daily.html [L]
+
+# Rediriger /admin vers /Page Web/admin.html  
+RewriteRule ^admin/?$ /Page Web/admin.html [L]
+
+# Rediriger /gifts vers /Page Web/gifts.html
+RewriteRule ^gifts/?$ /Page Web/gifts.html [L]
+
+# Rediriger /account vers /Page Web/account.html
+RewriteRule ^account/?$ /Page Web/account.html [L]

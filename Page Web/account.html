@@ -91,7 +91,7 @@
             try {
                 const userData = await apiFetch('/api/user_data');
                 if (userData) {
-                    const adminShieldHtml = userData.is_admin ? `<a href="/admin.html" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
                     userSection.innerHTML = `
                         <div class="user-profile">
                             ${adminShieldHtml}

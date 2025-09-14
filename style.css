@@ -1089,3 +1089,37 @@ input, textarea {
         padding: 6px 12px;
     }
 }
+/* Limite le scroll pour éviter de descendre dans le vide */
+html {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+    max-height: 100%;
+    position: relative;
+}
+
+#app-container {
+    min-height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Sur mobile, évite le bounce scroll */
+@media (max-width: 768px) {
+    body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    #app-container {
+        height: 100vh;
+        position: fixed;
+        width: 100%;
+    }
+}

@@ -124,11 +124,20 @@
 
         // --- Routeur JavaScript ---
         function handleUrlChange() {
-            const path = window.location.pathname;
-            
+            // Récupérer le chemin depuis l'URL ou le paramètre
+            const urlParams = new URLSearchParams(window.location.search);
+            const pathFromParam = urlParams.get('path');
+            const path = pathFromParam || window.location.pathname;
+    
+            if (pathFromParam) {
+                // Nettoyer l'URL en supprimant le paramètre
+                window.history.replaceState({}, '', '/' + pathFromParam);
+            }
+    
+            // Votre logique existante...
             if (path.startsWith('/redeem/')) {
                 const code = path.split('/redeem/')[1];
-                renderGiftsPage(code); // Affiche la page cadeau avec le code pré-rempli
+                renderGiftsPage(code);
             } else if (path.startsWith('/admin')) {
                 renderAdminPage();
             } else if (path.startsWith('/gifts')) {

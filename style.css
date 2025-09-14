@@ -85,12 +85,12 @@ nav {
 .nav-logo { width: 45px; height: 45px; margin-right: 15px; border-radius: 50%; border: 2px solid var(--primary-color); padding: 2px; }
 
 /* --- Hero (Accueil) --- */
-.hero { text-align: center; padding: 20px 20px; margin-bottom: 40px; }
+.hero { padding: 15px 20px; margin-bottom: 25px; }
 .hero h1 { font-size: 4em; font-weight: 800; margin-bottom: 25px; line-height: 1.2; }
 .hero p { font-size: 1.3em; color: var(--text-muted-color); max-width: 700px; margin: 0 auto 40px auto; font-weight: 400; }
 .gradient-text, .gradient-icon { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; z-index: 1; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3)); }
 /* --- Features & Stats --- */
-.features, .stats { margin: 80px 0; }
+.features, .stats { margin: 30px 0; }
 .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
 .feature-item { background: rgba(26, 26, 34, 0.8); backdrop-filter: blur(10px); padding: 40px 30px; border-radius: 20px; border: 1px solid var(--border-color); text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; }
 .feature-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); border-color: var(--border-hover); }
@@ -1110,19 +1110,7 @@ body {
     box-sizing: border-box;
 }
 
-/* Réduire les espacements qui créent du scroll excessif */
-.hero {
-    margin-bottom: 30px; /* Réduire de 40px à 30px */
-}
-
-.features, .stats {
-    margin: 40px 0; /* Réduire de 60px à 40px */
-}
-
-.footer {
-    margin-top: 30px; /* Réduire de 40px à 30px */
-    padding: 30px 0; /* Réduire de 40px à 30px */
-}
+.footer { padding: 25px 0; margin-top: 25px; }
 
 /* Sur mobile, encore plus strict */
 @media (max-width: 768px) {

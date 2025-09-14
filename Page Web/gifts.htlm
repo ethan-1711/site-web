@@ -1,1 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StrexBot - Cadeaux</title>
+    <link rel="icon" type="image/png" href="/S.png">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <meta property="og:title" content="StrexBot - Cadeaux">
+    <meta property="og:description" content="Créez et gérez vos codes cadeaux StrexBot.">
+    <meta property="og:url" content="https://strexbot.xyz/gifts">
+    <meta property="og:image" content="https://strexbot.xyz/S.png">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#f59e0b">
+</head>
+<body>
+    <div id="app-container"></div>
+    <div id="toast-container"></div>
+    
+    <div id="my-codes-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('my-codes-modal')">&times;</button>
+            <h2><i class="fas fa-list"></i> Mes Codes Cadeaux Actifs</h2>
+            <div id="my-codes-list"></div>
+        </div>
+    </div>
+
+    <div id="create-gift-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('create-gift-modal')">&times;</button>
+            <h2><i class="fas fa-gift"></i> Créer un Code Cadeau</h2>
+            <div class="gift-creation-content">
+                <p>Créez un code cadeau unique pour partager vos pièces avec vos amis!</p>
+                <div class="amount-selector">
+                    <label for="gift-amount">Montant à offrir</label>
+                    <input type="number" id="gift-amount" min="1" placeholder="Ex: 10">
+                    <div class="amount-buttons">
+                        <button onclick="setGiftAmount(5)">5</button>
+                        <button onclick="setGiftAmount(10)">10</button>
+                        <button onclick="setGiftAmount(25)">25</button>
+                        <button onclick="setGiftAmount(50)">50</button>
+                    </div>
+                </div>
+                <button class="btn-create-gift" onclick="createGift()">
+                    <i class="fas fa-magic"></i> Créer le Code
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const API_URL = 'https://api-s5et.onrender.com';
+        const SITE_URL = 'https://strexbot.xyz';
+        const DISCORD_CLIENT_ID = '1379440380860174506';
+
+        // --- Démarrage de l'Application ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const prefilledCode = urlParams.get('code');
+            await renderGiftsPage(prefilledCode);
+        });
+
+        function navigate(path) {
+            window.location.href = path;
+        }
+
+        async function getGiftCodeInfo(code) {
+            try {
+                const response = await apiFetch(`/api/gifts/info/${code}`);
+                return response;
+            } catch (error) {
+                return { valid: false, amount: 0 };
+            }
+        }
+
+        async function renderGiftsPage(prefilledCode = '') {
+            const container = document.getElementById('app-container');
+            const userData = await apiFetch('/api/user_data').catch(() => null);
+
+            if (!userData) {
+                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/">Retour à l'accueil</a></div>`;
+                return;
+            }
+
+            // SI C'EST UNE PAGE DE REDEEM DIRECTE
+            if (prefilledCode && prefilledCode.startsWith('ST-')) {
+                const giftInfo = await getGiftCodeInfo(prefilledCode);
+
+                container.innerHTML = `
+                    <div class="container">
+                        <nav>
+                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                                <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                            </div>
+                            <div id="user-section"></div>
+                        </nav>
+                        <main class="redeem-landing">
+                            <div class="redeem-hero">
+                                <div class="gift-icon-large">🎁</div>
+                                <h1>${giftInfo && giftInfo.valid ? 'Cadeau trouvé !' : 'Cadeau invalide'}</h1>
+                                <p>${giftInfo && giftInfo.valid ? 'Un cadeau vous attend !' : 'Ce code cadeau n\'est plus disponible'}</p>
+                            </div>
+            
+                            <div class="gift-preview-card">
+                                ${giftInfo && giftInfo.valid ? 
+                                    `<div class="gift-amount-display">
+                                        <img src="/Coin.png" class="gift-coin-large">
+                                        <span class="gift-amount-number">${giftInfo.amount}</span>
+                                        <span class="gift-amount-text">pièces</span>
+                                    </div>
+                    
+                                    <div class="gift-code-display">
+                                        <span class="gift-code">Code: ${prefilledCode}</span>
+                                    </div>
+                    
+                                    <button class="btn-claim-gift-large" onclick="claimDirectGift('${prefilledCode}')">
+                                        <i class="fas fa-gift"></i> Réclamer mon cadeau
+                                    </button>` :
+                                    `<div class="gift-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        ${giftInfo ? giftInfo.error : 'Code invalide'}
+                                    </div>`
+                                }
+                
+                                <p class="gift-footer">
+                                    <a href="/gifts.html">
+                                        Gérer mes propres codes cadeaux
+                                    </a>
+                                </p>
+                            </div>
+                        </main>
+                    </div>
+                `;
+                updateUserSection();
+                return;
+            }
+
+            // PAGE GIFTS NORMALE
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="gifts-main">
+                        <div class="gifts-hero">
+                            <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
+                            <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
+                        </div>
+
+                        <div class="gifts-content">
+                            <div class="gift-card primary-card">
+                                <div class="card-header">
+                                    <i class="fas fa-magic"></i>
+                                    <h3>Créer un Cadeau</h3>
+                                    <button class="btn-my-codes" onclick="showMyCodes()">
+                                        <i class="fas fa-list"></i> Mes codes (<span id="codes-count-header">...</span>)
+                                    </button>
+                                </div>
+                                <p>Transformez vos pièces en cadeaux magiques à partager !</p>
+                                <div class="balance-display">
+                                    <img src="/Coin.png" class="balance-coin">
+                                    <span id="user-balance">${userData.coins.toLocaleString()}</span>‎‎ pièces disponibles
+                                </div>
+                                <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
+                                    <i class="fas fa-plus-circle"></i> Créer un Code
+                                </button>
+                            </div>
+
+                            <div class="gift-card secondary-card">
+                                <div class="card-header">
+                                    <i class="fas fa-ticket-alt"></i>
+                                    <h3>Mes Codes</h3>
+                                    <span class="codes-count" id="my-codes-count">...</span>
+                                </div>
+                                <p>Gérez vos codes cadeaux actifs et partagez-les avec vos amis !</p>
+                                <button class="btn-gift-action secondary" onclick="showMyCodes()">
+                                    <i class="fas fa-eye"></i> Voir mes codes
+                                </button>
+                            </div>
+
+                            <div class="gift-card redeem-card">
+                                <div class="card-header">
+                                    <i class="fas fa-gift-box"></i>
+                                    <h3>Réclamer un Cadeau</h3>
+                                </div>
+                                <p>Avez-vous reçu un code cadeau ? Réclamez-le ici !</p>
+                                <div class="redeem-input-group">
+                                    <input type="text" id="redeem-code-input" placeholder="Entrez votre code (ex: ST-XXXXX)" maxlength="20">
+                                    <button class="btn-redeem" onclick="redeemGiftCode()">
+                                        <i class="fas fa-gift"></i> Réclamer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `;
+            updateUserSection();
+            loadMyCodes();
+        }
+
+        function claimDirectGift(code) {
+            redeemGiftCode(code);
+        }
+
+        async function redeemGiftCode(directCode = null) {
+            let code;
+    
+            if (directCode) {
+                code = directCode;
+            } else {
+                const inputElement = document.getElementById('redeem-code-input');
+                if (inputElement) {
+                    code = inputElement.value.trim();
+                } else {
+                    code = '';
+                }
+            }
+    
+            if (!code) {
+                showToast("Veuillez entrer un code.", "error");
+                return;
+            }
+
+            const button = event?.target;
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
+            }
+
+            try {
+                const result = await apiFetch('/api/gifts/redeem', { 
+                    method: 'POST', 
+                    body: JSON.stringify({ code }) 
+                });
+
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+
+                    if (window.location.search.includes('code=')) {
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
+                    } else {
+                        const inputElement = document.getElementById('redeem-code-input');
+                        if (inputElement) {
+                            inputElement.value = '';
+                        }
+                    }
+
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-gift"></i> Réclamer mon cadeau';
+                }
+            }
+        }
+
+        // --- Fonctions des Cadeaux ---
+        function setGiftAmount(amount) {
+            document.getElementById('gift-amount').value = amount;
+        }
+
+        async function createGift() {
+            const amountInput = document.getElementById('gift-amount');
+            const amount = parseInt(amountInput.value);
+            
+            if (!amount || amount <= 0) {
+                showToast("Veuillez entrer un montant valide.", "error");
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/api/gifts/create', { method: 'POST', body: JSON.stringify({ amount }) });
+                if (result && result.success) {
+                    showToast('Code cadeau créé avec succès !', 'success');
+                    amountInput.value = '';
+                    closeModal('create-gift-modal');
+                    await showMyCodes();
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
+        }
+
+        async function loadMyCodes() {
+            try {
+                const codes = await apiFetch('/api/gifts/my_codes');
+                const count = codes.length || 0;
+        
+                const countBadge = document.getElementById('my-codes-count');
+                if (countBadge) {
+                    countBadge.innerText = count;
+                }
+        
+                const headerCount = document.getElementById('codes-count-header');
+                if (headerCount) {
+                    headerCount.innerText = count;
+                }
+            } catch {
+                const countBadge = document.getElementById('my-codes-count');
+                if (countBadge) countBadge.innerText = '0';
+        
+                const headerCount = document.getElementById('codes-count-header');
+                if (headerCount) headerCount.innerText = '0';
+            }
+        }
+
+        async function showMyCodes() {
+            const listContainer = document.getElementById('my-codes-list');
+            const modal = document.getElementById('my-codes-modal');
+            listContainer.innerHTML = '<p>Chargement des codes...</p>';
+            openModal('my-codes-modal');
+
+            try {
+                const codes = await apiFetch('/api/gifts/my_codes');
+                if (codes && Array.isArray(codes) && codes.length > 0) {
+                    listContainer.innerHTML = codes.map(code => {
+                        const expires = new Date(code.expires_at + 'Z');
+                        return `
+                        <div class="my-code-item">
+                            <div class="my-code-details">
+                                <span class="code-text" onclick="copyToClipboard('${code.redeem_link}')" title="Cliquer pour copier le lien">${code.code} <i class="fas fa-copy"></i></span>
+                                <span><img src="/Coin.png" class="coin-mini"> ${code.amount}</span>
+                                <small>Expire le: ${expires.toLocaleString()}</small>
+                            </div>
+                            <button class="btn-delete" onclick="deleteGift('${code.code}')"><i class="fas fa-trash"></i></button>
+                        </div>`
+                    }).join('');
+                } else {
+                    listContainer.innerHTML = '<p>Vous n\'avez aucun code cadeau actif.</p>';
+                }
+            } catch {
+                listContainer.innerHTML = '<p>Erreur lors du chargement des codes.</p>';
+            }
+        }
+        
+        async function deleteGift(code) {
+            if (!confirm("Voulez-vous vraiment supprimer ce code ? Les pièces vous seront remboursées.")) return;
+            
+            try {
+                const result = await apiFetch('/api/gifts/delete', { method: 'POST', body: JSON.stringify({ code }) });
+                if (result && result.success) {
+                    showToast(result.message, 'success');
+                    await showMyCodes();
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+            }
+        }
+
+        // --- Fonctions Utilitaires ---
+        function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+        async function updateUserSection() {
+            const userSection = document.getElementById('user-section');
+            if (!userSection) return;
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                 const scope = encodeURIComponent('identify guilds.members.read');
+                 userSection.innerHTML = `<a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>`;
+                 return;
+            }
+            try {
+                const userData = await apiFetch('/api/user_data');
+                if (userData) {
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin.html" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
+                    userSection.innerHTML = `
+                        <div class="user-profile">
+                            ${adminShieldHtml}
+                            <div class="user-balance" onclick="navigate('/daily.html')" title="Récompense quotidienne">
+                                <img src="/Coin.png" class="coin-icon"><span>${userData.coins.toLocaleString()}</span>
+                            </div>
+                            <div class="user-info" onclick="toggleDropdown()">
+                                <img src="${userData.avatar_url}" class="user-avatar">
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </div>
+                            <div class="dropdown-menu" id="dropdown-menu">
+                                <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
+                                <a href="/account.html"><i class="fas fa-user-circle"></i> Mon Compte</a>
+                                <a href="/gifts.html"><i class="fas fa-gift"></i> Cadeaux</a>
+                                <a href="/daily.html"><i class="fas fa-calendar-check"></i> Quotidien</a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
+                            </div>
+                        </div>`;
+                    
+                    const balanceElement = document.getElementById('user-balance');
+                    if (balanceElement) balanceElement.innerText = userData.coins.toLocaleString();
+                } else {
+                    logout();
+                }
+            } catch { logout(); }
+        }
+
+        async function apiFetch(endpoint, options = {}) {
+            const token = localStorage.getItem('jwt_token');
+            const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
+            if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`;
+            const mergedOptions = { ...defaultOptions, ...options };
+            
+            const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
+            const responseData = await response.json();
+            if (!response.ok) throw responseData;
+            return responseData;
+        }
+        
+        function logout() { localStorage.removeItem('jwt_token'); window.location.href = '/'; }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+        
+        function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Lien de partage copié !", "success");
+            }, () => {
+                showToast("Erreur de copie", "error");
+            });
+        }
+        
+        window.onclick = e => { if (!e.target.closest('.user-profile')) document.querySelector('.dropdown-menu.show')?.classList.remove('show'); };
+    </script>
+</body>
+</html>

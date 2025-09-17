@@ -95,6 +95,16 @@ nav {
 }
 .hero h1 { font-size: 4em; font-weight: 800; margin-bottom: 25px; line-height: 1.2; }
 .hero p { font-size: 1.3em; color: var(--text-muted-color); max-width: 700px; margin: 0 auto 40px auto; font-weight: 400; }
+.hero-title {
+  background: linear-gradient(135deg, #f59e0b, #10b981);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3));
+  /* On utilise inline-block pour que l'élément ne prenne que la largeur de son texte,
+     tout en étant sensible au text-align: center de son parent. */
+  display: inline-block; 
+}
 .gradient-text, .gradient-icon { background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; z-index: 1; filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.3)); }
 /* --- Features & Stats --- */
 .features, .stats { margin: 30px 0; }

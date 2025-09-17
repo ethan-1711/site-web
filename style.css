@@ -86,6 +86,11 @@ nav {
 
 /* --- Hero (Accueil) --- */
 .hero {
+  /* Tes anciennes règles pour l'espacement */
+  padding: 15px 20px;
+  margin-bottom: 25px;
+
+  /* La nouvelle règle pour centrer le texte */
   text-align: center;
 }
 .hero h1 { font-size: 4em; font-weight: 800; margin-bottom: 25px; line-height: 1.2; }

@@ -27,135 +27,33 @@
     <meta name="theme-color" content="#f59e0b">
 </head>
 <body>
-    <!-- Indicateur de refresh -->
-    <div class="refresh-container" id="refreshContainer">
-        <div class="refresh-spinner">
-            <div class="refresh-icon">⟳</div>
-        </div>
-    </div>
-
-    <!-- Contenu principal -->
-    <div class="main-content" id="mainContent">
-        <header>
-            <h1>Mon Site Web</h1>
-            <div class="last-refresh" id="lastRefresh">
-                Dernière actualisation: Jamais
-            </div>
-        </header>
-
-        <div class="pull-instruction">
-            📱 Sur mobile : Glisse vers le bas pour actualiser
-        </div>
-
-        <main>
-            <!-- Ton contenu ici -->
-            <section>
-                <h2>Contenu de ta page</h2>
-                <p>Remplace ce contenu par le tien...</p>
-            </section>
-        </main>
-    </div>
 
     <script>
-        // Pull-to-Refresh JavaScript
+        // Pull-to-refresh simple et natif
         let startY = 0;
-        let currentY = 0;
-        let isPulling = false;
-        let isRefreshing = false;
+        let pulling = false;
 
-        const refreshContainer = document.getElementById('refreshContainer');
-        const mainContent = document.getElementById('mainContent');
-        const lastRefresh = document.getElementById('lastRefresh');
-
-        // Événements tactiles
-        document.addEventListener('touchstart', handleTouchStart, { passive: false });
-        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-        document.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-        function handleTouchStart(e) {
-            if (window.scrollY === 0 && !isRefreshing) {
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0) {
                 startY = e.touches[0].clientY;
+                pulling = true;
             }
-        }
+        });
 
-        function handleTouchMove(e) {
-            if (window.scrollY === 0 && !isRefreshing && startY > 0) {
-                currentY = e.touches[0].clientY;
-                const pullDistance = currentY - startY;
-
-                if (pullDistance > 0) {
-                    e.preventDefault();
-                    isPulling = true;
-                    
-                    const pullRatio = Math.min(pullDistance / 100, 1);
-                    
-                    if (pullDistance > 80) {
-                        refreshContainer.classList.add('visible', 'ready');
-                        mainContent.classList.add('pulling');
-                    } else if (pullDistance > 40) {
-                        refreshContainer.classList.add('visible');
-                        refreshContainer.classList.remove('ready');
-                        mainContent.classList.add('pulling');
-                    } else {
-                        refreshContainer.classList.remove('visible', 'ready');
-                        mainContent.classList.remove('pulling');
-                    }
-                }
-            }
-        }
-
-        function handleTouchEnd(e) {
-            if (isPulling && !isRefreshing) {
+        document.addEventListener('touchmove', (e) => {
+            if (pulling && window.scrollY === 0) {
+                const currentY = e.touches[0].clientY;
                 const pullDistance = currentY - startY;
                 
-                if (pullDistance > 80) {
-                    // Déclencher le refresh
-                    triggerRefresh();
-                } else {
-                    // Annuler
-                    resetPull();
+                if (pullDistance > 100) {
+                    // Refresh quand on tire assez
+                    window.location.reload();
                 }
-                
-                isPulling = false;
-                startY = 0;
-                currentY = 0;
             }
-        }
+        });
 
-        function triggerRefresh() {
-            isRefreshing = true;
-            refreshContainer.classList.add('visible');
-            
-            // Simulation du chargement (remplace par ton code)
-            setTimeout(() => {
-                // Ici tu peux ajouter ton code de rechargement
-                window.location.reload();
-                
-                // Ou juste simuler sans recharger :
-                // finishRefresh();
-            }, 1500);
-        }
-
-        function finishRefresh() {
-            isRefreshing = false;
-            resetPull();
-            
-            // Mettre à jour l'heure
-            const now = new Date();
-            lastRefresh.textContent = `Dernière actualisation: ${now.toLocaleTimeString()}`;
-        }
-
-        function resetPull() {
-            refreshContainer.classList.remove('visible', 'ready');
-            mainContent.classList.remove('pulling');
-        }
-
-        // Pour tester sur desktop (optionnel)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' && e.ctrlKey) {
-                e.preventDefault();
-                triggerRefresh();
-            }
+        document.addEventListener('touchend', () => {
+            pulling = false;
         });
     </script>
 </body>

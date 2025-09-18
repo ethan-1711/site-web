@@ -27,77 +27,56 @@
     <meta name="theme-color" content="#f59e0b">
 </head>
 <body>
-    <!-- Indicateur de pull -->
+    <!-- Ajoute juste ça en haut de ton <body> -->
     <div class="pull-indicator" id="pullIndicator">
         <div class="pull-spinner"></div>
     </div>
 
+    <!-- Ajoute ce script avant la fermeture </body> -->
     <script>
-        let startY = 0;
-        let currentY = 0;
-        let isPulling = false;
-        let canPull = false;
+    let startY = 0;
+    let currentY = 0;
+    let isPulling = false;
 
-        const pullIndicator = document.getElementById('pullIndicator');
+    const pullIndicator = document.getElementById('pullIndicator');
 
-        document.addEventListener('touchstart', (e) => {
-            // Vérifier qu'on est VRAIMENT tout en haut
-            if (window.pageYOffset === 0 && document.documentElement.scrollTop === 0) {
-                startY = e.touches[0].clientY;
-                canPull = true;
-            } else {
-                canPull = false;
-            }
-        }, { passive: false });
+    document.addEventListener('touchstart', (e) => {
+        if (window.pageYOffset === 0) {
+            startY = e.touches[0].clientY;
+        }
+    }, { passive: false });
 
-        document.addEventListener('touchmove', (e) => {
-            if (!canPull) return;
-
+    document.addEventListener('touchmove', (e) => {
+        if (window.pageYOffset === 0 && startY > 0) {
             currentY = e.touches[0].clientY;
             const pullDistance = currentY - startY;
 
-            // Si on tire vers le bas ET qu'on est en haut
-            if (pullDistance > 10 && window.pageYOffset === 0) {
-                e.preventDefault(); // Empêcher le scroll natif
+            if (pullDistance > 10) {
+                e.preventDefault();
                 isPulling = true;
-                
-                // Montrer l'indicateur
-                if (pullDistance > 50) {
+            
+                if (pullDistance > 60) {
                     pullIndicator.classList.add('show');
                 }
             }
-        }, { passive: false });
+        }
+    }, { passive: false });
 
-        document.addEventListener('touchend', (e) => {
-            if (isPulling && canPull) {
-                const pullDistance = currentY - startY;
-                
-                // Si on a tiré assez loin
-                if (pullDistance > 80) {
-                    // Refresh !
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 300);
-                } else {
-                    // Cacher l'indicateur
-                    pullIndicator.classList.remove('show');
-                }
-            }
-            
-            // Reset
-            isPulling = false;
-            canPull = false;
-            startY = 0;
-            currentY = 0;
-        });
-
-        // Pour débugger sur desktop
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'r' && e.ctrlKey) {
-                e.preventDefault();
+    document.addEventListener('touchend', () => {
+        if (isPulling) {
+            const pullDistance = currentY - startY;
+        
+            if (pullDistance > 100) {
                 window.location.reload();
+            } else {
+                pullIndicator.classList.remove('show');
             }
-        });
+        }
+        
+        isPulling = false;
+        startY = 0;
+        currentY = 0;
+    });
     </script>
 </body>
 <body>

@@ -1,22 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="pull-to-refresh">
-      <span>Loading more tweets</span>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Utilisateurs</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Liste des Utilisateurs de l'API</h1>
+    
+    <div id="users-container">
+        <p>Chargement des utilisateurs...</p>
     </div>
-    <div class="tweets">
-      <p>PULL DOWN FOR MORE TWEETS</p>
-    </div>
-  </body>
-  <script src="app.js"></script>
-</html>
+
+    <script>
+        // Ce script s'exécute quand la page est chargée
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // On utilise fetch() pour appeler notre API Python
+            fetch('http://127.0.0.1:5000/api/users')
+                .then(response => response.json()) // On convertit la réponse en JSON
+                .then(users => {
+                    // On a reçu la liste des utilisateurs !
+                    console.log('Utilisateurs reçus:', users);
+                    
+                    const container = document.getElementById('users-container');
+                    container.innerHTML = ''; // On vide le message "Chargement..."
+
+                    // C'est ici qu'on "balaie" la liste reçue !
+                    users.forEach(user => {
+                        // Pour chaque utilisateur, on crée une petite carte HTML
+                        const userCard = document.createElement('div');
+                        userCard.className = 'user-card';
+                        userCard.innerHTML = `
+                            <h2>${user.username}</h2>
+                            <p>Pièces : ${user.coins}</p>
+                        `;
+                        
+                        // On ajoute la carte à notre conteneur
+                        container.appendChild(userCard);
+                    });
+                })
+                .catch(error => {
+                    // En cas d'erreur (si le serveur Python n'est pas lancé par exemple)
+                    console.error('Erreur de connexion à l\'API:', error);
+                    const container = document.getElementById('users-container');
+                    container.innerHTML = '<p class="error">Impossible de charger les utilisateurs. Le serveur Python est-il bien lancé ?</p>';
+                });
+        });
+    </script>
+</body>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

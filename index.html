@@ -100,32 +100,74 @@
             }
         });
 
-        function handleTokenRedirect() {
+        async function handleTokenRedirect() {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
             const error = urlParams.get('error');
+
             if (token) {
                 localStorage.setItem('jwt_token', token);
+
+                // Vérifie s'il y a un ID d'inviteur en attente
+                const inviterId = localStorage.getItem('inviter_id');
+                if (inviterId) {
+                    try {
+                        // Utilise le nouveau token pour l'appel API
+                        const result = await fetch(`${API_URL}/api/invite/claim`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ inviter_id: inviterId })
+                        });
+                        const data = await result.json();
+
+                        if (result.ok && data.success) {
+                            showToast(data.message, 'success');
+                        } else if (data.error) {
+                            // Affiche une erreur silencieuse si l'invitation a déjà été utilisée ou est invalide
+                            console.warn("Avertissement de réclamation d'invitation:", data.error);
+                        }
+                    } catch (err) {
+                        console.error("Erreur API lors de la réclamation d'invitation", err);
+                    } finally {
+                        // Nettoie l'ID de l'inviteur après la tentative
+                        localStorage.removeItem('inviter_id');
+                    }
+                }
+        
                 window.history.replaceState({}, document.title, window.location.pathname);
+                // Recharge la vue pour refléter le nouvel état de connexion et le solde
+                handleUrlChange();
+        
             } else if (error) {
                 showToast("La connexion a échoué.", "error");
+                // Nettoie l'ID en cas d'erreur de connexion
+                localStorage.removeItem('inviter_id');
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
-
         // --- Routeur JavaScript ---
         function handleUrlChange() {
             // Récupérer le chemin depuis l'URL ou le paramètre
             const urlParams = new URLSearchParams(window.location.search);
             const pathFromParam = urlParams.get('path');
-            const path = pathFromParam || window.location.pathname;
-    
+            let path = pathFromParam || window.location.pathname;
+
             if (pathFromParam) {
                 // Nettoyer l'URL en supprimant le paramètre
                 window.history.replaceState({}, '', '/' + pathFromParam);
             }
-    
-            // Votre logique existante...
+
+            // Gère les liens d'invitation cliqués par de potentiels nouveaux utilisateurs
+            if (path.startsWith('/invite/')) {
+                const inviterId = path.split('/invite/')[1];
+                renderInvitePage(inviterId);
+                return; // Important pour arrêter l'exécution ici
+            }
+
+            // Logique de routage existante
             if (path.startsWith('/redeem/')) {
                 const code = path.split('/redeem/')[1];
                 renderGiftsPage(code);
@@ -137,15 +179,11 @@
                 renderAccountPage();
             } else if (path.startsWith('/daily')) {
                 renderDailyPage();
+            } else if (path.startsWith('/invite')) { // Gère la page personnelle d'invitation de l'utilisateur connecté
+                renderInvitePage();
             } else {
                 renderHomePage();
             }
-        }
-
-        // Dans handleUrlChange(), ajoutez cette condition :
-        if (path.startsWith('/invite/')) {
-            const inviterId = path.split('/invite/')[1];
-            renderInvitePage(inviterId);
         }
 
         function navigate(path) {
@@ -932,7 +970,7 @@
             try {
                 const userData = await apiFetch('/api/user_data');
                 if (userData) {
-                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
+                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';)
                     userSection.innerHTML = `
                         <div class="user-profile">
                             ${adminShieldHtml}
@@ -948,6 +986,7 @@
                                 <a href="/account" onclick="event.preventDefault(); navigate('/account')"><i class="fas fa-user-circle"></i> Mon Compte</a>
                                 <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
                                 <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
+                                <a href="/invite" onclick="event.preventDefault(); navigate('/invite')"><i class="fas fa-user-plus"></i> Invitation</a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                             </div>
@@ -1069,50 +1108,83 @@
             }
         }
 
-        async function renderInvitePage(inviterId) {
+        async function renderInvitePage(inviterId = null) {
             document.title = 'StrexBot - Invitation';
             const container = document.getElementById('app-container');
             const token = localStorage.getItem('jwt_token');
-    
-            if (!token) {
+        
+            // Cas 1 : Un utilisateur non connecté clique sur un lien d'invitation
+            if (inviterId && !token) {
                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                const scope = encodeURIComponent('identify guilds.members.read');
+                // On stocke l'ID de l'inviteur pour l'utiliser après la connexion
+                localStorage.setItem('inviter_id', inviterId);
+        
                 container.innerHTML = `
                     <div class="container">
-                        <div class="invite-card">
-                            <h1>🎁 Invitation StrexBot</h1>
-                            <p>Connectez-vous et vous gagnerez 1 pièce!</p>
-                            <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify guilds.members.read" class="btn btn-primary">Se connecter avec Discord</a>
-                        </div>
+                         <nav>
+                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="/S.png" alt="Logo" class="nav-logo"> StrexBot</div>
+                            <div id="user-section"></div>
+                        </nav>
+                        <main>
+                            <div class="gift-card" style="text-align: center; max-width: 500px; margin: 40px auto;">
+                                <div class="card-header" style="justify-content: center;">
+                                   <i class="fas fa-gift"></i> <h2>Vous avez été invité !</h2>
+                                </div>
+                                <p>Connectez-vous avec Discord pour rejoindre StrexBot et réclamer votre récompense de bienvenue de <strong>1 pièce</strong> !</p>
+                                <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn-gift-action" style="text-decoration: none; margin-top: 20px;">
+                                    <i class="fab fa-discord"></i> Se connecter pour continuer
+                                </a>
+                            </div>
+                        </main>
                     </div>`;
+                updateUserSection(); // Pour afficher le bouton "Se connecter" dans la nav
                 return;
             }
-    
-            try {
-                const result = await apiFetch(`/api/invite/${inviterId}`);
-                if (result.status === 'already_registered') {
-                    container.innerHTML = `
-                        <div class="container">
-                            <div class="invite-card">
-                                <h1>✅ Vous êtes déjà enregistré!</h1>
-                            </div>
-                        </div>`;
-                } else if (result.status === 'can_claim') {
-                    container.innerHTML = `
-                        <div class="container">
-                            <div class="invite-card">
-                                <h1>🎉 Invitation de ${result.inviter_username}</h1>
-                                <p>Réclamez votre récompense!</p>
-                                <button class="btn btn-primary" onclick="claimInviteReward('${inviterId}')">Réclamer 1 pièce</button>
-                            </div>
-                        </div>`;
-                }
-            } catch (error) {
-                container.innerHTML = `<div class="error-page"><h1>Lien d'invitation invalide</h1></div>`;
+        
+            // Cas 2 : Un utilisateur connecté visite sa propre page d'invitation
+            const userData = await apiFetch('/api/user_data').catch(() => null);
+            if (!userData) {
+                navigate('/'); // Redirige si le token est invalide ou manquant
+                return;
             }
-    
+        
+            const inviteLink = `${SITE_URL}/invite/${userData.user_id}`;
+        
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="gifts-main">
+                        <div class="gifts-hero">
+                            <h1><i class="fas fa-user-plus gradient-icon"></i> Invitez vos amis</h1>
+                            <p>Partagez votre lien unique et gagnez des pièces pour chaque ami qui nous rejoint !</p>
+                        </div>
+        
+                        <div class="gifts-content">
+                            <div class="gift-card">
+                                <div class="card-header">
+                                    <i class="fas fa-link"></i>
+                                    <h3>Mon Lien d'Invitation</h3>
+                                </div>
+                                <p>Partagez ce lien et gagnez <strong>2 pièces</strong> quand un ami s'inscrit ! Votre ami, lui, gagnera <strong>1 pièce</strong> en guise de bienvenue.</p>
+                                <div style="margin-top:15px;">
+                                    <input type="text" id="invite-link-input" value="${inviteLink}" readonly style="width:100%; padding:15px; background:var(--secondary-color); border:1px solid var(--border-color); border-radius:8px; color:white; margin-bottom:15px; text-align:center; font-family: 'Courier New', monospace;">
+                                    <button onclick="copyToClipboard('${inviteLink}')" class="btn-gift-action">
+                                        <i class="fas fa-copy"></i> Copier le lien de parrainage
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `;
             updateUserSection();
         }
-
         async function claimInviteReward(inviterId) {
             try {
                 const result = await apiFetch('/api/claim_invite', {

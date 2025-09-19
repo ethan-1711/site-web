@@ -158,6 +158,25 @@
             document.title = 'StrexBot - Maintenance';
             document.getElementById('app-container').innerHTML = `<div class="error-page"><h1>Maintenance</h1><p>Le site est actuellement en cours de maintenance. Veuillez réessayer plus tard.</p></div>`;
         }
+
+        async function generateInviteLink() {
+            try {
+                const result = await apiFetch('/api/my_invite_link');
+                if (result.success) {
+                    document.getElementById('invite-link-input').value = result.invite_link;
+                    document.getElementById('invite-link-display').style.display = 'block';
+                }
+            } catch (error) {
+                showToast("Erreur lors de la génération du lien", "error");
+            }
+        }
+
+        function copyInviteLink() {
+            const input = document.getElementById('invite-link-input');
+            input.select();
+            navigator.clipboard.writeText(input.value);
+            showToast("Lien d'invitation copié!", "success");
+        }
         
         async function renderHomePage() {
             document.title = 'StrexBot - Accueil';

@@ -1026,6 +1026,67 @@
             }
         }
 
+        async function renderInvitePage(inviterId) {
+            document.title = 'StrexBot - Invitation';
+            const container = document.getElementById('app-container');
+            const token = localStorage.getItem('jwt_token');
+    
+            if (!token) {
+                const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                container.innerHTML = `
+                    <div class="container">
+                        <div class="invite-card">
+                            <h1>🎁 Invitation StrexBot</h1>
+                            <p>Connectez-vous et vous gagnerez 1 pièce!</p>
+                            <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify guilds.members.read" class="btn btn-primary">Se connecter avec Discord</a>
+                        </div>
+                    </div>`;
+                return;
+            }
+    
+            try {
+                const result = await apiFetch(`/api/invite/${inviterId}`);
+                if (result.status === 'already_registered') {
+                    container.innerHTML = `
+                        <div class="container">
+                            <div class="invite-card">
+                                <h1>✅ Vous êtes déjà enregistré!</h1>
+                            </div>
+                        </div>`;
+                } else if (result.status === 'can_claim') {
+                    container.innerHTML = `
+                        <div class="container">
+                            <div class="invite-card">
+                                <h1>🎉 Invitation de ${result.inviter_username}</h1>
+                                <p>Réclamez votre récompense!</p>
+                                <button class="btn btn-primary" onclick="claimInviteReward('${inviterId}')">Réclamer 1 pièce</button>
+                            </div>
+                        </div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error-page"><h1>Lien d'invitation invalide</h1></div>`;
+            }
+    
+            updateUserSection();
+        }
+
+        async function claimInviteReward(inviterId) {
+            try {
+                const result = await apiFetch('/api/claim_invite', {
+                    method: 'POST',
+                    body: JSON.stringify({ inviter_id: inviterId })
+                });
+        
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    setTimeout(() => navigate('/'), 2000);
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur", "error");
+            }
+        }
+
         async function renderAccountPage() {
             document.title = 'StrexBot - Mon Compte';
             const container = document.getElementById('app-container');

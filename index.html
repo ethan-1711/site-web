@@ -945,11 +945,10 @@
                             </div>
                             <div class="dropdown-menu" id="dropdown-menu">
                                 <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
-                                <a href="/account" onclick="event.preventDefault(); navigate('/account')"><i class="fas fa-user-circle"></i> Mon Compte</a>
-                                <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
-                                <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
                                 <a href="/history" onclick="event.preventDefault(); navigate('/history')"><i class="fas fa-history"></i> Historique</a>
                                 <a href="/buy" onclick="event.preventDefault(); navigate('/buy')"><i class="fas fa-shopping-cart"></i> Acheter</a>
+                                <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
+                                <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                             </div>
@@ -1119,12 +1118,7 @@
                 showToast("Erreur lors de la récupération du lien", "error");
             }
         }
-        
-        // Renommez renderAccountPage en renderHistoryPage
-        async function renderHistoryPage() {
-            document.title = 'StrexBot - Historique';
-            // Votre code existant mais changez les titres...
-        }
+    
 
         async function createGlobalOffer() {
             const amount = parseInt(document.getElementById('offer-amount').value);

@@ -115,37 +115,32 @@
             const urlParams = new URLSearchParams(window.location.search);
             const pathFromParam = urlParams.get('path');
             const path = pathFromParam || window.location.pathname;
-    
+        
             if (pathFromParam) {
                 // Nettoyer l'URL en supprimant le paramètre
                 window.history.replaceState({}, '', '/' + pathFromParam);
             }
-    
+        
             // Votre logique existante...
             if (path.startsWith('/redeem/')) {
                 const code = path.split('/redeem/')[1];
                 renderGiftsPage(code);
+            } else if (path.startsWith('/invite/')) {
+                const inviterId = path.split('/invite/')[1];
+                renderInvitePage(inviterId);
             } else if (path.startsWith('/admin')) {
                 renderAdminPage();
             } else if (path.startsWith('/gifts')) {
                 renderGiftsPage();
-            } else if (path.startsWith('/account')) {
-                renderAccountPage();
-            } else if (path.startsWith('/daily')) {
-                renderDailyPage();
-            } else if {
-                renderHomePage();
+            } else if (path.startsWith('/history')) {
+                renderHistoryPage();
             } else if (path.startsWith('/buy')) {
                 renderBuyPage();
-            } else if (path.startsWith('/history')) {  // Changement de /account vers /history
-                renderHistoryPage();
+            } else if (path.startsWith('/daily')) {
+                renderDailyPage();
+            } else {
+                renderHomePage();
             }
-        }
-
-        // Dans handleUrlChange(), ajoutez cette condition :
-        if (path.startsWith('/invite/')) {
-            const inviterId = path.split('/invite/')[1];
-            renderInvitePage(inviterId);
         }
 
         function navigate(path) {

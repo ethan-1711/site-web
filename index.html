@@ -139,6 +139,10 @@
                 renderDailyPage();
             } else {
                 renderHomePage();
+            } else if (path.startsWith('/buy')) {
+                renderBuyPage();
+            } else if (path.startsWith('/history')) {  // Changement de /account vers /history
+                renderHistoryPage();
             }
         }
 

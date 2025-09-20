@@ -1289,56 +1289,6 @@
             }
         }
 
-        async function renderAccountPage() {
-            document.title = 'StrexBot - Mon Compte';
-            const container = document.getElementById('app-container');
-            
-            // Affiche une structure de base pendant le chargement
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="S.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main>
-                        <div class="account-main">
-                            <h1><i class="fas fa-history"></i> Mon Historique</h1>
-                            <div class="transactions-list" id="transactions-list">
-                                <p>Chargement de l'historique...</p>
-                            </div>
-                        </div>
-                    </main>
-                </div>`;
-            updateUserSection();
-
-            // Récupère et affiche les transactions
-            try {
-                const transactions = await apiFetch('/api/user/transactions');
-                const listContainer = document.getElementById('transactions-list');
-
-                if (transactions && transactions.length > 0) {
-                    listContainer.innerHTML = transactions.map(t => {
-                        const date = new Date(t.timestamp);
-                        const amountClass = t.amount >= 0 ? 'positive' : 'negative';
-                        const sign = t.amount >= 0 ? '+' : '';
-
-                        return `
-                        <div class="transaction-item">
-                            <div class="transaction-details">
-                                <span class="transaction-reason">${t.reason}</span>
-                                <span class="transaction-timestamp">${date.toLocaleString()}</span>
-                            </div>
-                            <span class="transaction-amount ${amountClass}">${sign}${t.amount}</span>
-                        </div>`;
-                    }).join('');
-                } else {
-                    listContainer.innerHTML = '<p>Aucune transaction récente.</p>';
-                }
-            } catch (error) {
-                document.getElementById('transactions-list').innerHTML = '<p>Erreur lors du chargement de l\'historique.</p>';
-            }
-        }
-
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
             const defaultOptions = { headers: { 'Content-Type': 'application/json' } };

@@ -1316,6 +1316,90 @@
             }
         }
 
+        async function renderBuyPage() {
+            document.title = 'StrexBot - Acheter des Commandes';
+            const container = document.getElementById('app-container');
+        
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                container.innerHTML = `<div class="error-page">
+                    <h1>Veuillez vous connecter</h1>
+                    <p>Vous devez être connecté pour acheter des commandes.</p>
+                    <a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a>
+                </div>`;
+                return;
+            }
+        
+            try {
+                // Récupère les serveurs de l’utilisateur
+                const servers = await apiFetch('/api/user/servers');
+                
+                container.innerHTML = `
+                    <div class="container">
+                        <nav>
+                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                                <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                            </div>
+                            <div id="user-section"></div>
+                        </nav>
+                        <main class="buy-main">
+                            <h1><i class="fas fa-shopping-cart"></i> Acheter des Commandes</h1>
+                            <p>Sélectionnez un serveur et choisissez combien de commandes acheter.</p>
+        
+                            <div class="buy-form">
+                                <label for="guild">Serveur :</label>
+                                <select id="guild">
+                                    ${servers.length > 0 ? 
+                                        servers.map(s => `<option value="${s.id}">${s.name}</option>`).join('') :
+                                        `<option disabled>Aucun serveur trouvé</option>`}
+                                </select>
+        
+                                <label for="commands_count">Nombre de commandes :</label>
+                                <input type="number" id="commands_count" min="1" value="10">
+        
+                                <button class="btn btn-primary" onclick="buyCommands()">
+                                    <i class="fas fa-coins"></i> Acheter
+                                </button>
+                            </div>
+        
+                            <div id="buy-result"></div>
+                        </main>
+                    </div>
+                `;
+                updateUserSection();
+            } catch (e) {
+                console.error("Erreur lors du chargement des serveurs:", e);
+                container.innerHTML = `<div class="error-page">
+                    <h1>Erreur</h1>
+                    <p>Impossible de charger vos serveurs.</p>
+                </div>`;
+            }
+        }
+        
+        async function buyCommands() {
+            const guildId = document.getElementById('guild').value;
+            const commandsCount = parseInt(document.getElementById('commands_count').value);
+        
+            try {
+                const result = await apiFetch('/api/buy_commands', {
+                    method: 'POST',
+                    body: JSON.stringify({ guild_id: guildId, commands_count: commandsCount })
+                });
+        
+                if (result.success) {
+                    document.getElementById('buy-result').innerHTML = 
+                        `<p class="success">✅ ${result.message} (coût: ${result.cost} pièces)</p>`;
+                    await updateUserSection();
+                } else {
+                    document.getElementById('buy-result').innerHTML = 
+                        `<p class="error">❌ ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('buy-result').innerHTML = 
+                    `<p class="error">❌ Erreur lors de l'achat.</p>`;
+            }
+        }
+
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
             const defaultOptions = { headers: { 'Content-Type': 'application/json' } };

@@ -1317,23 +1317,22 @@
         }
 
         async function renderBuyPage() {
-            document.title = 'StrexBot - Acheter des Commandes';
+            document.title = 'StrexBot - Boutique';
             const container = document.getElementById('app-container');
         
             const token = localStorage.getItem('jwt_token');
             if (!token) {
                 container.innerHTML = `<div class="error-page">
                     <h1>Veuillez vous connecter</h1>
-                    <p>Vous devez être connecté pour acheter des commandes.</p>
+                    <p>Vous devez être connecté pour accéder à la boutique.</p>
                     <a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a>
                 </div>`;
                 return;
             }
         
             try {
-                // Récupère les serveurs de l’utilisateur
                 const servers = await apiFetch('/api/user/servers');
-                
+        
                 container.innerHTML = `
                     <div class="container">
                         <nav>
@@ -1342,43 +1341,49 @@
                             </div>
                             <div id="user-section"></div>
                         </nav>
-                        <main class="buy-main">
-                            <h1><i class="fas fa-shopping-cart"></i> Acheter des Commandes</h1>
-                            <p>Sélectionnez un serveur et choisissez combien de commandes acheter.</p>
-        
-                            <div class="buy-form">
-                                <label for="guild">Serveur :</label>
-                                <select id="guild">
-                                    ${servers.length > 0 ? 
-                                        servers.map(s => `<option value="${s.id}">${s.name}</option>`).join('') :
-                                        `<option disabled>Aucun serveur trouvé</option>`}
-                                </select>
-        
-                                <label for="commands_count">Nombre de commandes :</label>
-                                <input type="number" id="commands_count" min="1" value="10">
-        
-                                <button class="btn btn-primary" onclick="buyCommands()">
-                                    <i class="fas fa-coins"></i> Acheter
-                                </button>
+                        <main class="gifts-main">
+                            <div class="gifts-hero">
+                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
+                                <p>Achetez des commandes pour vos serveurs avec vos pièces.</p>
                             </div>
         
-                            <div id="buy-result"></div>
+                            <div class="gifts-content">
+                                ${servers.length > 0 ? servers.map(s => `
+                                    <div class="gift-card">
+                                        <div class="card-header">
+                                            <i class="fas fa-server"></i>
+                                            <h3>${s.name}</h3>
+                                        </div>
+                                        <p>Achetez des commandes supplémentaires pour ce serveur.</p>
+                                        <div class="balance-display">
+                                            <img src="/Coin.png" class="balance-coin">
+                                            <input type="number" id="commands-${s.id}" min="1" value="10" style="width:80px; text-align:center;">
+                                            <span>commandes</span>
+                                        </div>
+                                        <button class="btn-gift-action" onclick="buyCommands('${s.id}')">
+                                            <i class="fas fa-coins"></i> Acheter
+                                        </button>
+                                        <div id="buy-result-${s.id}"></div>
+                                    </div>
+                                `).join('') : `
+                                    <div class="error-page">
+                                        <h2>Aucun serveur trouvé</h2>
+                                        <p>Vérifiez que vous avez autorisé le bot à accéder à vos serveurs.</p>
+                                    </div>
+                                `}
+                            </div>
                         </main>
                     </div>
                 `;
                 updateUserSection();
             } catch (e) {
-                console.error("Erreur lors du chargement des serveurs:", e);
-                container.innerHTML = `<div class="error-page">
-                    <h1>Erreur</h1>
-                    <p>Impossible de charger vos serveurs.</p>
-                </div>`;
+                console.error("Erreur lors du chargement de la boutique:", e);
+                container.innerHTML = `<div class="error-page"><h1>Erreur</h1><p>Impossible de charger la boutique.</p></div>`;
             }
         }
         
-        async function buyCommands() {
-            const guildId = document.getElementById('guild').value;
-            const commandsCount = parseInt(document.getElementById('commands_count').value);
+        async function buyCommands(guildId) {
+            const commandsCount = parseInt(document.getElementById(`commands-${guildId}`).value);
         
             try {
                 const result = await apiFetch('/api/buy_commands', {
@@ -1386,20 +1391,18 @@
                     body: JSON.stringify({ guild_id: guildId, commands_count: commandsCount })
                 });
         
+                const resultBox = document.getElementById(`buy-result-${guildId}`);
                 if (result.success) {
-                    document.getElementById('buy-result').innerHTML = 
-                        `<p class="success">✅ ${result.message} (coût: ${result.cost} pièces)</p>`;
+                    resultBox.innerHTML = `<p class="success">✅ ${result.message} (coût: ${result.cost} pièces)</p>`;
                     await updateUserSection();
                 } else {
-                    document.getElementById('buy-result').innerHTML = 
-                        `<p class="error">❌ ${result.error}</p>`;
+                    resultBox.innerHTML = `<p class="error">❌ ${result.error}</p>`;
                 }
             } catch (error) {
-                document.getElementById('buy-result').innerHTML = 
+                document.getElementById(`buy-result-${guildId}`).innerHTML =
                     `<p class="error">❌ Erreur lors de l'achat.</p>`;
             }
         }
-
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
             const defaultOptions = { headers: { 'Content-Type': 'application/json' } };

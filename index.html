@@ -342,25 +342,6 @@
                                         <i class="fas fa-exclamation-triangle"></i>
                                         ${giftInfo ? giftInfo.error : 'Code invalide'}
                                     </div>
-
-                                    // Ajoutez cette carte dans .gifts-content
-                                    <div class="gift-card">
-                                        <div class="card-header">
-                                            <i class="fas fa-user-plus"></i>
-                                            <h3>Mon Lien d'Invitation</h3>
-                                        </div>
-                                        <p>Partagez ce lien et gagnez 2 pièces quand quelqu'un s'inscrit!</p>
-                                        <button class="btn-gift-action" onclick="generateInviteLink()">
-                                            <i class="fas fa-link"></i> Obtenir mon lien
-                                        </button>
-                                        <div id="invite-link-display" style="display:none; margin-top:15px;">
-                                            <input type="text" id="invite-link-input" readonly style="width:100%; padding:10px; background:var(--secondary-color); border:1px solid var(--border-color); border-radius:8px; color:white; margin-bottom:10px;">
-                                            <button onclick="copyInviteLink()" class="btn-gift-action secondary">
-                                                <i class="fas fa-copy"></i> Copier le lien
-                                            </button>
-                                        </div>
-                                    </div>`
-                                }
                 
                                 <p class="gift-footer">
                                     <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')">

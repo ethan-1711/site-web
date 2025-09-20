@@ -952,6 +952,8 @@
                                 <a href="/account" onclick="event.preventDefault(); navigate('/account')"><i class="fas fa-user-circle"></i> Mon Compte</a>
                                 <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
                                 <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
+                                <a href="/history" onclick="event.preventDefault(); navigate('/history')"><i class="fas fa-history"></i> Historique</a>
+                                <a href="/buy" onclick="event.preventDefault(); navigate('/buy')"><i class="fas fa-shopping-cart"></i> Acheter</a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
                             </div>
@@ -963,6 +965,169 @@
                     logout();
                 }
             } catch { logout(); }
+        }
+
+        async function renderBuyPage() {
+            document.title = 'StrexBot - Acheter des Crédits';
+            const container = document.getElementById('app-container');
+            
+            if (!localStorage.getItem('jwt_token')) {
+                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                return;
+            }
+        
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="buy-main">
+                        <div class="buy-hero">
+                            <h1><i class="fas fa-shopping-cart gradient-icon"></i> Acheter des Crédits</h1>
+                            <p>Achetez des crédits pour vos serveurs Discord et utilisez toutes les fonctionnalités du bot !</p>
+                        </div>
+                        
+                        <div class="pricing-info">
+                            <div class="price-card">
+                                <h3><i class="fas fa-coins"></i> Tarification</h3>
+                                <div class="price-item">
+                                    <span>1 Pièce</span>
+                                    <span>= 10 Crédits</span>
+                                </div>
+                                <p>Chaque commande utilise 1 crédit</p>
+                            </div>
+                        </div>
+        
+                        <div id="servers-list">
+                            <p>Chargement de vos serveurs...</p>
+                        </div>
+                    </main>
+                </div>
+            `;
+            
+            updateUserSection();
+            loadUserServers();
+        }
+        
+        async function loadUserServers() {
+            const container = document.getElementById('servers-list');
+            
+            try {
+                const servers = await apiFetch('/api/user/guilds');
+                
+                if (servers && servers.length > 0) {
+                    container.innerHTML = `
+                        <div class="servers-grid">
+                            ${servers.map(server => `
+                                <div class="server-card">
+                                    <div class="server-header">
+                                        ${server.icon ? 
+                                            `<img src="${server.icon}" class="server-icon">` : 
+                                            '<div class="server-icon-placeholder"><i class="fas fa-server"></i></div>'
+                                        }
+                                        <div class="server-info">
+                                            <h3>${server.name}</h3>
+                                            <p>Crédits actuels: <strong>${server.current_credits}</strong></p>
+                                        </div>
+                                    </div>
+                                    
+                                    ${!server.bot_present ? `
+                                        <div class="bot-not-present">
+                                            <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
+                                            <button class="btn-invite-bot" onclick="inviteBotToServer()">
+                                                <i class="fas fa-plus"></i> Inviter le bot
+                                            </button>
+                                        </div>
+                                    ` : `
+                                        <div class="credits-purchase">
+                                            <div class="credits-selector">
+                                                <label>Nombre de crédits à acheter :</label>
+                                                <select id="credits-${server.id}" onchange="updateCost('${server.id}')">
+                                                    <option value="10">10 crédits (1 pièce)</option>
+                                                    <option value="50">50 crédits (5 pièces)</option>
+                                                    <option value="100">100 crédits (10 pièces)</option>
+                                                    <option value="500">500 crédits (50 pièces)</option>
+                                                </select>
+                                            </div>
+                                            <div class="cost-display">
+                                                Coût: <span id="cost-${server.id}">1</span> pièce(s)
+                                            </div>
+                                            <button class="btn-buy-credits" onclick="buyCredits('${server.id}', '${server.name}')">
+                                                <i class="fas fa-shopping-cart"></i> Acheter
+                                            </button>
+                                        </div>
+                                    `}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="no-servers">
+                            <i class="fas fa-server" style="font-size: 3em; margin-bottom: 20px; color: var(--text-muted-color);"></i>
+                            <h3>Aucun serveur trouvé</h3>
+                            <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error-page"><h3>Erreur lors du chargement des serveurs</h3></div>`;
+            }
+        }
+        
+        function updateCost(serverId) {
+            const select = document.getElementById(`credits-${serverId}`);
+            const costSpan = document.getElementById(`cost-${serverId}`);
+            const credits = parseInt(select.value);
+            const cost = credits / 10;
+            costSpan.textContent = cost;
+        }
+        
+        async function buyCredits(serverId, serverName) {
+            const select = document.getElementById(`credits-${serverId}`);
+            const credits = parseInt(select.value);
+            const cost = credits / 10;
+            
+            if (!confirm(`Acheter ${credits} crédits pour "${serverName}" pour ${cost} pièce(s) ?`)) {
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/api/buy_server_credits', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        guild_id: serverId, 
+                        credits: credits 
+                    })
+                });
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await updateUserSection();
+                    await loadUserServers(); // Recharger la liste
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur lors de l'achat", "error");
+            }
+        }
+        
+        async function inviteBotToServer() {
+            try {
+                const response = await apiFetch('/api/bot_invite_link');
+                window.open(response.invite_url, '_blank');
+                showToast("Invitez le bot puis rechargez cette page", "success");
+            } catch (error) {
+                showToast("Erreur lors de la récupération du lien", "error");
+            }
+        }
+        
+        // Renommez renderAccountPage en renderHistoryPage
+        async function renderHistoryPage() {
+            document.title = 'StrexBot - Historique';
+            // Votre code existant mais changez les titres...
         }
 
         async function createGlobalOffer() {

@@ -989,16 +989,13 @@
             } catch { logout(); }
         }
 
-        // Remplacez complètement votre fonction renderBuyPage par celle-ci :
+        // Remplacez votre renderBuyPage() par cette version qui gère la reconnexion :
 
         async function renderBuyPage() {
-            console.log('[DEBUG] renderBuyPage démarré');
             document.title = 'StrexBot - Boutique';
             const container = document.getElementById('app-container');
         
             const token = localStorage.getItem('jwt_token');
-            console.log('[DEBUG] Token présent:', !!token);
-            
             if (!token) {
                 container.innerHTML = `<div class="error-page">
                     <h1>Veuillez vous connecter</h1>
@@ -1009,37 +1006,8 @@
             }
         
             try {
-                console.log('[DEBUG] Appel direct fetch...');
+                const servers = await apiFetch('/api/user/guilds');
                 
-                // Appel direct sans apiFetch pour voir l'erreur exacte
-                const response = await fetch(`${API_URL}/api/debug/user/guilds`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                console.log('[DEBUG] Status:', response.status);
-                console.log('[DEBUG] Response OK:', response.ok);
-                
-                const data = await response.json();
-                console.log('[DEBUG] Data reçue:', data);
-                
-                if (!response.ok) {
-                    console.log('[DEBUG] Erreur serveur:', data);
-                    container.innerHTML = `
-                        <div class="error-page">
-                            <h1>Erreur Debug</h1>
-                            <p><strong>Status:</strong> ${response.status}</p>
-                            <p><strong>Debug info:</strong> ${data.debug || 'Non spécifié'}</p>
-                            <p><strong>Erreur:</strong> ${data.error || 'Non spécifiée'}</p>
-                            <pre>${JSON.stringify(data, null, 2)}</pre>
-                        </div>`;
-                    return;
-                }
-                
-                // Si on arrive ici, le diagnostic a réussi
                 container.innerHTML = `
                     <div class="container">
                         <nav>
@@ -1050,32 +1018,152 @@
                         </nav>
                         <main class="gifts-main">
                             <div class="gifts-hero">
-                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Diagnostic Boutique</h1>
-                                <p>Diagnostic réussi !</p>
+                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
+                                <p>Achetez des crédits pour vos serveurs avec vos pièces.</p>
                             </div>
+        
                             <div class="gifts-content">
-                                <div class="gift-card">
-                                    <h3>Résultats du diagnostic</h3>
-                                    <p><strong>User ID:</strong> ${data.user_id}</p>
-                                    <p><strong>Nombre de serveurs Discord:</strong> ${data.guilds_count}</p>
-                                    <p><strong>Longueur token:</strong> ${data.token_length}</p>
-                                    <p><strong>Serveurs exemples:</strong> ${data.sample_guilds ? data.sample_guilds.join(', ') : 'Aucun'}</p>
-                                </div>
+                                ${Array.isArray(servers) && servers.length > 0 ? servers.map(s => `
+                                    <div class="gift-card">
+                                        <div class="card-header">
+                                            <i class="fas fa-server"></i>
+                                            <h3>${s.name}</h3>
+                                        </div>
+                                        <p>Achetez des crédits supplémentaires pour ce serveur.</p>
+                                        <div class="balance-display">
+                                            <span>Crédits actuels: <strong>${s.current_credits || 0}</strong></span>
+                                        </div>
+                                        ${!s.bot_present ? `
+                                            <div class="bot-not-present">
+                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
+                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">
+                                                    <i class="fas fa-plus"></i> Inviter le bot
+                                                </button>
+                                            </div>
+                                        ` : `
+                                            <div class="credits-selector">
+                                                <label>Nombre de crédits à acheter :</label>
+                                                <select id="credits-${s.id}" onchange="updateCost('${s.id}')">
+                                                    <option value="10">10 crédits (1 pièce)</option>
+                                                    <option value="50">50 crédits (5 pièces)</option>
+                                                    <option value="100">100 crédits (10 pièces)</option>
+                                                    <option value="500">500 crédits (50 pièces)</option>
+                                                </select>
+                                            </div>
+                                            <div class="cost-display">
+                                                Coût: <span id="cost-${s.id}">1</span> pièce(s)
+                                            </div>
+                                            <button class="btn-buy-credits" onclick="buyCredits('${s.id}', '${s.name}')">
+                                                <i class="fas fa-shopping-cart"></i> Acheter
+                                            </button>
+                                        `}
+                                        <div id="buy-result-${s.id}"></div>
+                                    </div>
+                                `).join('') : `
+                                    <div class="error-page">
+                                        <h2>Aucun serveur trouvé</h2>
+                                        <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
+                                    </div>
+                                `}
                             </div>
                         </main>
                     </div>
                 `;
                 updateUserSection();
+            } catch (error) {
+                console.error("Erreur boutique:", error);
                 
-            } catch (e) {
-                console.error("[DEBUG] Exception dans renderBuyPage:", e);
-                container.innerHTML = `
-                    <div class="error-page">
-                        <h1>Exception JavaScript</h1>
-                        <p><strong>Message:</strong> ${e.message}</p>
-                        <p><strong>Stack:</strong></p>
-                        <pre>${e.stack}</pre>
-                    </div>`;
+                // Vérifier si c'est un problème de token Discord expiré
+                if (error.error && (error.error === "discord_token_expired" || error.error === "no_discord_token")) {
+                    const redirectUri = encodeURIComponent(`${API_URL}/callback`);
+                    const scope = encodeURIComponent('identify guilds.members.read');
+                    
+                    container.innerHTML = `
+                        <div class="container">
+                            <nav>
+                                <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                                    <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                                </div>
+                                <div id="user-section"></div>
+                            </nav>
+                            <main class="error-page" style="margin-top: 50px;">
+                                <h1><i class="fas fa-exclamation-triangle"></i> Reconnexion nécessaire</h1>
+                                <p>Votre session Discord a expiré. Vous devez vous reconnecter pour accéder à vos serveurs.</p>
+                                <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn btn-primary">
+                                    <i class="fab fa-discord"></i> Se reconnecter avec Discord
+                                </a>
+                            </main>
+                        </div>
+                    `;
+                    updateUserSection();
+                } else {
+                    container.innerHTML = `
+                        <div class="error-page">
+                            <h1>Erreur</h1>
+                            <p>Impossible de charger la boutique.</p>
+                            <p><strong>Détails:</strong> ${error.error || error.message || 'Erreur inconnue'}</p>
+                        </div>`;
+                }
+            }
+        }
+
+        // Ajoutez ces fonctions dans votre index (4).html :
+
+        function updateCost(serverId) {
+            const select = document.getElementById(`credits-${serverId}`);
+            const costSpan = document.getElementById(`cost-${serverId}`);
+            const credits = parseInt(select.value);
+            const cost = credits / 10; // 10 crédits = 1 pièce
+            costSpan.textContent = cost;
+        }
+        
+        async function buyCredits(serverId, serverName) {
+            const select = document.getElementById(`credits-${serverId}`);
+            const credits = parseInt(select.value);
+            const cost = credits / 10;
+            
+            if (!confirm(`Acheter ${credits} crédits pour "${serverName}" pour ${cost} pièce(s) ?`)) {
+                return;
+            }
+            
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Achat...';
+            
+            try {
+                const result = await apiFetch('/api/buy_server_credits', {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        guild_id: serverId, 
+                        credits: credits
+                    })
+                });
+                
+                const resultBox = document.getElementById(`buy-result-${serverId}`);
+                if (result.success) {
+                    resultBox.innerHTML = `<p style="color: var(--success-color); margin-top: 10px;">✅ ${result.message}</p>`;
+                    await updateUserSection();
+                    // Recharger la page pour mettre à jour les crédits
+                    setTimeout(() => renderBuyPage(), 1000);
+                } else {
+                    resultBox.innerHTML = `<p style="color: var(--error-color); margin-top: 10px;">❌ ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById(`buy-result-${serverId}`).innerHTML =
+                    `<p style="color: var(--error-color); margin-top: 10px;">❌ ${error.error || "Erreur lors de l'achat."}</p>`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-shopping-cart"></i> Acheter';
+            }
+        }
+        
+        async function inviteBotToServer() {
+            try {
+                const response = await apiFetch('/api/bot_invite_link');
+                window.open(response.invite_url, '_blank');
+                showToast("Invitez le bot puis rechargez cette page", "success");
+            } catch (error) {
+                showToast("Erreur lors de la récupération du lien", "error");
             }
         }
         

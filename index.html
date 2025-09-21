@@ -1108,10 +1108,12 @@
             costSpan.textContent = cost;
         }
         
+        // Remplacez la fonction buyCredits dans index (4).html :
+
         async function buyCredits(serverId, serverName) {
-            const select = document.getElementById(`credits-${serverId}`);
+            const select = document.getElementById(`commands-${serverId}`);
             const credits = parseInt(select.value);
-            const cost = credits / 10;
+            const cost = credits / 10; // 10 crédits = 1 pièce
             
             if (!confirm(`Acheter ${credits} crédits pour "${serverName}" pour ${cost} pièce(s) ?`)) {
                 return;
@@ -1122,17 +1124,21 @@
                     method: 'POST',
                     body: JSON.stringify({ 
                         guild_id: serverId, 
-                        credits: credits 
+                        credits: credits  // Utiliser "credits" au lieu de "commands_count"
                     })
                 });
                 
+                const resultBox = document.getElementById(`buy-result-${serverId}`);
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    resultBox.innerHTML = `<p class="success">✅ ${result.message}</p>`;
                     await updateUserSection();
-                    await loadUserServers(); // Recharger la liste
+                    await loadUserServers(); // Recharger pour mettre à jour les crédits affichés
+                } else {
+                    resultBox.innerHTML = `<p class="error">❌ ${result.error}</p>`;
                 }
             } catch (error) {
-                showToast(error.error || "Erreur lors de l'achat", "error");
+                document.getElementById(`buy-result-${serverId}`).innerHTML =
+                    `<p class="error">❌ ${error.error || "Erreur lors de l'achat."}</p>`;
             }
         }
         

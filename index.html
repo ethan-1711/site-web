@@ -1316,6 +1316,8 @@
             }
         }
 
+        // Dans le fichier index (4).html, remplacez dans renderBuyPage() :
+
         async function renderBuyPage() {
             document.title = 'StrexBot - Boutique';
             const container = document.getElementById('app-container');
@@ -1331,7 +1333,8 @@
             }
         
             try {
-                const servers = await apiFetch('/api/user/servers');
+                // CHANGEZ CETTE LIGNE :
+                const servers = await apiFetch('/api/user/guilds'); // <- Utiliser /api/user/guilds au lieu de /api/user/servers
         
                 container.innerHTML = `
                     <div class="container">
@@ -1344,7 +1347,7 @@
                         <main class="gifts-main">
                             <div class="gifts-hero">
                                 <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
-                                <p>Achetez des commandes pour vos serveurs avec vos pièces.</p>
+                                <p>Achetez des crédits pour vos serveurs avec vos pièces.</p>
                             </div>
         
                             <div class="gifts-content">
@@ -1356,19 +1359,31 @@
                                         </div>
                                         <p>Achetez des commandes supplémentaires pour ce serveur.</p>
                                         <div class="balance-display">
-                                            <img src="/Coin.png" class="balance-coin">
-                                            <input type="number" id="commands-${s.id}" min="1" value="10" style="width:80px; text-align:center;">
-                                            <span>commandes</span>
+                                            <span>Crédits actuels: <strong>${s.current_credits || 0}</strong></span>
                                         </div>
-                                        <button class="btn-gift-action" onclick="buyCommands('${s.id}')">
-                                            <i class="fas fa-coins"></i> Acheter
-                                        </button>
+                                        ${!s.bot_present ? `
+                                            <div class="bot-not-present">
+                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
+                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">
+                                                    <i class="fas fa-plus"></i> Inviter le bot
+                                                </button>
+                                            </div>
+                                        ` : `
+                                            <div class="balance-display">
+                                                <img src="/Coin.png" class="balance-coin">
+                                                <input type="number" id="commands-${s.id}" min="1" value="10" style="width:80px; text-align:center;">
+                                                <span>crédits</span>
+                                            </div>
+                                            <button class="btn-gift-action" onclick="buyCredits('${s.id}', '${s.name}')">
+                                                <i class="fas fa-coins"></i> Acheter
+                                            </button>
+                                        `}
                                         <div id="buy-result-${s.id}"></div>
                                     </div>
                                 `).join('') : `
                                     <div class="error-page">
                                         <h2>Aucun serveur trouvé</h2>
-                                        <p>Vérifiez que vous avez autorisé le bot à accéder à vos serveurs.</p>
+                                        <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
                                     </div>
                                 `}
                             </div>

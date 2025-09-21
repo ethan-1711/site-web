@@ -953,7 +953,7 @@
             if (!token) {
                  const redirectUri = encodeURIComponent(`${API_URL}/callback`);
                  const scope = encodeURIComponent('identify guilds.members.read');
-                 userSection.innerHTML = `<a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>`;
+                 userSection.innerHTML = `<a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify+guilds.members.read" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>`;
                  return;
             }
             try {

@@ -989,49 +989,94 @@
             } catch { logout(); }
         }
 
+        // Remplacez complètement votre fonction renderBuyPage par celle-ci :
+
         async function renderBuyPage() {
-            document.title = 'StrexBot - Acheter des Crédits';
+            console.log('[DEBUG] renderBuyPage démarré');
+            document.title = 'StrexBot - Boutique';
             const container = document.getElementById('app-container');
+        
+            const token = localStorage.getItem('jwt_token');
+            console.log('[DEBUG] Token présent:', !!token);
             
-            if (!localStorage.getItem('jwt_token')) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+            if (!token) {
+                container.innerHTML = `<div class="error-page">
+                    <h1>Veuillez vous connecter</h1>
+                    <p>Vous devez être connecté pour accéder à la boutique.</p>
+                    <a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a>
+                </div>`;
                 return;
             }
         
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
-                        </div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main class="buy-main">
-                        <div class="buy-hero">
-                            <h1><i class="fas fa-shopping-cart gradient-icon"></i> Acheter des Crédits</h1>
-                            <p>Achetez des crédits pour vos serveurs Discord et utilisez toutes les fonctionnalités du bot !</p>
-                        </div>
-                        
-                        <div class="pricing-info">
-                            <div class="price-card">
-                                <h3><i class="fas fa-coins"></i> Tarification</h3>
-                                <div class="price-item">
-                                    <span>1 Pièce</span>
-                                    <span>= 10 Crédits</span>
-                                </div>
-                                <p>Chaque commande utilise 1 crédit</p>
+            try {
+                console.log('[DEBUG] Appel direct fetch...');
+                
+                // Appel direct sans apiFetch pour voir l'erreur exacte
+                const response = await fetch(`${API_URL}/api/debug/user/guilds`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('[DEBUG] Status:', response.status);
+                console.log('[DEBUG] Response OK:', response.ok);
+                
+                const data = await response.json();
+                console.log('[DEBUG] Data reçue:', data);
+                
+                if (!response.ok) {
+                    console.log('[DEBUG] Erreur serveur:', data);
+                    container.innerHTML = `
+                        <div class="error-page">
+                            <h1>Erreur Debug</h1>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p><strong>Debug info:</strong> ${data.debug || 'Non spécifié'}</p>
+                            <p><strong>Erreur:</strong> ${data.error || 'Non spécifiée'}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>`;
+                    return;
+                }
+                
+                // Si on arrive ici, le diagnostic a réussi
+                container.innerHTML = `
+                    <div class="container">
+                        <nav>
+                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                                <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
                             </div>
-                        </div>
-        
-                        <div id="servers-list">
-                            <p>Chargement de vos serveurs...</p>
-                        </div>
-                    </main>
-                </div>
-            `;
-            
-            updateUserSection();
-            loadUserServers();
+                            <div id="user-section"></div>
+                        </nav>
+                        <main class="gifts-main">
+                            <div class="gifts-hero">
+                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Diagnostic Boutique</h1>
+                                <p>Diagnostic réussi !</p>
+                            </div>
+                            <div class="gifts-content">
+                                <div class="gift-card">
+                                    <h3>Résultats du diagnostic</h3>
+                                    <p><strong>User ID:</strong> ${data.user_id}</p>
+                                    <p><strong>Nombre de serveurs Discord:</strong> ${data.guilds_count}</p>
+                                    <p><strong>Longueur token:</strong> ${data.token_length}</p>
+                                    <p><strong>Serveurs exemples:</strong> ${data.sample_guilds ? data.sample_guilds.join(', ') : 'Aucun'}</p>
+                                </div>
+                            </div>
+                        </main>
+                    </div>
+                `;
+                updateUserSection();
+                
+            } catch (e) {
+                console.error("[DEBUG] Exception dans renderBuyPage:", e);
+                container.innerHTML = `
+                    <div class="error-page">
+                        <h1>Exception JavaScript</h1>
+                        <p><strong>Message:</strong> ${e.message}</p>
+                        <p><strong>Stack:</strong></p>
+                        <pre>${e.stack}</pre>
+                    </div>`;
+            }
         }
         
         async function loadUserServers() {

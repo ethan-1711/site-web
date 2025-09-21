@@ -1340,7 +1340,7 @@
         
             try {
                 // CHANGEZ CETTE LIGNE :
-                const servers = await apiFetch('/api/user/guilds'); // <- Utiliser /api/user/guilds au lieu de /api/user/servers
+                const servers = await apiFetch('/api/debug/user/guilds');
         
                 container.innerHTML = `
                     <div class="container">

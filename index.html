@@ -1076,7 +1076,7 @@
                 // Vérifier si c'est un problème de token Discord expiré
                 if (error.error && (error.error === "discord_token_expired" || error.error === "no_discord_token")) {
                     const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-                    const scope = encodeURIComponent('identify guilds.members.read');
+                    const scope = encodeURIComponent('identify guilds');
                     
                     container.innerHTML = `
                         <div class="container">

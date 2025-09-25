@@ -1438,3 +1438,165 @@ h1 {
         font-size: 2em;
     }
 }
+/* Ajoutez ces règles à la fin de votre fichier style.css pour corriger les problèmes mobile */
+
+/* === CORRECTIONS POUR MOBILE === */
+
+/* Fix du scrolling et de l'affichage sur mobile */
+html {
+    height: 100%;
+    overflow-x: hidden;
+    /* Empêche le bounce scroll sur iOS */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* Empêche le rebond/bounce sur mobile */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    /* Assure que le fond sombre reste visible */
+    background-attachment: fixed;
+}
+
+/* Fix de l'espacement vertical du hero sur mobile */
+@media (max-width: 768px) {
+    .hero {
+        padding: 10px 20px 15px 20px; /* Réduit le padding vertical */
+        margin-bottom: 15px; /* Réduit la marge */
+        text-align: center;
+    }
+    
+    .hero h1 {
+        font-size: 2.8em; /* Légèrement plus grand que les 2.2em actuels */
+        margin-bottom: 15px; /* Réduit l'espace sous le titre */
+        line-height: 1.1; /* Resserre les lignes */
+    }
+    
+    .hero p {
+        font-size: 1.1em;
+        margin: 0 auto 20px auto; /* Réduit la marge du bas */
+        max-width: 90%; /* Utilise mieux l'espace */
+    }
+    
+    /* Ajustement de l'espacement quand il y a une offre globale */
+    #global-offer-container {
+        margin: 20px auto 25px auto; /* Espace réduit mais suffisant */
+        min-height: auto; /* Supprime la hauteur minimum */
+    }
+    
+    /* Quand il n'y a pas d'offre, réduire encore plus l'espace */
+    .hero + main .features {
+        margin-top: 25px; /* Au lieu de 60px */
+    }
+    
+    /* Container principal plus serré */
+    #app-container {
+        padding: 10px;
+        padding-bottom: 15px; /* Minimum nécessaire */
+    }
+    
+    /* Features plus proches */
+    .features {
+        margin: 25px 0 30px 0; /* Réduit les marges */
+    }
+    
+    .stats {
+        margin: 30px 0 25px 0; /* Réduit les marges */
+    }
+    
+    /* Footer plus proche */
+    .footer {
+        margin-top: 20px;
+        padding: 20px 0 15px 0; /* Padding réduit en bas */
+    }
+    
+    /* Navigation plus compacte */
+    nav {
+        margin-bottom: 15px; /* Réduit l'espace sous la nav */
+        padding: 12px 20px; /* Padding réduit */
+    }
+    
+    /* Fix du viewport pour éviter les problèmes de scroll */
+    .container {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+    .hero {
+        padding: 8px 15px 12px 15px;
+        margin-bottom: 12px;
+    }
+    
+    .hero h1 {
+        font-size: 2.4em;
+        margin-bottom: 12px;
+    }
+    
+    .hero p {
+        font-size: 1em;
+        margin-bottom: 15px;
+    }
+    
+    #app-container {
+        padding: 8px;
+        padding-bottom: 12px;
+    }
+    
+    .features, .stats {
+        margin: 20px 0;
+    }
+    
+    .footer {
+        margin-top: 15px;
+        padding: 15px 0 12px 0;
+    }
+}
+
+/* Fix spécifique pour iOS Safari */
+@supports (-webkit-touch-callout: none) {
+    body {
+        /* Empêche le bounce scroll sur iOS */
+        position: fixed;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+    }
+    
+    #app-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Assurer que le fond reste sombre sur toute la hauteur */
+html, body {
+    background: linear-gradient(135deg, var(--background-color) 0%, var(--background-secondary) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* Version alternative si background-attachment: fixed pose problème */
+@media (max-width: 768px) {
+    html, body {
+        background-attachment: scroll; /* Plus compatible sur mobile */
+    }
+    
+    #app-container {
+        background: linear-gradient(135deg, var(--background-color) 0%, var(--background-secondary) 100%);
+        min-height: 100vh;
+    }
+}

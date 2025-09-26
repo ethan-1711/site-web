@@ -715,7 +715,7 @@
         async function updateUser(userId, action) {
             const input = document.getElementById(`coins-input-${userId}`);
             const value = (action.includes('coins')) ? input.value : null;
-            if (action.includes('coins') && (!value || parseInt(value) < 0)) {
+            if (action.includes('coins') && (!value || parseFloat(value) < 0)) {
                 showToast("Veuillez entrer un montant valide.", "error");
                 return;
             }

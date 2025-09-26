@@ -51,6 +51,16 @@
         })();
     </script>
 
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "d5c2d482-5e8c-4c25-9238-739c77c25d9c",
+        });
+      });
+    </script>
+
     <div id="create-gift-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('create-gift-modal')">&times;</button>

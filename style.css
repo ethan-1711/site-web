@@ -1497,7 +1497,7 @@ body {
     /* Container principal plus serré */
     #app-container {
         padding: 10px;
-        padding-bottom: 20px; /* Minimum nécessaire */
+        padding-bottom: 40px; /* Minimum nécessaire */
     }
     
     /* Features plus proches */
@@ -1547,7 +1547,7 @@ body {
     
     #app-container {
         padding: 8px;
-        padding-bottom: 20px;
+        padding-bottom: 30px;
     }
     
     .features, .stats {

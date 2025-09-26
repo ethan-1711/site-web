@@ -699,7 +699,7 @@
                             </div>
                         </div>
                         <div class="user-card-actions">
-                             <input type="number" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
+                             <input type="number" step="0.01" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
                              <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
                              <button class="admin-btn add-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
                              <button class="admin-btn remove-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>

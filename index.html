@@ -69,7 +69,7 @@
                 <p>Créez un code cadeau unique pour partager vos pièces avec vos amis!</p>
                 <div class="amount-selector">
                     <label for="gift-amount">Montant à offrir</label>
-                    <input type="number" id="gift-amount" min="1" placeholder="Ex: 10">
+                    <input type="number" step="0.01" id="gift-amount" min="0.01" placeholder="Ex: 10.50">
                     <div class="amount-buttons">
                         <button onclick="setGiftAmount(5)">5</button>
                         <button onclick="setGiftAmount(10)">10</button>

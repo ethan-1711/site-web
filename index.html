@@ -759,7 +759,7 @@
 
         async function createGift() {
             const amountInput = document.getElementById('gift-amount');
-            const amount = parseInt(amountInput.value);
+            const amount = parseFloat(amountInput.value);
             
             if (!amount || amount <= 0) {
                 showToast("Veuillez entrer un montant valide.", "error");

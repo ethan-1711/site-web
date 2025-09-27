@@ -1761,3 +1761,209 @@ html, body {
 .ad-preview:hover {
     text-decoration: underline;
 }
+/* --- Page Gagner --- */
+.earn-main {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.earn-card {
+    background: rgba(26, 26, 34, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px 30px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    margin: 40px auto;
+}
+
+.earn-card.cooldown {
+    border-color: var(--warning-color);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.earn-info {
+    margin-bottom: 30px;
+}
+
+.earn-icon {
+    font-size: 4em;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.earn-card.cooldown .earn-icon {
+    color: var(--warning-color);
+}
+
+.earn-info h3 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.earn-info p {
+    color: var(--text-muted-color);
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+.reward-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--secondary-color);
+    padding: 15px 25px;
+    border-radius: 12px;
+    margin: 20px auto;
+    max-width: 200px;
+}
+
+.reward-amount {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--success-color);
+}
+
+.cooldown-display {
+    background: var(--secondary-color);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px auto;
+    max-width: 150px;
+}
+
+#cooldown-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--warning-color);
+}
+
+.btn-watch-ad {
+    background: linear-gradient(135deg, var(--success-color), #16a34a);
+    color: white;
+    border: none;
+    padding: 18px 40px;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 auto;
+}
+
+.btn-watch-ad:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+}
+
+.btn-watch-ad:disabled {
+    background: var(--secondary-color);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* --- Lecteur vidéo --- */
+.ad-player-container {
+    background: rgba(26, 26, 34, 0.9);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    margin: 20px auto;
+    max-width: 900px;
+}
+
+.ad-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ad-player-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.ad-close-btn {
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+}
+
+.ad-close-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ad-close-btn.active {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.video-wrapper {
+    margin-bottom: 20px;
+}
+
+.ad-reward-info {
+    text-align: center;
+    padding: 15px;
+    background: var(--secondary-color);
+    border-radius: 8px;
+}
+
+.ad-reward-info p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .ad-player-container {
+        padding: 15px;
+        margin: 15px 10px;
+    }
+    
+    .earn-card {
+        padding: 30px 20px;
+        margin: 30px 10px;
+    }
+    
+    .earn-icon {
+        font-size: 3em;
+    }
+    
+    #cooldown-timer {
+        font-size: 1.8em;
+    }
+}

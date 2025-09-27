@@ -2312,3 +2312,23 @@ video::-ms-media-controls {
         margin: 10px auto;
     }
 }
+/* Ajoutez ces styles à la fin de style.css */
+
+/* Timer de la vidéo */
+.video-timer {
+    background: var(--secondary-color);
+    color: var(--text-color);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 1.1em;
+    border: 1px solid var(--border-color);
+    min-width: 60px;
+    text-align: center;
+}
+
+.video-timer.finished {
+    background: var(--success-color);
+    color: white;
+    animation: pulse 1s infinite;

@@ -1653,9 +1653,11 @@
                 if (result.success) {
                     showToast(result.message, "success");
                     await updateUserSection();
+                } else {
+                    showToast(result.error, "error");
                 }
-            } catch (error) {
-                showToast(error.error || "Erreur lors de la réclamation.", "error");
+            } catch (e) {
+                showToast("Erreur lors de la réclamation.", "error");
             } finally {
                 if (button) {
                     button.disabled = false;
@@ -1663,6 +1665,7 @@
                 }
             }
         }
+
 
         
         async function loadRandomAd() {

@@ -1959,13 +1959,32 @@
                     <div class="admin-card">
                         <h3>Publicités existantes (${ads.length})</h3>
                         ${ads.length > 0 ? ads.map(ad => `
-                            <div class="ad-item">
+                            <div class="ad-item" id="ad-item-${ad._id}">
                                 <div class="ad-details">
-                                    <strong>${ad.title}</strong>
-                                    <small>Récompense: ${ad.reward_amount} pièce(s)</small>
+                                    <div class="ad-title-edit">
+                                        <strong class="ad-title-display">${ad.title}</strong>
+                                        <input type="text" class="ad-title-input" value="${ad.title}" style="display: none;">
+                                    </div>
+                                    <div class="ad-reward-edit">
+                                        <small class="ad-reward-display">Récompense: ${ad.reward_amount} pièce(s)</small>
+                                        <input type="number" class="ad-reward-input" value="${ad.reward_amount}" step="0.1" min="0.1" style="display: none;">
+                                    </div>
                                     <a href="${ad.video_url}" target="_blank" class="ad-preview">Voir la vidéo</a>
                                 </div>
-                                <button class="admin-btn remove-btn" onclick="deleteAd('${ad._id}')">Supprimer</button>
+                                <div class="ad-actions">
+                                    <button class="admin-btn edit-btn" onclick="editAd('${ad._id}')">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                    <button class="admin-btn save-btn" onclick="saveAd('${ad._id}')" style="display: none;">
+                                        <i class="fas fa-save"></i> Sauvegarder
+                                    </button>
+                                    <button class="admin-btn cancel-btn" onclick="cancelEdit('${ad._id}')" style="display: none;">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </button>
+                                    <button class="admin-btn remove-btn" onclick="deleteAd('${ad._id}')">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </div>
                             </div>
                         `).join('') : '<p>Aucune publicité configurée.</p>'}
                     </div>
@@ -1975,17 +1994,87 @@
             }
         }
         
-        async function deleteAd(adId) {
-            if (!confirm("Supprimer cette publicité ?")) return;
+        function editAd(adId) {
+            const item = document.getElementById(`ad-item-${adId}`);
+            const titleDisplay = item.querySelector('.ad-title-display');
+            const titleInput = item.querySelector('.ad-title-input');
+            const rewardDisplay = item.querySelector('.ad-reward-display');
+            const rewardInput = item.querySelector('.ad-reward-input');
+            const editBtn = item.querySelector('.edit-btn');
+            const saveBtn = item.querySelector('.save-btn');
+            const cancelBtn = item.querySelector('.cancel-btn');
+            
+            // Afficher les champs d'édition
+            titleDisplay.style.display = 'none';
+            titleInput.style.display = 'block';
+            rewardDisplay.style.display = 'none';
+            rewardInput.style.display = 'block';
+            
+            // Changer les boutons
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+            
+            titleInput.focus();
+        }
+        
+        function cancelEdit(adId) {
+            const item = document.getElementById(`ad-item-${adId}`);
+            const titleDisplay = item.querySelector('.ad-title-display');
+            const titleInput = item.querySelector('.ad-title-input');
+            const rewardDisplay = item.querySelector('.ad-reward-display');
+            const rewardInput = item.querySelector('.ad-reward-input');
+            const editBtn = item.querySelector('.edit-btn');
+            const saveBtn = item.querySelector('.save-btn');
+            const cancelBtn = item.querySelector('.cancel-btn');
+            
+            // Réinitialiser les valeurs
+            titleInput.value = titleDisplay.textContent;
+            rewardInput.value = rewardDisplay.textContent.match(/[\d.]+/)[0];
+            
+            // Afficher les éléments d'affichage
+            titleDisplay.style.display = 'block';
+            titleInput.style.display = 'none';
+            rewardDisplay.style.display = 'block';
+            rewardInput.style.display = 'none';
+            
+            // Changer les boutons
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+        
+        async function saveAd(adId) {
+            const item = document.getElementById(`ad-item-${adId}`);
+            const titleInput = item.querySelector('.ad-title-input');
+            const rewardInput = item.querySelector('.ad-reward-input');
+            const saveBtn = item.querySelector('.save-btn');
+            
+            const title = titleInput.value.trim();
+            const reward = parseFloat(rewardInput.value);
+            
+            if (!title || !reward || reward <= 0) {
+                showToast("Veuillez remplir tous les champs correctement", "error");
+                return;
+            }
+            
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
             try {
-                const result = await apiFetch(`/api/admin/ads/${adId}`, { method: 'DELETE' });
+                const result = await apiFetch(`/api/admin/ads/${adId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ title, reward_amount: reward })
+                });
+                
                 if (result.success) {
-                    showToast("Publicité supprimée", "success");
-                    loadAdsList();
+                    showToast("Publicité modifiée avec succès", "success");
+                    loadAdsList(); // Recharger la liste
                 }
             } catch (error) {
-                showToast("Erreur lors de la suppression", "error");
+                showToast(error.error || "Erreur lors de la modification", "error");
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Sauvegarder';
             }
         }
         

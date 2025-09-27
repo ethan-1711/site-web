@@ -672,22 +672,44 @@
                     <h2>Gestion des Publicités</h2>
                     <div class="admin-card">
                         <h3>Ajouter une publicité</h3>
-                        <div class="form-group">
-                            <label>Titre de la publicité :</label>
-                            <input type="text" id="ad-title" class="admin-input" placeholder="Ex: Publicité partenaire">
-                        </div>
-                        <div class="form-group">
-                            <label>URL de la vidéo :</label>
-                            <input type="url" id="ad-url" class="admin-input" placeholder="https://example.com/video.mp4">
-                        </div>
-                        <div class="form-group">
-                            <label>Récompense (pièces) :</label>
-                            <input type="number" id="ad-reward" class="admin-input" value="1" min="0.1" step="0.1">
-                        </div>
-                        <button class="admin-btn" onclick="createAd()">Ajouter la publicité</button>
+                        <form id="ad-upload-form" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>Titre de la publicité :</label>
+                                <input type="text" id="ad-title" name="title" class="admin-input" placeholder="Ex: Publicité partenaire" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Fichier vidéo :</label>
+                                <div class="file-upload-area" id="file-upload-area">
+                                    <input type="file" id="ad-file" name="video_file" accept="video/*" required style="display: none;">
+                                    <div class="upload-placeholder">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Cliquez pour sélectionner une vidéo</p>
+                                        <small>MP4, MOV, AVI, MKV, WEBM - Max 100MB</small>
+                                    </div>
+                                    <div class="upload-progress" style="display: none;">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill"></div>
+                                        </div>
+                                        <span class="progress-text">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Récompense (pièces) :</label>
+                                <input type="number" id="ad-reward" name="reward_amount" class="admin-input" value="1" min="0.1" step="0.1" required>
+                            </div>
+                            
+                            <button type="submit" class="admin-btn">
+                                <i class="fas fa-upload"></i> Uploader la publicité
+                            </button>
+                        </form>
                     </div>
                     <div id="ads-list"></div>
                 `;
+                
+                setupFileUpload();
                 loadAdsList();
              }
         }
@@ -1835,6 +1857,162 @@
         }
         
         function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
+
+        function setupFileUpload() {
+            const uploadArea = document.getElementById('file-upload-area');
+            const fileInput = document.getElementById('ad-file');
+            const form = document.getElementById('ad-upload-form');
+            
+            // Click sur la zone d'upload
+            uploadArea.addEventListener('click', () => {
+                if (!uploadArea.classList.contains('uploading')) {
+                    fileInput.click();
+                }
+            });
+            
+            // Drag & Drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect(files[0]);
+                }
+            });
+            
+            // Sélection de fichier
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+            
+            // Soumission du formulaire
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                uploadAd();
+            });
+        }
+        
+        function handleFileSelect(file) {
+            const uploadArea = document.getElementById('file-upload-area');
+            const placeholder = uploadArea.querySelector('.upload-placeholder');
+            
+            // Vérifier la taille
+            if (file.size > 100 * 1024 * 1024) {
+                showToast("Fichier trop volumineux (max 100MB)", "error");
+                return;
+            }
+            
+            // Vérifier le format
+            const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/webm'];
+            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|avi|mkv|webm)$/i)) {
+                showToast("Format de fichier non supporté", "error");
+                return;
+            }
+            
+            // Afficher les infos du fichier
+            placeholder.innerHTML = `
+                <i class="fas fa-video"></i>
+                <p><strong>${file.name}</strong></p>
+                <small>${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+            `;
+            
+            uploadArea.classList.add('file-selected');
+        }
+        
+        async function uploadAd() {
+            const form = document.getElementById('ad-upload-form');
+            const uploadArea = document.getElementById('file-upload-area');
+            const progressDiv = uploadArea.querySelector('.upload-progress');
+            const progressBar = progressDiv.querySelector('.progress-fill');
+            const progressText = progressDiv.querySelector('.progress-text');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            const formData = new FormData(form);
+            
+            // Afficher la barre de progression
+            uploadArea.classList.add('uploading');
+            progressDiv.style.display = 'block';
+            submitBtn.disabled = true;
+            
+            try {
+                const xhr = new XMLHttpRequest();
+                
+                // Progress handler
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percent + '%';
+                        progressText.textContent = percent + '%';
+                    }
+                });
+                
+                // Completion handler
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.success) {
+                            showToast("Publicité ajoutée avec succès", "success");
+                            form.reset();
+                            resetUploadArea();
+                            loadAdsList();
+                        } else {
+                            showToast(result.error || "Erreur lors de l'upload", "error");
+                        }
+                    } else {
+                        showToast("Erreur lors de l'upload", "error");
+                    }
+                    
+                    uploadArea.classList.remove('uploading');
+                    progressDiv.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+                
+                xhr.addEventListener('error', () => {
+                    showToast("Erreur de connexion", "error");
+                    uploadArea.classList.remove('uploading');
+                    progressDiv.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+                
+                // Envoyer la requête
+                const token = localStorage.getItem('jwt_token');
+                xhr.open('POST', `${API_URL}/api/admin/ads`);
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                xhr.send(formData);
+                
+            } catch (error) {
+                showToast("Erreur lors de l'upload", "error");
+                uploadArea.classList.remove('uploading');
+                progressDiv.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function resetUploadArea() {
+            const uploadArea = document.getElementById('file-upload-area');
+            const placeholder = uploadArea.querySelector('.upload-placeholder');
+            
+            placeholder.innerHTML = `
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Cliquez pour sélectionner une vidéo</p>
+                <small>MP4, MOV, AVI, MKV, WEBM - Max 100MB</small>
+            `;
+            
+            uploadArea.classList.remove('file-selected');
+        }
         
         function setupScrollAnimations() {
             const observer = new IntersectionObserver(entries => {

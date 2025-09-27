@@ -1466,16 +1466,196 @@
                             <h1><i class="fas fa-video gradient-icon"></i> Gagner des pièces</h1>
                             <p>Regardez des publicités pour gagner des pièces gratuitement !</p>
                         </div>
-                        <div id="ad-container">
-                            <div class="ad-loading">
-                                <p>Chargement d'une publicité...</p>
+                        <div id="earn-container">
+                            <div class="earn-loading">
+                                <p>Chargement...</p>
                             </div>
                         </div>
                     </main>
                 </div>
             `;
             updateUserSection();
-            loadRandomAd();
+            loadEarnStatus();
+        }
+        
+        async function loadEarnStatus() {
+            const container = document.getElementById('earn-container');
+            
+            try {
+                const status = await apiFetch('/api/earn/status');
+                
+                if (status.can_watch) {
+                    container.innerHTML = `
+                        <div class="earn-card">
+                            <div class="earn-info">
+                                <i class="fas fa-play-circle earn-icon"></i>
+                                <h3>Publicité disponible</h3>
+                                <p>Regardez une courte publicité et gagnez des pièces !</p>
+                                <div class="reward-display">
+                                    <img src="/Coin.png" class="coin-icon">
+                                    <span class="reward-amount">+${status.next_reward}</span>
+                                </div>
+                            </div>
+                            <button class="btn-watch-ad" onclick="startWatchingAd()">
+                                <i class="fas fa-play"></i> Regarder une publicité
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const secondsRemaining = Math.ceil(status.seconds_remaining);
+                    const minutes = Math.floor(secondsRemaining / 60);
+                    const seconds = secondsRemaining % 60;
+                    
+                    container.innerHTML = `
+                        <div class="earn-card cooldown">
+                            <div class="earn-info">
+                                <i class="fas fa-clock earn-icon"></i>
+                                <h3>Cooldown actif</h3>
+                                <p>Vous devez attendre avant de regarder une autre publicité.</p>
+                                <div class="cooldown-display">
+                                    <span id="cooldown-timer">${minutes}:${seconds.toString().padStart(2, '0')}</span>
+                                </div>
+                            </div>
+                            <button class="btn-watch-ad" disabled>
+                                <i class="fas fa-clock"></i> Veuillez attendre
+                            </button>
+                        </div>
+                    `;
+                    
+                    startCooldownTimer(status.seconds_remaining);
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-page">
+                        <p>Impossible de charger les publicités pour le moment.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function startCooldownTimer(remainingSeconds) {
+            const timer = document.getElementById('cooldown-timer');
+            if (!timer) return;
+            
+            const interval = setInterval(() => {
+                remainingSeconds--;
+                
+                if (remainingSeconds <= 0) {
+                    clearInterval(interval);
+                    loadEarnStatus(); // Recharger la page
+                    return;
+                }
+                
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        async function startWatchingAd() {
+            const container = document.getElementById('earn-container');
+            container.innerHTML = `
+                <div class="earn-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Chargement de la publicité...</p>
+                </div>
+            `;
+            
+            try {
+                const result = await apiFetch('/api/earn/get_ad');
+                if (result.success) {
+                    showAdPlayer(result.ad);
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-page">
+                        <p>${error.error || "Erreur lors du chargement"}</p>
+                        <button class="btn-gift-action" onclick="loadEarnStatus()">Réessayer</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function showAdPlayer(ad) {
+            const container = document.getElementById('earn-container');
+            
+            container.innerHTML = `
+                <div class="ad-player-container">
+                    <div class="ad-player-header">
+                        <h3>Publicité en cours</h3>
+                        <button class="ad-close-btn" id="ad-close-btn" disabled title="Regardez jusqu'à la fin">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="video-wrapper">
+                        <video id="ad-video" controls preload="metadata" style="width: 100%; border-radius: 12px;">
+                            <source src="${ad.video_url}" type="video/mp4">
+                            Votre navigateur ne supporte pas la vidéo.
+                        </video>
+                    </div>
+                    
+                    <div class="ad-reward-info">
+                        <p>Récompense: <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
+                    </div>
+                </div>
+            `;
+            
+            setupAdPlayer(ad);
+        }
+        
+        function setupAdPlayer(ad) {
+            const video = document.getElementById('ad-video');
+            const closeBtn = document.getElementById('ad-close-btn');
+            let hasFinished = false;
+            
+            video.addEventListener('ended', () => {
+                hasFinished = true;
+                closeBtn.disabled = false;
+                closeBtn.title = "Cliquez pour réclamer votre récompense";
+                closeBtn.classList.add('active');
+                closeBtn.onclick = () => claimAdReward(ad._id);
+            });
+            
+            // Empêcher de sauter à la fin
+            video.addEventListener('seeked', () => {
+                if (video.currentTime > video.duration - 2 && !hasFinished) {
+                    video.currentTime = Math.max(0, video.currentTime - 10);
+                    showToast("Regardez la vidéo jusqu'à la fin", "warning");
+                }
+            });
+            
+            // Désactiver le clic droit
+            video.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
+        
+        async function claimAdReward(adId) {
+            const closeBtn = document.getElementById('ad-close-btn');
+            closeBtn.disabled = true;
+            closeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                const result = await apiFetch('/api/earn/complete_ad', {
+                    method: 'POST',
+                    body: JSON.stringify({ ad_id: adId })
+                });
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await updateUserSection();
+                    
+                    // Retourner à l'état initial après 2 secondes
+                    setTimeout(() => {
+                        loadEarnStatus();
+                    }, 2000);
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur lors de la réclamation", "error");
+                closeBtn.disabled = false;
+                closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
         }
         
         async function loadRandomAd() {

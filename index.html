@@ -615,44 +615,73 @@
                 container.innerHTML = `
                     <div class="admin-layout">
                         <aside class="admin-sidebar">
-                            <div class="admin-sidebar-header" ...>StrexBot Admin</div>
+                            <div class="admin-sidebar-header">StrexBot Admin</div>
         
                             <nav class="admin-nav">
                                 <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
                                 <a href="#" class="admin-nav-link" data-page="offer"><i class="fas fa-gift"></i> <span>Offre</span></a>
                                 <a href="#" class="admin-nav-link" data-page="ads"><i class="fas fa-video"></i> <span>Publicités</span></a>
-                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Maintenance</span></a>
+                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Configuration</span></a>
                             </nav>
-                            <a href="/" ... class="admin-back-home">Acceuil</a>
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home">Accueil</a>
                         </aside>
                         <main id="admin-main-content" class="admin-main"></main>
                     </div>
                 `;
-                loadAdminPage('users'); // On charge la page 'users' par défaut
+                loadAdminPage('users');
                 setupAdminNav();
             } catch (e) {
-                // ...
+                container.innerHTML = `<div class="error-page"><h1>Accès refusé</h1><p>Vous n'avez pas les permissions nécessaires.</p></div>`;
             }
         }
         
         function loadAdminPage(page) {
             const contentArea = document.getElementById('admin-main-content');
             if (!contentArea) return;
-             if (page === 'users') {
-                 contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
-                 document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
-             } else if (page === 'maintenance') {
-                contentArea.innerHTML = `<h2>Mode Maintenance</h2>
-                    <div class="maintenance-card">
-                        <div class="maintenance-toggle">
-                            <h3>Activer la maintenance</h3>
-                            <p>Lorsque la maintenance est activée, seuls les administrateurs peuvent se connecter au site.</p>
-                            <label class="switch"><input type="checkbox" id="maintenance-checkbox"><span class="slider"></span></label>
+            
+            if (page === 'users') {
+                contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
+                document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
+            } else if (page === 'maintenance') {
+                contentArea.innerHTML = `
+                    <h2>Configuration du Site</h2>
+                    <div class="config-section">
+                        <div class="maintenance-card">
+                            <div class="maintenance-toggle">
+                                <h3>Mode Maintenance</h3>
+                                <p>Lorsque la maintenance est activée, seuls les administrateurs peuvent se connecter au site.</p>
+                                <label class="switch">
+                                    <input type="checkbox" id="maintenance-checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
                         </div>
-                        <button id="save-maintenance-btn" class="admin-btn"><i class="fas fa-save"></i> Enregistrer</button>
-                    </div>`;
-                loadMaintenanceStatus();
-             } else if (page === 'offer') {
+                        
+                        <div class="maintenance-card" style="margin-top: 20px;">
+                            <div class="cooldown-config">
+                                <h3>Cooldown des Publicités</h3>
+                                <p>Temps d'attente entre deux publicités (en secondes).</p>
+                                <div class="cooldown-input-group">
+                                    <input type="number" id="ads-cooldown-input" class="admin-input" min="30" max="3600" value="300" placeholder="300">
+                                    <span class="cooldown-unit">secondes</span>
+                                </div>
+                                <div class="cooldown-presets">
+                                    <button class="preset-btn" onclick="setCooldown(60)">1 min</button>
+                                    <button class="preset-btn" onclick="setCooldown(300)">5 min</button>
+                                    <button class="preset-btn" onclick="setCooldown(600)">10 min</button>
+                                    <button class="preset-btn" onclick="setCooldown(1800)">30 min</button>
+                                </div>
+                                <div class="cooldown-display" id="cooldown-display">5 minutes</div>
+                            </div>
+                        </div>
+                        
+                        <button id="save-config-btn" class="admin-btn save-config-btn">
+                            <i class="fas fa-save"></i> Enregistrer la Configuration
+                        </button>
+                    </div>
+                `;
+                loadConfigStatus();
+            } else if (page === 'offer') {
                 contentArea.innerHTML = `
                     <h2>Lancer une Offre Globale</h2>
                     <div class="account-card">
@@ -717,9 +746,8 @@
                 
                 setupFileUpload();
                 loadAdsList();
-             }
+            }
         }
-
         // --- Fonctions de l'Admin Panel ---
         function setupAdminNav() {
             document.querySelectorAll('.admin-nav-link').forEach(link => {
@@ -729,6 +757,76 @@
                     e.currentTarget.classList.add('active');
                     loadAdminPage(e.currentTarget.dataset.page);
                 });
+            });
+        }
+
+        // 2. Nouvelle fonction pour gérer le cooldown
+        function setCooldown(seconds) {
+            document.getElementById('ads-cooldown-input').value = seconds;
+            updateCooldownDisplay(seconds);
+        }
+        
+        function updateCooldownDisplay(seconds) {
+            const display = document.getElementById('cooldown-display');
+            if (!display) return;
+            
+            if (seconds < 60) {
+                display.textContent = `${seconds} secondes`;
+            } else if (seconds < 3600) {
+                const minutes = Math.floor(seconds / 60);
+                display.textContent = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                display.textContent = `${hours}h${minutes > 0 ? ` ${minutes}min` : ''}`;
+            }
+        }
+        
+        // 3. Nouvelle fonction pour charger la configuration
+        async function loadConfigStatus() {
+            const maintenanceCheckbox = document.getElementById('maintenance-checkbox');
+            const cooldownInput = document.getElementById('ads-cooldown-input');
+            const saveBtn = document.getElementById('save-config-btn');
+            
+            try {
+                const data = await apiFetch('/api/admin/config');
+                if (data) {
+                    maintenanceCheckbox.checked = data.maintenance_enabled;
+                    cooldownInput.value = data.ads_cooldown;
+                    updateCooldownDisplay(data.ads_cooldown);
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement de la configuration:', error);
+            }
+            
+            // Event listeners
+            cooldownInput.addEventListener('input', (e) => {
+                updateCooldownDisplay(parseInt(e.target.value) || 300);
+            });
+            
+            saveBtn.addEventListener('click', async () => {
+                const maintenance = maintenanceCheckbox.checked;
+                const cooldown = parseInt(cooldownInput.value) || 300;
+                
+                if (cooldown < 30 || cooldown > 3600) {
+                    showToast('Le cooldown doit être entre 30 secondes et 1 heure', 'error');
+                    return;
+                }
+                
+                try {
+                    const result = await apiFetch('/api/admin/config', {
+                        method: 'POST', 
+                        body: JSON.stringify({ 
+                            maintenance_enabled: maintenance,
+                            ads_cooldown: cooldown
+                        })
+                    });
+                    if (result && result.success) {
+                        showToast('Configuration mise à jour !', 'success');
+                    }
+                } catch (error) {
+                    showToast(error.error || 'Erreur lors de la sauvegarde', 'error');
+                }
             });
         }
         
@@ -2373,6 +2471,9 @@
             const submitBtn = form.querySelector('button[type="submit"]');
             
             const formData = new FormData(form);
+            
+            # Le problème est ici - il faut s'assurer que le champ click_url est bien envoyé
+            # Vérifier que le champ existe dans le FormData avant l'envoi
             
             // Afficher la barre de progression
             uploadArea.classList.add('uploading');

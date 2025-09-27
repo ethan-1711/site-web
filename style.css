@@ -1282,10 +1282,13 @@ h1 {
     margin-bottom: 20px;
 }
 
-.servers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 25px;
+/* --- Page d'Achat - Layout vertical --- */
+.servers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .server-card {
@@ -1295,11 +1298,55 @@ h1 {
     padding: 25px;
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.server-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
+.server-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.server-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px; /* Coins arrondis */
+    object-fit: cover;
+}
+
+.credits-input {
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text-muted-color);
+    font-size: 1em;
+    width: 100%;
+    cursor: not-allowed;
+    font-style: italic;
+}
+
+.credits-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-refund-credits {
+    background: var(--warning-color);
+    color: var(--background-color);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-refund-credits:hover {
+    transform: scale(1.05);
 }
 
 .server-header {

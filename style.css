@@ -1967,3 +1967,248 @@ html, body {
         font-size: 1.8em;
     }
 }
+/* Ajoutez ces styles à la fin de votre fichier style.css */
+
+/* === AMÉLIORATIONS PAGE GAGNER === */
+
+.earn-hero {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+}
+
+.earn-hero h1 {
+    font-size: 2.8em;
+    font-weight: 800;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.earn-hero p {
+    font-size: 1.2em;
+    color: var(--text-muted-color);
+    margin: 0;
+}
+
+.earn-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted-color);
+}
+
+.earn-loading i {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.earn-loading p {
+    font-size: 1.2em;
+    margin: 0;
+}
+
+/* Améliorations pour les messages d'erreur */
+.earn-card .earn-icon[style*="error-color"] {
+    color: var(--error-color) !important;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Cooldown timer amélioré */
+.cooldown-display {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.2));
+    border: 2px solid var(--warning-color);
+    padding: 25px;
+    border-radius: 15px;
+    margin: 25px auto;
+    max-width: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cooldown-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+#cooldown-timer {
+    font-family: 'Courier New', monospace;
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--warning-color);
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    position: relative;
+    z-index: 1;
+}
+
+/* Messages de cooldown */
+.cooldown-message {
+    color: var(--warning-color);
+    font-weight: 600;
+    font-size: 1.1em;
+    margin: 15px 0;
+    padding: 12px 20px;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--warning-color);
+}
+
+/* Animation pour le bouton de récompense réclamée */
+.reward-claimed-animation {
+    animation: rewardPop 0.6s ease-out;
+}
+
+@keyframes rewardPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Amélioration du bouton de fermeture actif */
+.ad-close-btn.active {
+    background: linear-gradient(135deg, var(--success-color), #16a34a);
+    color: white;
+    border-color: var(--success-color);
+    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.ad-close-btn.active:hover {
+    transform: scale(1.1);
+    animation: none; /* Arrête l'animation pulse au hover */
+}
+
+/* État de succès pour la récompense réclamée */
+.earn-card.success {
+    border-color: var(--success-color);
+    background: rgba(34, 197, 94, 0.1);
+    animation: successGlow 0.8s ease-out;
+}
+
+@keyframes successGlow {
+    0% { 
+        box-shadow: 0 0 0 rgba(34, 197, 94, 0.4);
+        transform: scale(0.98);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+        transform: scale(1.02);
+    }
+    100% { 
+        box-shadow: var(--shadow-xl);
+        transform: scale(1);
+    }
+}
+
+/* Amélioration du lecteur vidéo */
+.ad-player-container {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.video-wrapper video {
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+/* Message d'attente stylisé */
+.wait-message {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.2));
+    border: 1px solid var(--warning-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.wait-message i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .earn-hero h1 {
+        font-size: 2.2em;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .earn-card {
+        margin: 20px 10px;
+        padding: 25px 20px;
+    }
+    
+    .cooldown-display {
+        max-width: 180px;
+        padding: 20px;
+    }
+    
+    #cooldown-timer {
+        font-size: 2em;
+    }
+    
+    .ad-player-container {
+        margin: 15px 5px;
+        padding: 15px;
+    }
+    
+    .earn-loading {
+        padding: 40px 15px;
+    }
+    
+    .earn-loading i {
+        font-size: 2.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .earn-hero h1 {
+        font-size: 1.8em;
+    }
+    
+    .earn-hero p {
+        font-size: 1em;
+    }
+    
+    .cooldown-display {
+        max-width: 160px;
+        padding: 15px;
+    }
+    
+    #cooldown-timer {
+        font-size: 1.8em;
+    }
+}

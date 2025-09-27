@@ -2539,15 +2539,50 @@
             const progressText = progressDiv.querySelector('.progress-text');
             const submitBtn = form.querySelector('button[type="submit"]');
             
-            const formData = new FormData(form);
+            // Créer FormData manuellement pour s'assurer que tous les champs sont inclus
+            const formData = new FormData();
             
-            # Le problème est ici - il faut s'assurer que le champ click_url est bien envoyé
-            # Vérifier que le champ existe dans le FormData avant l'envoi
+            // Ajouter tous les champs manuellement
+            const title = document.getElementById('ad-title').value.trim();
+            const clickUrl = document.getElementById('ad-click-url').value.trim();
+            const reward = document.getElementById('ad-reward').value;
+            const fileInput = document.getElementById('ad-file');
+            
+            if (!title) {
+                showToast("Veuillez entrer un titre", "error");
+                return;
+            }
+            
+            if (!fileInput.files[0]) {
+                showToast("Veuillez sélectionner un fichier", "error");
+                return;
+            }
+            
+            if (!reward || reward <= 0) {
+                showToast("Veuillez entrer une récompense valide", "error");
+                return;
+            }
+            
+            // Ajouter les données au FormData
+            formData.append('title', title);
+            formData.append('reward_amount', reward);
+            formData.append('video_file', fileInput.files[0]);
+            
+            // Ajouter click_url seulement s'il n'est pas vide
+            if (clickUrl) {
+                formData.append('click_url', clickUrl);
+            }
+            
+            console.log('FormData contents:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
             
             // Afficher la barre de progression
             uploadArea.classList.add('uploading');
             progressDiv.style.display = 'block';
             submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Upload en cours...';
             
             try {
                 const xhr = new XMLHttpRequest();
@@ -2563,43 +2598,68 @@
                 
                 // Completion handler
                 xhr.addEventListener('load', () => {
+                    console.log('XHR Response Status:', xhr.status);
+                    console.log('XHR Response Text:', xhr.responseText);
+                    
                     if (xhr.status === 200) {
-                        const result = JSON.parse(xhr.responseText);
-                        if (result.success) {
-                            showToast("Publicité ajoutée avec succès", "success");
-                            form.reset();
-                            resetUploadArea();
-                            loadAdsList();
-                        } else {
-                            showToast(result.error || "Erreur lors de l'upload", "error");
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            console.log('Parsed result:', result);
+                            
+                            if (result.success) {
+                                showToast("Publicité ajoutée avec succès", "success");
+                                form.reset();
+                                resetUploadArea();
+                                loadAdsList();
+                            } else {
+                                showToast(result.error || "Erreur lors de l'upload", "error");
+                            }
+                        } catch (parseError) {
+                            console.error('JSON Parse Error:', parseError);
+                            showToast("Erreur de traitement de la réponse", "error");
                         }
                     } else {
-                        showToast("Erreur lors de l'upload", "error");
+                        console.error('HTTP Error:', xhr.status, xhr.statusText);
+                        showToast(`Erreur HTTP ${xhr.status}: ${xhr.statusText}`, "error");
                     }
                     
+                    // Reset UI
                     uploadArea.classList.remove('uploading');
                     progressDiv.style.display = 'none';
                     submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
                 });
                 
-                xhr.addEventListener('error', () => {
+                xhr.addEventListener('error', (e) => {
+                    console.error('XHR Error:', e);
                     showToast("Erreur de connexion", "error");
+                    
+                    // Reset UI
                     uploadArea.classList.remove('uploading');
                     progressDiv.style.display = 'none';
                     submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
                 });
                 
                 // Envoyer la requête
                 const token = localStorage.getItem('jwt_token');
                 xhr.open('POST', `${API_URL}/api/admin/ads`);
                 xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                
+                // Ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement
+                
+                console.log('Sending FormData to:', `${API_URL}/api/admin/ads`);
                 xhr.send(formData);
                 
             } catch (error) {
+                console.error('Upload Error:', error);
                 showToast("Erreur lors de l'upload", "error");
+                
+                // Reset UI
                 uploadArea.classList.remove('uploading');
                 progressDiv.style.display = 'none';
                 submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
             }
         }
         

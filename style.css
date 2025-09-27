@@ -2332,3 +2332,206 @@ video::-ms-media-controls {
     background: var(--success-color);
     color: white;
     animation: pulse 1s infinite;
+}
+
+/* Header de la vidéo amélioré */
+.ad-player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    gap: 15px;
+}
+
+.ad-player-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+    flex-grow: 1;
+}
+
+/* Overlay pour démarrage manuel de la vidéo */
+.video-play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.video-play-overlay:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.video-play-overlay i {
+    font-size: 4em;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.video-play-overlay p {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+/* Configuration des publicités dans l'admin */
+.config-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cooldown-config {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cooldown-config h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cooldown-config p {
+    color: var(--text-muted-color);
+    margin: 0;
+}
+
+.cooldown-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cooldown-input-group input {
+    flex: 1;
+    max-width: 120px;
+}
+
+.cooldown-unit {
+    color: var(--text-muted-color);
+    font-weight: 500;
+}
+
+.cooldown-presets {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.preset-btn {
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.preset-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.cooldown-display {
+    background: var(--secondary-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
+}
+
+.save-config-btn {
+    align-self: flex-start;
+    padding: 12px 25px;
+    font-size: 1.05em;
+    background: linear-gradient(135deg, var(--success-color), #16a34a);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.save-config-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive pour la configuration */
+@media (max-width: 768px) {
+    .ad-player-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .ad-player-header h3 {
+        text-align: center;
+        font-size: 1.1em;
+    }
+    
+    .video-timer {
+        align-self: center;
+        font-size: 1em;
+    }
+    
+    .cooldown-presets {
+        justify-content: center;
+    }
+    
+    .preset-btn {
+        min-width: 70px;
+        text-align: center;
+    }
+    
+    .video-play-overlay i {
+        font-size: 3em;
+    }
+    
+    .video-play-overlay p {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .cooldown-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .cooldown-input-group input {
+        max-width: none;
+        text-align: center;
+    }
+    
+    .preset-btn {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    
+    .video-timer {
+        font-size: 0.9em;
+        padding: 6px 12px;
+    }
+}

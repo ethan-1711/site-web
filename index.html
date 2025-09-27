@@ -1609,16 +1609,19 @@
             const closeBtn = document.getElementById('ad-close-btn');
             let hasFinished = false;
             
+            // On ajoute un seul écouteur d'événement pour le clic
+            closeBtn.addEventListener('click', function() {
+                // On vérifie que la vidéo est bien terminée avant de réclamer
+                if (hasFinished) {
+                    claimAdReward(ad._id);
+                }
+            });
+
             video.addEventListener('ended', () => {
                 hasFinished = true;
                 closeBtn.disabled = false;
                 closeBtn.title = "Cliquez pour réclamer votre récompense";
                 closeBtn.classList.add('active');
-                
-                // CORRECTION : Assigner directement la fonction onclick
-                closeBtn.onclick = function() {
-                    claimAdReward(ad._id);
-                };
             });
             
             // Empêcher de sauter à la fin
@@ -1632,13 +1635,6 @@
             // Désactiver le clic droit
             video.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-            });
-            
-            // CORRECTION : Ajouter un event listener alternatif
-            closeBtn.addEventListener('click', function() {
-                if (!closeBtn.disabled && hasFinished) {
-                    claimAdReward(ad._id);
-                }
             });
         }
         

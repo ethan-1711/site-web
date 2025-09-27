@@ -1609,11 +1609,10 @@
             const closeBtn = document.getElementById('ad-close-btn');
             let hasFinished = false;
             
-            // On ajoute un seul écouteur d'événement pour le clic
             closeBtn.addEventListener('click', function() {
-                // On vérifie que la vidéo est bien terminée avant de réclamer
                 if (hasFinished) {
-                    claimAdReward(ad._id);
+                    // On passe "this" qui représente le bouton lui-même
+                    claimAdReward(ad._id, this); 
                 }
             });
 
@@ -1638,8 +1637,9 @@
             });
         }
         
-        async function claimAdReward(adId) {
-            const closeBtn = document.getElementById('ad-close-btn');
+        async function claimAdReward(adId, buttonElement) {
+            // On utilise directement le bouton passé en argument
+            const closeBtn = buttonElement;
             closeBtn.disabled = true;
             closeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
@@ -1660,8 +1660,11 @@
                 }
             } catch (error) {
                 showToast(error.error || "Erreur lors de la réclamation", "error");
-                closeBtn.disabled = false;
-                closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                // On vérifie si le bouton existe toujours avant de le modifier
+                if (closeBtn) {
+                    closeBtn.disabled = false;
+                    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                }
             }
         }
         

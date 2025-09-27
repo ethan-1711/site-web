@@ -1444,18 +1444,13 @@
             }
         }
 
+        // Dans index (10).html, remplacez les fonctions suivantes :
+
         async function renderEarnPage() {
             document.title = "StrexBot - Gagner des pièces";
             const container = document.getElementById("app-container");
-        
-            let status;
-            try {
-                status = await apiFetch("/api/offer/status");
-            } catch {
-                status = null;
-            }
-        
-            let html = `
+            
+            container.innerHTML = `
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
@@ -1464,26 +1459,22 @@
                         <div id="user-section"></div>
                     </nav>
                     <main class="earn-main">
-                        <h1><i class="fas fa-video"></i> Gagner avec les pubs</h1>
+                        <div class="earn-hero">
+                            <h1><i class="fas fa-video gradient-icon"></i> Gagner avec les pubs</h1>
+                            <p>Regardez des publicités et gagnez des pièces !</p>
+                        </div>
                         <div id="earn-container">
+                            <div class="earn-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Chargement...</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
             `;
-        
-            if (status && status.can_claim) {
-                html += `
-                    <button class="btn-claim" onclick="claimAdReward(this)">
-                        <i class="fas fa-play"></i> Regarder une pub et gagner
-                    </button>
-                `;
-            } else if (status) {
-                html += `<p>Vous devez attendre encore ${status.remaining_seconds} secondes avant la prochaine pub.</p>`;
-            } else {
-                html += `<p>Erreur lors du chargement du statut.</p>`;
-            }
-        
-            html += `</div></main></div>`;
-            container.innerHTML = html;
-        
+            
             updateUserSection();
+            loadEarnStatus();
         }
         
         async function loadEarnStatus() {
@@ -1501,7 +1492,7 @@
                                 <p>Regardez une courte publicité et gagnez des pièces !</p>
                                 <div class="reward-display">
                                     <img src="/Coin.png" class="coin-icon">
-                                    <span class="reward-amount">+${status.next_reward}</span>
+                                    <span class="reward-amount">+${status.next_reward || 1}</span>
                                 </div>
                             </div>
                             <button class="btn-watch-ad" onclick="startWatchingAd()">
@@ -1510,7 +1501,7 @@
                         </div>
                     `;
                 } else {
-                    const secondsRemaining = Math.ceil(status.seconds_remaining);
+                    const secondsRemaining = Math.max(0, Math.floor(status.seconds_remaining || 0));
                     const minutes = Math.floor(secondsRemaining / 60);
                     const seconds = secondsRemaining % 60;
                     
@@ -1530,12 +1521,22 @@
                         </div>
                     `;
                     
-                    startCooldownTimer(status.seconds_remaining);
+                    if (secondsRemaining > 0) {
+                        startCooldownTimer(secondsRemaining);
+                    }
                 }
             } catch (error) {
+                console.error("Erreur lors du chargement:", error);
                 container.innerHTML = `
-                    <div class="error-page">
-                        <p>Impossible de charger les publicités pour le moment.</p>
+                    <div class="earn-card">
+                        <div class="earn-info">
+                            <i class="fas fa-exclamation-triangle earn-icon" style="color: var(--error-color);"></i>
+                            <h3>Erreur</h3>
+                            <p>Impossible de charger les publicités pour le moment.</p>
+                        </div>
+                        <button class="btn-watch-ad" onclick="loadEarnStatus()">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
                     </div>
                 `;
             }
@@ -1550,7 +1551,7 @@
                 
                 if (remainingSeconds <= 0) {
                     clearInterval(interval);
-                    loadEarnStatus(); // Recharger la page
+                    loadEarnStatus(); // Recharger automatiquement
                     return;
                 }
                 
@@ -1563,9 +1564,11 @@
         async function startWatchingAd() {
             const container = document.getElementById('earn-container');
             container.innerHTML = `
-                <div class="earn-loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Chargement de la publicité...</p>
+                <div class="earn-card">
+                    <div class="earn-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Chargement de la publicité...</p>
+                    </div>
                 </div>
             `;
             
@@ -1576,9 +1579,15 @@
                 }
             } catch (error) {
                 container.innerHTML = `
-                    <div class="error-page">
-                        <p>${error.error || "Erreur lors du chargement"}</p>
-                        <button class="btn-gift-action" onclick="loadEarnStatus()">Réessayer</button>
+                    <div class="earn-card">
+                        <div class="earn-info">
+                            <i class="fas fa-exclamation-triangle earn-icon" style="color: var(--error-color);"></i>
+                            <h3>Erreur</h3>
+                            <p>${error.error || "Erreur lors du chargement"}</p>
+                        </div>
+                        <button class="btn-watch-ad" onclick="loadEarnStatus()">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
                     </div>
                 `;
             }
@@ -1590,7 +1599,7 @@
             container.innerHTML = `
                 <div class="ad-player-container">
                     <div class="ad-player-header">
-                        <h3>Publicité en cours</h3>
+                        <h3>Publicité : ${ad.title || 'Publicité'}</h3>
                         <button class="ad-close-btn" id="ad-close-btn" disabled title="Regardez jusqu'à la fin">
                             <i class="fas fa-times"></i>
                         </button>
@@ -1604,7 +1613,7 @@
                     </div>
                     
                     <div class="ad-reward-info">
-                        <p>Récompense: <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
+                        <p>Récompense : <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
                     </div>
                 </div>
             `;
@@ -1616,29 +1625,29 @@
             const video = document.getElementById('ad-video');
             const closeBtn = document.getElementById('ad-close-btn');
             let hasFinished = false;
+            let isProcessing = false; // Empêche les doubles clics
             
             closeBtn.addEventListener('click', function() {
-                // On vérifie que la vidéo est finie ET que le bouton n'est pas déjà désactivé
-                if (hasFinished && !this.disabled) {
-                    // On désactive le bouton IMMÉDIATEMENT pour éviter les doubles clics
+                if (hasFinished && !isProcessing) {
+                    isProcessing = true;
                     this.disabled = true;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                     
-                    // On appelle la fonction de réclamation (sans passer le bouton)
                     claimAdReward(ad._id);
                 }
             });
-
+        
             video.addEventListener('ended', () => {
                 hasFinished = true;
                 closeBtn.disabled = false;
                 closeBtn.title = "Cliquez pour réclamer votre récompense";
                 closeBtn.classList.add('active');
+                closeBtn.innerHTML = '<i class="fas fa-check"></i>';
             });
             
             // Empêcher de sauter à la fin
             video.addEventListener('seeked', () => {
-                if (video.currentTime > video.duration - 2 && !hasFinished) {
+                if (video.currentTime > video.duration - 3 && !hasFinished) {
                     video.currentTime = Math.max(0, video.currentTime - 10);
                     showToast("Regardez la vidéo jusqu'à la fin", "warning");
                 }
@@ -1648,34 +1657,60 @@
             video.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
             });
+            
+            // Empêcher les contrôles de vitesse
+            video.addEventListener('ratechange', () => {
+                if (video.playbackRate !== 1) {
+                    video.playbackRate = 1;
+                    showToast("Vitesse normale requise", "warning");
+                }
+            });
         }
         
-        async function claimAdReward(button) {
-            if (button) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
-            }
-        
+        async function claimAdReward(adId) {
             try {
-                const result = await apiFetch('/api/offer/claim', { method: 'POST' });
+                const result = await apiFetch('/api/earn/complete_ad', {
+                    method: 'POST',
+                    body: JSON.stringify({ ad_id: adId })
+                });
+                
                 if (result.success) {
                     showToast(result.message, "success");
                     await updateUserSection();
+                    
+                    // Afficher le message de succès temporairement
+                    const container = document.getElementById('earn-container');
+                    container.innerHTML = `
+                        <div class="earn-card" style="border-color: var(--success-color); background: rgba(34, 197, 94, 0.1);">
+                            <div class="earn-info">
+                                <i class="fas fa-check-circle earn-icon" style="color: var(--success-color);"></i>
+                                <h3>Récompense réclamée !</h3>
+                                <p>Vous avez gagné ${result.reward} pièce(s) !</p>
+                                <div class="reward-display" style="background: rgba(34, 197, 94, 0.2);">
+                                    <img src="/Coin.png" class="coin-icon">
+                                    <span class="reward-amount" style="color: var(--success-color);">+${result.reward}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Recharger automatiquement après 2 secondes
+                    setTimeout(() => {
+                        loadEarnStatus();
+                    }, 2000);
+                    
                 } else {
-                    showToast(result.error, "error");
+                    showToast(result.error || "Erreur lors de la réclamation", "error");
+                    loadEarnStatus(); // Recharger en cas d'erreur
                 }
-            } catch (e) {
-                showToast("Erreur lors de la réclamation.", "error");
-            } finally {
-                if (button) {
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-gift"></i> Réclamer ma récompense';
-                }
+            } catch (error) {
+                console.error("Erreur lors de la réclamation:", error);
+                showToast(error.error || "Erreur lors de la réclamation", "error");
+                loadEarnStatus(); // Recharger en cas d'erreur
             }
         }
 
-
-        
+    
         async function loadRandomAd() {
             const container = document.getElementById('ad-container');
             

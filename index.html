@@ -159,6 +159,8 @@
                 renderBuyPage();
             } else if (path.startsWith('/daily')) {
                 renderDailyPage();
+            } else if (path.startsWith('/earn')) {
+                renderEarnPage();
             } else {
                 renderHomePage();
             }
@@ -1037,53 +1039,52 @@
                             </div>
                             <div id="user-section"></div>
                         </nav>
-                        <main class="gifts-main">
-                            <div class="gifts-hero">
+                        <main class="buy-main">
+                            <div class="buy-hero">
                                 <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
                                 <p>Achetez des crédits pour vos serveurs avec vos pièces.</p>
                             </div>
-        
-                            <div class="gifts-content">
+                            
+                            <div class="servers-list">
                                 ${Array.isArray(servers) && servers.length > 0 ? servers.map(s => `
-                                    <div class="gift-card">
-                                        <div class="card-header">
-                                            <i class="fas fa-server"></i>
-                                            <h3>${s.name}</h3>
+                                    <div class="server-card">
+                                        <div class="server-header">
+                                            ${s.icon ? 
+                                                `<img src="${s.icon}" class="server-icon" alt="${s.name}">` : 
+                                                '<div class="server-icon-placeholder"><i class="fas fa-server"></i></div>'
+                                            }
+                                            <div class="server-info">
+                                                <h3>${s.name}</h3>
+                                                <p>Crédits actuels: <strong>${s.current_credits || 0}</strong></p>
+                                            </div>
                                         </div>
-                                        <p>Achetez des crédits supplémentaires pour ce serveur.</p>
-                                        <div class="balance-display">
-                                            <span>Crédits actuels: <strong>${s.current_credits || 0}</strong></span>
-                                        </div>
+                                        
                                         ${!s.bot_present ? `
                                             <div class="bot-not-present">
-                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
-                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">
-                                                    <i class="fas fa-plus"></i> Inviter le bot
-                                                </button>
+                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent</p>
+                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">Inviter le bot</button>
                                             </div>
                                         ` : `
-                                            <div class="credits-selector">
-                                                <label>Nombre de crédits à acheter :</label>
-                                                <select id="credits-${s.id}" onchange="updateCost('${s.id}')">
-                                                    <option value="10">10 crédits (1 pièce)</option>
-                                                    <option value="50">50 crédits (5 pièces)</option>
-                                                    <option value="100">100 crédits (10 pièces)</option>
-                                                    <option value="500">500 crédits (50 pièces)</option>
-                                                </select>
+                                            <div class="credits-purchase">
+                                                <input type="text" class="credits-input" value="Montant" readonly>
+                                                <div class="credits-actions">
+                                                    <button class="btn-buy-credits" onclick="buyCredits('${s.id}', '${s.name}')">
+                                                        <i class="fas fa-shopping-cart"></i> Acheter 10 crédits (1 pièce)
+                                                    </button>
+                                                    ${s.current_credits > 0 ? `
+                                                        <button class="btn-refund-credits" onclick="refundCredits('${s.id}', '${s.name}')">
+                                                            <i class="fas fa-undo"></i> Rembourser
+                                                        </button>
+                                                    ` : ''}
+                                                </div>
                                             </div>
-                                            <div class="cost-display">
-                                                Coût: <span id="cost-${s.id}">1</span> pièce(s)
-                                            </div>
-                                            <button class="btn-buy-credits" onclick="buyCredits('${s.id}', '${s.name}')">
-                                                <i class="fas fa-shopping-cart"></i> Acheter
-                                            </button>
                                         `}
                                         <div id="buy-result-${s.id}"></div>
                                     </div>
                                 `).join('') : `
                                     <div class="error-page">
                                         <h2>Aucun serveur trouvé</h2>
-                                        <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
+                                        <p>Vous devez avoir la permission "Gérer le serveur".</p>
                                     </div>
                                 `}
                             </div>
@@ -1175,6 +1176,25 @@
             } finally {
                 button.disabled = false;
                 button.innerHTML = '<i class="fas fa-shopping-cart"></i> Acheter';
+            }
+        }
+
+        async function refundCredits(serverId, serverName) {
+            if (!confirm(`Rembourser tous les crédits de "${serverName}" ?`)) return;
+            
+            try {
+                const result = await apiFetch('/api/refund_credits', {
+                    method: 'POST',
+                    body: JSON.stringify({ guild_id: serverId })
+                });
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await updateUserSection();
+                    setTimeout(() => renderBuyPage(), 1000);
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur lors du remboursement", "error");
             }
         }
         
@@ -1375,6 +1395,124 @@
             } catch (error) {
                 console.error("Erreur lors du chargement de l'offre globale:", error);
                 container.innerHTML = '';
+            }
+        }
+
+        async function renderEarnPage() {
+            document.title = 'StrexBot - Gagner des pièces';
+            const container = document.getElementById('app-container');
+            
+            if (!localStorage.getItem('jwt_token')) {
+                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1></div>`;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="container">
+                    <nav>
+                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
+                            <img src="/S.png" alt="Logo" class="nav-logo"> StrexBot
+                        </div>
+                        <div id="user-section"></div>
+                    </nav>
+                    <main class="earn-main">
+                        <div class="earn-hero">
+                            <h1><i class="fas fa-video gradient-icon"></i> Gagner des pièces</h1>
+                            <p>Regardez des publicités pour gagner des pièces gratuitement !</p>
+                        </div>
+                        <div id="ad-container">
+                            <div class="ad-loading">
+                                <p>Chargement d'une publicité...</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            `;
+            updateUserSection();
+            loadRandomAd();
+        }
+        
+        async function loadRandomAd() {
+            const container = document.getElementById('ad-container');
+            
+            try {
+                const result = await apiFetch('/api/earn/get_ad');
+                if (result.success) {
+                    const ad = result.ad;
+                    container.innerHTML = `
+                        <div class="ad-player">
+                            <div class="ad-header">
+                                <h3>${ad.title}</h3>
+                                <p>Récompense: <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
+                            </div>
+                            <video id="ad-video" controls preload="metadata" style="width: 100%; max-width: 800px; border-radius: 12px;">
+                                <source src="${ad.video_url}" type="video/mp4">
+                                Votre navigateur ne supporte pas la vidéo.
+                            </video>
+                            <div class="ad-controls">
+                                <button id="claim-reward-btn" class="btn-claim-reward" disabled>
+                                    <i class="fas fa-clock"></i> Regarder jusqu'à la fin
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    setupVideoPlayer(ad);
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="error-page"><p>Aucune publicité disponible pour le moment.</p></div>`;
+            }
+        }
+        
+        function setupVideoPlayer(ad) {
+            const video = document.getElementById('ad-video');
+            const claimBtn = document.getElementById('claim-reward-btn');
+            let hasWatchedFully = false;
+            let hasLeftPage = false;
+            
+            video.addEventListener('ended', () => {
+                hasWatchedFully = true;
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '<i class="fas fa-gift"></i> Réclamer la récompense';
+                claimBtn.onclick = () => claimAdReward(ad._id);
+            });
+            
+            // Détecter si l'utilisateur quitte la page
+            window.addEventListener('beforeunload', () => {
+                hasLeftPage = true;
+            });
+            
+            // Empêcher la triche (saut à la fin)
+            video.addEventListener('seeked', () => {
+                if (video.currentTime > video.duration - 5 && !hasWatchedFully) {
+                    video.currentTime = Math.max(0, video.currentTime - 10);
+                }
+            });
+        }
+        
+        async function claimAdReward(adId) {
+            const btn = document.getElementById('claim-reward-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+            
+            try {
+                const result = await apiFetch('/api/earn/complete_ad', {
+                    method: 'POST',
+                    body: JSON.stringify({ ad_id: adId })
+                });
+                
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    await updateUserSection();
+                    
+                    // Proposer une nouvelle pub après 3 secondes
+                    setTimeout(() => {
+                        document.getElementById('ad-container').innerHTML = 
+                            '<button class="btn-gift-action" onclick="loadRandomAd()">Regarder une autre publicité</button>';
+                    }, 3000);
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur lors de la réclamation", "error");
             }
         }
 

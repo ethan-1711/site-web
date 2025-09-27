@@ -2212,3 +2212,103 @@ html, body {
         font-size: 1.8em;
     }
 }
+/* Ajoutez ces styles à la fin de style.css */
+
+/* Countdown de redirection */
+#redirect-countdown {
+    font-size: 3em;
+    font-weight: 800;
+    color: var(--primary-color);
+    background: var(--secondary-color);
+    border: 3px solid var(--primary-color);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px auto;
+    animation: countdownPulse 1s infinite;
+}
+
+@keyframes countdownPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); box-shadow: 0 0 15px var(--primary-color); }
+    100% { transform: scale(1); }
+}
+
+/* Amélioration du lecteur vidéo minimal */
+video {
+    outline: none !important;
+    border: none !important;
+}
+
+video::-webkit-media-controls {
+    display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+    display: none !important;
+}
+
+video::-moz-media-controls {
+    display: none !important;
+}
+
+video::-ms-media-controls {
+    display: none !important;
+}
+
+/* Styles pour les champs URL dans l'admin */
+.ad-url-edit {
+    margin: 5px 0;
+}
+
+.ad-url-display {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.ad-url-input {
+    background: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.9em;
+}
+
+.ad-url-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+}
+
+/* Message de redirection stylisé */
+.redirect-message {
+    background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(124, 58, 237, 0.2));
+    border: 1px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.redirect-message p {
+    margin: 0;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+/* Mobile responsive pour le countdown */
+@media (max-width: 768px) {
+    #redirect-countdown {
+        width: 60px;
+        height: 60px;
+        font-size: 2.2em;
+        margin: 10px auto;
+    }
+}

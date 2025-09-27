@@ -1610,9 +1610,14 @@
             let hasFinished = false;
             
             closeBtn.addEventListener('click', function() {
-                if (hasFinished) {
-                    // On passe "this" qui représente le bouton lui-même
-                    claimAdReward(ad._id, this); 
+                // On vérifie que la vidéo est finie ET que le bouton n'est pas déjà désactivé
+                if (hasFinished && !this.disabled) {
+                    // On désactive le bouton IMMÉDIATEMENT pour éviter les doubles clics
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    // On appelle la fonction de réclamation (sans passer le bouton)
+                    claimAdReward(ad._id);
                 }
             });
 
@@ -1637,12 +1642,7 @@
             });
         }
         
-        async function claimAdReward(adId, buttonElement) {
-            // On utilise directement le bouton passé en argument
-            const closeBtn = buttonElement;
-            closeBtn.disabled = true;
-            closeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
+        async function claimAdReward(adId) {
             try {
                 const result = await apiFetch('/api/earn/complete_ad', {
                     method: 'POST',
@@ -1653,17 +1653,19 @@
                     showToast(result.message, 'success');
                     await updateUserSection();
                     
-                    // Retourner à l'état initial après 2 secondes
+                    // Le changement d'interface se fera après 2 secondes
                     setTimeout(() => {
                         loadEarnStatus();
                     }, 2000);
                 }
             } catch (error) {
                 showToast(error.error || "Erreur lors de la réclamation", "error");
-                // On vérifie si le bouton existe toujours avant de le modifier
-                if (closeBtn) {
-                    closeBtn.disabled = false;
-                    closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                
+                // En cas d'erreur, on essaie de retrouver le bouton pour le réactiver
+                const buttonToReEnable = document.getElementById('ad-close-btn');
+                if (buttonToReEnable) {
+                    buttonToReEnable.disabled = false;
+                    buttonToReEnable.innerHTML = '<i class="fas fa-times"></i>';
                 }
             }
         }

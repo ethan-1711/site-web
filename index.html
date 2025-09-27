@@ -1398,10 +1398,8 @@
         }
 
         // Colle ce code dans la balise <script> de ton index.html
+        // Dans votre index (10).html, remplacez ces fonctions :
 
-        // Dans index (10).html, remplacez les fonctions suivantes :
-
-        // Fonction pour charger l'offre globale (à mettre à jour aussi)
         async function loadGlobalOffer() {
             const container = document.getElementById('global-offer-container');
             if (!container) return;
@@ -1417,7 +1415,6 @@
                 
                 if (offer && offer.active === true) {
                     if (offer.already_claimed) {
-                        // L'utilisateur a déjà réclamé
                         container.innerHTML = `
                             <div class="global-offer-box" style="opacity: 0.6;">
                                 <div class="offer-icon">✅</div>
@@ -1427,7 +1424,6 @@
                                 </div>
                             </div>`;
                     } else {
-                        // L'utilisateur peut réclamer
                         container.innerHTML = `
                             <div class="global-offer-box">
                                 <div class="offer-icon">🎁</div>
@@ -1459,14 +1455,27 @@
                 if (result.success) {
                     showToast(result.message, "success");
             
-                    // Animation de descente
                     offerBox.style.transition = 'all 0.5s ease-out';
                     offerBox.style.transform = 'translateY(-20px)';
                     offerBox.style.opacity = '0';
             
                     setTimeout(() => {
                         document.getElementById('global-offer-container').innerHTML = '';
-                    }, 500
+                    }, 500);
+            
+                    await updateUserSection();
+                }
+            } catch (error) {
+                showToast(error.error || "Une erreur est survenue.", "error");
+                offerBox.style.transition = 'all 0.5s ease-out';
+                offerBox.style.transform = 'translateY(-20px)';
+                offerBox.style.opacity = '0';
+                
+                setTimeout(() => {
+                    document.getElementById('global-offer-container').innerHTML = '';
+                }, 500);
+            }
+        }
         
         async function renderEarnPage() {
             document.title = "StrexBot - Gagner des pièces";

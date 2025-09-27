@@ -1642,33 +1642,28 @@
             });
         }
         
-        async function claimAdReward(adId) {
+        async function claimAdReward(button) {
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
+            }
+        
             try {
-                const result = await apiFetch('/api/earn/complete_ad', {
-                    method: 'POST',
-                    body: JSON.stringify({ ad_id: adId })
-                });
-                
+                const result = await apiFetch('/api/offer/claim', { method: 'POST' });
                 if (result.success) {
-                    showToast(result.message, 'success');
+                    showToast(result.message, "success");
                     await updateUserSection();
-                    
-                    // Le changement d'interface se fera après 2 secondes
-                    setTimeout(() => {
-                        loadEarnStatus();
-                    }, 2000);
                 }
             } catch (error) {
-                showToast(error.error || "Erreur lors de la réclamation", "error");
-                
-                // En cas d'erreur, on essaie de retrouver le bouton pour le réactiver
-                const buttonToReEnable = document.getElementById('ad-close-btn');
-                if (buttonToReEnable) {
-                    buttonToReEnable.disabled = false;
-                    buttonToReEnable.innerHTML = '<i class="fas fa-times"></i>';
+                showToast(error.error || "Erreur lors de la réclamation.", "error");
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-gift"></i> Réclamer ma récompense';
                 }
             }
         }
+
         
         async function loadRandomAd() {
             const container = document.getElementById('ad-container');
@@ -1726,32 +1721,6 @@
                     video.currentTime = Math.max(0, video.currentTime - 10);
                 }
             });
-        }
-        
-        async function claimAdReward(adId) {
-            const btn = document.getElementById('claim-reward-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-            
-            try {
-                const result = await apiFetch('/api/earn/complete_ad', {
-                    method: 'POST',
-                    body: JSON.stringify({ ad_id: adId })
-                });
-                
-                if (result.success) {
-                    showToast(result.message, 'success');
-                    await updateUserSection();
-                    
-                    // Proposer une nouvelle pub après 3 secondes
-                    setTimeout(() => {
-                        document.getElementById('ad-container').innerHTML = 
-                            '<button class="btn-gift-action" onclick="loadRandomAd()">Regarder une autre publicité</button>';
-                    }, 3000);
-                }
-            } catch (error) {
-                showToast(error.error || "Erreur lors de la réclamation", "error");
-            }
         }
 
         async function claimGlobalOffer() {

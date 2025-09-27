@@ -1445,15 +1445,17 @@
         }
 
         async function renderEarnPage() {
-            document.title = 'StrexBot - Gagner des pièces';
-            const container = document.getElementById('app-container');
-            
-            if (!localStorage.getItem('jwt_token')) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1></div>`;
-                return;
+            document.title = "StrexBot - Gagner des pièces";
+            const container = document.getElementById("app-container");
+        
+            let status;
+            try {
+                status = await apiFetch("/api/offer/status");
+            } catch {
+                status = null;
             }
-            
-            container.innerHTML = `
+        
+            let html = `
                 <div class="container">
                     <nav>
                         <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
@@ -1462,20 +1464,26 @@
                         <div id="user-section"></div>
                     </nav>
                     <main class="earn-main">
-                        <div class="earn-hero">
-                            <h1><i class="fas fa-video gradient-icon"></i> Gagner des pièces</h1>
-                            <p>Regardez des publicités pour gagner des pièces gratuitement !</p>
-                        </div>
+                        <h1><i class="fas fa-video"></i> Gagner avec les pubs</h1>
                         <div id="earn-container">
-                            <div class="earn-loading">
-                                <p>Chargement...</p>
-                            </div>
-                        </div>
-                    </main>
-                </div>
             `;
+        
+            if (status && status.can_claim) {
+                html += `
+                    <button class="btn-claim" onclick="claimAdReward(this)">
+                        <i class="fas fa-play"></i> Regarder une pub et gagner
+                    </button>
+                `;
+            } else if (status) {
+                html += `<p>Vous devez attendre encore ${status.remaining_seconds} secondes avant la prochaine pub.</p>`;
+            } else {
+                html += `<p>Erreur lors du chargement du statut.</p>`;
+            }
+        
+            html += `</div></main></div>`;
+            container.innerHTML = html;
+        
             updateUserSection();
-            loadEarnStatus();
         }
         
         async function loadEarnStatus() {

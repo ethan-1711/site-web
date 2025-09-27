@@ -1018,6 +1018,7 @@
                             <div class="dropdown-menu" id="dropdown-menu">
                                 <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
                                 <a href="/history" onclick="event.preventDefault(); navigate('/history')"><i class="fas fa-history"></i> Historique</a>
+                                <a href="/earn" onclick="event.preventDefault(); navigate('/earn')"><i class="fas fa-video"></i> Gagner</a>
                                 <a href="/buy" onclick="event.preventDefault(); navigate('/buy')"><i class="fas fa-shopping-cart"></i> Acheter</a>
                                 <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
                                 <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
@@ -1714,6 +1715,74 @@
             } catch (e) {
                 console.error("Erreur lors du chargement de la boutique:", e);
                 container.innerHTML = `<div class="error-page"><h1>Erreur</h1><p>Impossible de charger la boutique.</p></div>`;
+            }
+        }
+
+        async function createAd() {
+            const title = document.getElementById('ad-title').value;
+            const url = document.getElementById('ad-url').value;
+            const reward = parseFloat(document.getElementById('ad-reward').value);
+            
+            if (!title || !url || !reward) {
+                showToast("Veuillez remplir tous les champs", "error");
+                return;
+            }
+            
+            try {
+                const result = await apiFetch('/api/admin/ads', {
+                    method: 'POST',
+                    body: JSON.stringify({ title, video_url: url, reward_amount: reward })
+                });
+                
+                if (result.success) {
+                    showToast("Publicité ajoutée avec succès", "success");
+                    document.getElementById('ad-title').value = '';
+                    document.getElementById('ad-url').value = '';
+                    document.getElementById('ad-reward').value = '1';
+                    loadAdsList();
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur", "error");
+            }
+        }
+        
+        async function loadAdsList() {
+            const container = document.getElementById('ads-list');
+            
+            try {
+                const ads = await apiFetch('/api/admin/ads');
+                
+                container.innerHTML = `
+                    <div class="admin-card">
+                        <h3>Publicités existantes (${ads.length})</h3>
+                        ${ads.length > 0 ? ads.map(ad => `
+                            <div class="ad-item">
+                                <div class="ad-details">
+                                    <strong>${ad.title}</strong>
+                                    <small>Récompense: ${ad.reward_amount} pièce(s)</small>
+                                    <a href="${ad.video_url}" target="_blank" class="ad-preview">Voir la vidéo</a>
+                                </div>
+                                <button class="admin-btn remove-btn" onclick="deleteAd('${ad._id}')">Supprimer</button>
+                            </div>
+                        `).join('') : '<p>Aucune publicité configurée.</p>'}
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = '<p>Erreur lors du chargement des publicités.</p>';
+            }
+        }
+        
+        async function deleteAd(adId) {
+            if (!confirm("Supprimer cette publicité ?")) return;
+            
+            try {
+                const result = await apiFetch(`/api/admin/ads/${adId}`, { method: 'DELETE' });
+                if (result.success) {
+                    showToast("Publicité supprimée", "success");
+                    loadAdsList();
+                }
+            } catch (error) {
+                showToast("Erreur lors de la suppression", "error");
             }
         }
         

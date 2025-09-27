@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StrexBot</title>
     <link rel="icon" type="image/png" href="/S.png">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css?v=1.0.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <meta name="description" content="StrexBot - Bot Discord pour développer et gérer votre serveur avec des commandes avancées. Système de pièces, cadeaux et récompenses quotidiennes.">
@@ -1614,7 +1614,11 @@
                 closeBtn.disabled = false;
                 closeBtn.title = "Cliquez pour réclamer votre récompense";
                 closeBtn.classList.add('active');
-                closeBtn.onclick = () => claimAdReward(ad._id);
+                
+                // CORRECTION : Assigner directement la fonction onclick
+                closeBtn.onclick = function() {
+                    claimAdReward(ad._id);
+                };
             });
             
             // Empêcher de sauter à la fin
@@ -1628,6 +1632,13 @@
             // Désactiver le clic droit
             video.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
+            });
+            
+            // CORRECTION : Ajouter un event listener alternatif
+            closeBtn.addEventListener('click', function() {
+                if (!closeBtn.disabled && hasFinished) {
+                    claimAdReward(ad._id);
+                }
             });
         }
         

@@ -2032,6 +2032,10 @@
                                         <small class="ad-reward-display">Récompense: ${ad.reward_amount} pièce(s)</small>
                                         <input type="number" class="ad-reward-input" value="${ad.reward_amount}" step="0.1" min="0.1" style="display: none;">
                                     </div>
+                                    <div class="ad-url-edit">
+                                        <small class="ad-url-display">Lien: ${ad.click_url || 'Aucun'}</small>
+                                        <input type="url" class="ad-url-input" value="${ad.click_url || ''}" placeholder="https://example.com" style="display: none;">
+                                    </div>
                                     <a href="${ad.video_url}" target="_blank" class="ad-preview">Voir la vidéo</a>
                                 </div>
                                 <div class="ad-actions">
@@ -2053,16 +2057,19 @@
                     </div>
                 `;
             } catch (error) {
-                container.innerHTML = '<p>Erreur lors du chargement des publicités.</p>';
+                container.innerHTML = '<div class="admin-card"><p style="color: var(--error-color);">Erreur lors du chargement des publicités.</p></div>';
             }
         }
         
+        // 3. Modifier les fonctions d'édition
         function editAd(adId) {
             const item = document.getElementById(`ad-item-${adId}`);
             const titleDisplay = item.querySelector('.ad-title-display');
             const titleInput = item.querySelector('.ad-title-input');
             const rewardDisplay = item.querySelector('.ad-reward-display');
             const rewardInput = item.querySelector('.ad-reward-input');
+            const urlDisplay = item.querySelector('.ad-url-display');
+            const urlInput = item.querySelector('.ad-url-input');
             const editBtn = item.querySelector('.edit-btn');
             const saveBtn = item.querySelector('.save-btn');
             const cancelBtn = item.querySelector('.cancel-btn');
@@ -2072,6 +2079,8 @@
             titleInput.style.display = 'block';
             rewardDisplay.style.display = 'none';
             rewardInput.style.display = 'block';
+            urlDisplay.style.display = 'none';
+            urlInput.style.display = 'block';
             
             // Changer les boutons
             editBtn.style.display = 'none';
@@ -2087,6 +2096,8 @@
             const titleInput = item.querySelector('.ad-title-input');
             const rewardDisplay = item.querySelector('.ad-reward-display');
             const rewardInput = item.querySelector('.ad-reward-input');
+            const urlDisplay = item.querySelector('.ad-url-display');
+            const urlInput = item.querySelector('.ad-url-input');
             const editBtn = item.querySelector('.edit-btn');
             const saveBtn = item.querySelector('.save-btn');
             const cancelBtn = item.querySelector('.cancel-btn');
@@ -2100,6 +2111,8 @@
             titleInput.style.display = 'none';
             rewardDisplay.style.display = 'block';
             rewardInput.style.display = 'none';
+            urlDisplay.style.display = 'block';
+            urlInput.style.display = 'none';
             
             // Changer les boutons
             editBtn.style.display = 'inline-block';
@@ -2111,10 +2124,12 @@
             const item = document.getElementById(`ad-item-${adId}`);
             const titleInput = item.querySelector('.ad-title-input');
             const rewardInput = item.querySelector('.ad-reward-input');
+            const urlInput = item.querySelector('.ad-url-input');
             const saveBtn = item.querySelector('.save-btn');
             
             const title = titleInput.value.trim();
             const reward = parseFloat(rewardInput.value);
+            const clickUrl = urlInput.value.trim();
             
             if (!title || !reward || reward <= 0) {
                 showToast("Veuillez remplir tous les champs correctement", "error");
@@ -2127,7 +2142,11 @@
             try {
                 const result = await apiFetch(`/api/admin/ads/${adId}`, {
                     method: 'PUT',
-                    body: JSON.stringify({ title, reward_amount: reward })
+                    body: JSON.stringify({ 
+                        title, 
+                        reward_amount: reward,
+                        click_url: clickUrl || null
+                    })
                 });
                 
                 if (result.success) {
@@ -2138,6 +2157,204 @@
                 showToast(error.error || "Erreur lors de la modification", "error");
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = '<i class="fas fa-save"></i> Sauvegarder';
+            }
+        }
+        
+        async function deleteAd(adId) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer cette publicité ?")) return;
+            
+            try {
+                const result = await apiFetch(`/api/admin/ads/${adId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (result.success) {
+                    showToast("Publicité supprimée avec succès", "success");
+                    loadAdsList();
+                }
+            } catch (error) {
+                showToast("Erreur lors de la suppression", "error");
+            }
+        }
+        
+        // 4. Modifier la fonction showAdPlayer pour un lecteur minimal et auto-play + lien de redirection
+        function showAdPlayer(ad) {
+            const container = document.getElementById('earn-container');
+            
+            container.innerHTML = `
+                <div class="ad-player-container">
+                    <div class="ad-player-header">
+                        <h3>Publicité : ${ad.title || 'Publicité'}</h3>
+                        <button class="ad-close-btn" id="ad-close-btn" disabled title="Regardez jusqu'à la fin">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="video-wrapper">
+                        <video 
+                            id="ad-video" 
+                            autoplay 
+                            preload="metadata" 
+                            style="width: 100%; border-radius: 12px;"
+                            controlslist="nodownload nofullscreen noremoteplayback"
+                            disablepictureinpicture
+                            oncontextmenu="return false;"
+                        >
+                            <source src="${ad.video_url}" type="video/mp4">
+                            Votre navigateur ne supporte pas la vidéo.
+                        </video>
+                    </div>
+                    
+                    <div class="ad-reward-info">
+                        <p>Récompense : <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
+                        ${ad.click_url ? `<p style="font-size: 0.9em; color: var(--text-muted-color);">Vous serez redirigé vers le site partenaire après la vidéo</p>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            setupAdPlayer(ad);
+        }
+        
+        // 5. Modifier setupAdPlayer pour gérer la redirection
+        function setupAdPlayer(ad) {
+            const video = document.getElementById('ad-video');
+            const closeBtn = document.getElementById('ad-close-btn');
+            let hasFinished = false;
+            let isProcessing = false;
+            
+            // Auto-play forcé
+            video.play().catch(e => {
+                console.log("Auto-play bloqué par le navigateur");
+                showToast("Cliquez sur play pour démarrer la vidéo", "warning");
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                if (hasFinished && !isProcessing) {
+                    isProcessing = true;
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    claimAdReward(ad._id, ad.click_url);
+                }
+            });
+        
+            video.addEventListener('ended', () => {
+                hasFinished = true;
+                closeBtn.disabled = false;
+                closeBtn.title = "Cliquez pour réclamer votre récompense";
+                closeBtn.classList.add('active');
+                closeBtn.innerHTML = '<i class="fas fa-check"></i>';
+            });
+            
+            // Empêcher de sauter à la fin
+            video.addEventListener('seeked', () => {
+                if (video.currentTime > video.duration - 3 && !hasFinished) {
+                    video.currentTime = Math.max(0, video.currentTime - 10);
+                    showToast("Regardez la vidéo jusqu'à la fin", "warning");
+                }
+            });
+            
+            // Désactiver le clic droit
+            video.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+            
+            // Empêcher les contrôles de vitesse
+            video.addEventListener('ratechange', () => {
+                if (video.playbackRate !== 1) {
+                    video.playbackRate = 1;
+                    showToast("Vitesse normale requise", "warning");
+                }
+            });
+            
+            // Empêcher la pause trop longue
+            let pauseTimeout;
+            video.addEventListener('pause', () => {
+                if (!hasFinished) {
+                    pauseTimeout = setTimeout(() => {
+                        if (video.paused && !hasFinished) {
+                            showToast("Reprenez la lecture pour continuer", "warning");
+                        }
+                    }, 10000); // 10 secondes
+                }
+            });
+            
+            video.addEventListener('play', () => {
+                if (pauseTimeout) {
+                    clearTimeout(pauseTimeout);
+                }
+            });
+        }
+        
+        // 6. Modifier claimAdReward pour gérer la redirection
+        async function claimAdReward(adId, clickUrl = null) {
+            try {
+                const result = await apiFetch('/api/earn/complete_ad', {
+                    method: 'POST',
+                    body: JSON.stringify({ ad_id: adId })
+                });
+                
+                if (result.success) {
+                    showToast(`Récompense réclamée ! +${result.reward} pièce(s)`, "success");
+                    await updateUserSection();
+                    
+                    // Afficher le message de succès
+                    const container = document.getElementById('earn-container');
+                    container.innerHTML = `
+                        <div class="earn-card success">
+                            <div class="earn-info">
+                                <i class="fas fa-check-circle earn-icon" style="color: var(--success-color);"></i>
+                                <h3>Récompense réclamée !</h3>
+                                <p>Vous avez gagné ${result.reward} pièce(s) !</p>
+                                ${clickUrl ? `
+                                    <div style="margin-top: 20px;">
+                                        <p>Redirection vers le site partenaire...</p>
+                                        <div id="redirect-countdown">3</div>
+                                    </div>
+                                ` : ''}
+                                <div class="reward-display">
+                                    <img src="/Coin.png" class="coin-icon">
+                                    <span class="reward-amount" style="color: var(--success-color);">+${result.reward}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Gérer la redirection si un lien est fourni
+                    if (clickUrl) {
+                        let countdown = 3;
+                        const countdownElement = document.getElementById('redirect-countdown');
+                        
+                        const interval = setInterval(() => {
+                            countdown--;
+                            if (countdownElement) {
+                                countdownElement.textContent = countdown;
+                            }
+                            
+                            if (countdown <= 0) {
+                                clearInterval(interval);
+                                window.open(clickUrl, '_blank');
+                                // Recharger la page earn après redirection
+                                setTimeout(() => {
+                                    loadEarnStatus();
+                                }, 1000);
+                            }
+                        }, 1000);
+                    } else {
+                        // Recharger automatiquement après 2 secondes si pas de redirection
+                        setTimeout(() => {
+                            loadEarnStatus();
+                        }, 2000);
+                    }
+                    
+                } else {
+                    showToast(result.error || "Erreur lors de la réclamation", "error");
+                    loadEarnStatus();
+                }
+            } catch (error) {
+                console.error("Erreur lors de la réclamation:", error);
+                showToast(error.error || "Erreur lors de la réclamation", "error");
+                loadEarnStatus();
             }
         }
         

@@ -1399,6 +1399,9 @@
 
         // Colle ce code dans la balise <script> de ton index.html
 
+        // Dans index (10).html, remplacez les fonctions suivantes :
+
+        // Fonction pour charger l'offre globale (à mettre à jour aussi)
         async function loadGlobalOffer() {
             const container = document.getElementById('global-offer-container');
             if (!container) return;
@@ -1410,7 +1413,7 @@
                     return;
                 }
         
-                const offer = await apiFetch('/api/offer/status');
+                const offer = await apiFetch('/api/global_offer/status');
                 
                 if (offer && offer.active === true) {
                     if (offer.already_claimed) {
@@ -1443,9 +1446,28 @@
                 container.innerHTML = '';
             }
         }
-
-        // Dans index (10).html, remplacez les fonctions suivantes :
-
+        
+        async function claimGlobalOffer() {
+            const btn = event.target;
+            const offerBox = btn.closest('.global-offer-box');
+        
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+            try {
+                const result = await apiFetch('/api/global_offer/claim', { method: 'POST' });
+                if (result.success) {
+                    showToast(result.message, "success");
+            
+                    // Animation de descente
+                    offerBox.style.transition = 'all 0.5s ease-out';
+                    offerBox.style.transform = 'translateY(-20px)';
+                    offerBox.style.opacity = '0';
+            
+                    setTimeout(() => {
+                        document.getElementById('global-offer-container').innerHTML = '';
+                    }, 500
+        
         async function renderEarnPage() {
             document.title = "StrexBot - Gagner des pièces";
             const container = document.getElementById("app-container");
@@ -1709,7 +1731,6 @@
                 loadEarnStatus(); // Recharger en cas d'erreur
             }
         }
-
     
         async function loadRandomAd() {
             const container = document.getElementById('ad-container');

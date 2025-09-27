@@ -666,6 +666,28 @@
                             <button class="btn btn-primary" onclick="createGlobalOffer()">Lancer l'Offre</button>
                         </div>
                     </div>`;
+            } else if (page === 'ads') {
+                contentArea.innerHTML = `
+                    <h2>Gestion des Publicités</h2>
+                    <div class="admin-card">
+                        <h3>Ajouter une publicité</h3>
+                        <div class="form-group">
+                            <label>Titre de la publicité :</label>
+                            <input type="text" id="ad-title" class="admin-input" placeholder="Ex: Publicité partenaire">
+                        </div>
+                        <div class="form-group">
+                            <label>URL de la vidéo :</label>
+                            <input type="url" id="ad-url" class="admin-input" placeholder="https://example.com/video.mp4">
+                        </div>
+                        <div class="form-group">
+                            <label>Récompense (pièces) :</label>
+                            <input type="number" id="ad-reward" class="admin-input" value="1" min="0.1" step="0.1">
+                        </div>
+                        <button class="admin-btn" onclick="createAd()">Ajouter la publicité</button>
+                    </div>
+                    <div id="ads-list"></div>
+                `;
+                loadAdsList();
              }
         }
 

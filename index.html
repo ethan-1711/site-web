@@ -2160,6 +2160,8 @@
         
         // === NOUVELLES FONCTIONS POUR LE MODE PLEIN ÉCRAN ===
 
+        // === NOUVELLES FONCTIONS POUR LE MODE PLEIN ÉCRAN ===
+
         // Remplacez la fonction showAdPlayer dans votre index.html par cette version :
         function showAdPlayer(ad) {
             const container = document.getElementById('earn-container');
@@ -2369,17 +2371,16 @@
                     showToast(`Récompense réclamée ! +${result.reward} pièce(s)`, "success");
                     await updateUserSection();
                     
-                    // Quitter le mode plein écran
-                    exitCallback();
-                    
-                    // Gérer la redirection si un lien est fourni
+                    // Gérer la redirection automatique si un lien est fourni
                     const redirectUrl = result.click_url || clickUrl;
                     if (redirectUrl) {
+                        // Affichage du compte à rebours de redirection
+                        showRedirectionCountdown(redirectUrl, exitCallback);
+                    } else {
+                        // Pas de redirection, quitter normalement
                         setTimeout(() => {
-                            if (confirm("Voulez-vous visiter le site partenaire ?")) {
-                                window.open(redirectUrl, '_blank');
-                            }
-                        }, 1000);
+                            exitCallback();
+                        }, 1500);
                     }
                     
                 } else {
@@ -2391,6 +2392,59 @@
                 showToast(error.error || "Erreur lors de la réclamation", "error");
                 exitCallback();
             }
+        }
+        
+        // Fonction pour afficher le compte à rebours de redirection
+        function showRedirectionCountdown(redirectUrl, exitCallback) {
+            const container = document.getElementById('fullscreen-container');
+            
+            // Remplacer le contenu par le compte à rebours
+            container.innerHTML = `
+                <div class="fullscreen-ad-container" style="background: linear-gradient(135deg, #1a1a22 0%, #2c2c34 100%); align-items: center; justify-content: center;">
+                    <div style="text-align: center; color: white;">
+                        <i class="fas fa-external-link-alt" style="font-size: 4em; color: var(--primary-color); margin-bottom: 30px;"></i>
+                        <h2 style="font-size: 2em; margin-bottom: 20px;">Redirection en cours...</h2>
+                        <p style="font-size: 1.2em; color: var(--text-muted-color); margin-bottom: 30px;">
+                            Vous allez être redirigé vers le site partenaire
+                        </p>
+                        <div id="redirect-countdown" style="
+                            font-size: 4em; 
+                            font-weight: 800; 
+                            color: var(--primary-color); 
+                            background: var(--secondary-color); 
+                            border: 3px solid var(--primary-color); 
+                            border-radius: 50%; 
+                            width: 100px; 
+                            height: 100px; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center; 
+                            margin: 0 auto;
+                            animation: countdownPulse 1s infinite;
+                        ">3</div>
+                    </div>
+                </div>
+            `;
+            
+            let countdown = 3;
+            const countdownElement = document.getElementById('redirect-countdown');
+            
+            const interval = setInterval(() => {
+                countdown--;
+                if (countdownElement) {
+                    countdownElement.textContent = countdown;
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    // Redirection automatique obligatoire
+                    window.open(redirectUrl, '_blank');
+                    // Quitter le mode plein écran après redirection
+                    setTimeout(() => {
+                        exitCallback();
+                    }, 500);
+                }
+            }, 1000);
         }
         
         // Fonction pour empêcher le scroll lors du chargement de vidéo (à ajouter aussi)

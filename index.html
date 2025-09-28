@@ -2158,43 +2158,258 @@
             }
         }
         
+        // === NOUVELLES FONCTIONS POUR LE MODE PLEIN ÉCRAN ===
+
+        // Remplacez la fonction showAdPlayer dans votre index.html par cette version :
         function showAdPlayer(ad) {
             const container = document.getElementById('earn-container');
             
+            // Créer le container plein écran
             container.innerHTML = `
-                <div class="ad-player-container">
-                    <div class="ad-player-header">
+                <div class="fullscreen-ad-container" id="fullscreen-container">
+                    <div class="fullscreen-ad-header">
                         <h3>Publicité : ${ad.title || 'Publicité'}</h3>
-                        <div class="video-timer" id="video-timer">--:--</div>
-                        <button class="ad-close-btn" id="ad-close-btn" disabled title="Regardez jusqu'à la fin">
+                        <div class="fullscreen-video-timer" id="fullscreen-timer">--:--</div>
+                        <button class="fullscreen-close-btn" id="fullscreen-close-btn" disabled title="Regardez jusqu'à la fin">
                             <i class="fas fa-clock"></i>
                         </button>
                     </div>
                     
-                    <div class="video-wrapper">
+                    <div class="fullscreen-video-wrapper">
                         <video 
-                            id="ad-video" 
+                            id="fullscreen-video" 
+                            class="fullscreen-video"
                             autoplay 
                             preload="metadata" 
-                            style="width: 100%; border-radius: 12px;"
                             controlslist="nodownload nofullscreen noremoteplayback"
                             disablepictureinpicture
                             oncontextmenu="return false;"
+                            playsinline
                         >
                             <source src="${ad.video_url}" type="video/mp4">
                             Votre navigateur ne supporte pas la vidéo.
                         </video>
                     </div>
-                    
-                    <div class="ad-reward-info">
-                        <p>Récompense : <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
-                        ${ad.click_url ? `<p style="font-size: 0.9em; color: var(--text-muted-color);">Vous serez redirigé vers le site partenaire après la vidéo</p>` : ''}
-                    </div>
                 </div>
             `;
             
-            setupAdPlayer(ad);
+            // Activer le mode plein écran
+            document.body.classList.add('fullscreen-mode');
+            
+            setupFullscreenPlayer(ad);
         }
+        
+        // Nouvelle fonction pour gérer le lecteur plein écran
+        function setupFullscreenPlayer(ad) {
+            const video = document.getElementById('fullscreen-video');
+            const closeBtn = document.getElementById('fullscreen-close-btn');
+            const timer = document.getElementById('fullscreen-timer');
+            const container = document.getElementById('fullscreen-container');
+            let hasFinished = false;
+            let isProcessing = false;
+            
+            // Fonction pour quitter le mode plein écran
+            function exitFullscreen() {
+                document.body.classList.remove('fullscreen-mode');
+                loadEarnStatus(); // Revenir à la page normale
+            }
+            
+            // Fonction pour mettre à jour le timer
+            function updateTimer() {
+                if (video.duration && timer) {
+                    const remaining = Math.max(0, Math.ceil(video.duration - video.currentTime));
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    if (remaining === 0 && !hasFinished) {
+                        hasFinished = true;
+                        closeBtn.disabled = false;
+                        closeBtn.title = "Cliquez pour réclamer votre récompense";
+                        closeBtn.classList.add('active');
+                        closeBtn.innerHTML = '<i class="fas fa-check"></i>';
+                        timer.textContent = "Fini !";
+                    }
+                }
+            }
+            
+            // Auto-play avec gestion d'erreurs
+            const playVideo = async () => {
+                try {
+                    await video.play();
+                    console.log("Vidéo démarrée automatiquement");
+                } catch (e) {
+                    console.log("Auto-play bloqué par le navigateur");
+                    showToast("Appuyez sur la vidéo pour démarrer", "warning");
+                    
+                    // Ajouter un overlay cliquable
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        cursor: pointer;
+                        z-index: 10001;
+                    `;
+                    overlay.innerHTML = '<i class="fas fa-play-circle" style="font-size: 4em; margin-bottom: 20px;"></i><p style="font-size: 1.2em; margin: 0;">Appuyez pour démarrer</p>';
+                    
+                    container.appendChild(overlay);
+                    
+                    overlay.addEventListener('click', async () => {
+                        try {
+                            await video.play();
+                            overlay.remove();
+                        } catch (err) {
+                            showToast("Impossible de démarrer la vidéo", "error");
+                        }
+                    });
+                }
+            };
+            
+            // Event listeners
+            video.addEventListener('loadedmetadata', () => {
+                updateTimer();
+                playVideo();
+            });
+            
+            video.addEventListener('timeupdate', updateTimer);
+            
+            video.addEventListener('ended', () => {
+                hasFinished = true;
+                closeBtn.disabled = false;
+                closeBtn.title = "Cliquez pour réclamer votre récompense";
+                closeBtn.classList.add('active');
+                closeBtn.innerHTML = '<i class="fas fa-check"></i>';
+                timer.textContent = "Fini !";
+                timer.classList.add('finished');
+            });
+            
+            // Click sur le bouton de fermeture
+            closeBtn.addEventListener('click', function() {
+                if (hasFinished && !isProcessing) {
+                    isProcessing = true;
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    claimAdRewardFullscreen(ad._id, ad.click_url, exitFullscreen);
+                } else if (!hasFinished) {
+                    // Permettre de quitter même si pas fini (mais sans récompense)
+                    if (confirm("Êtes-vous sûr de vouloir quitter ? Vous ne recevrez pas de récompense.")) {
+                        exitFullscreen();
+                    }
+                }
+            });
+            
+            // Empêcher de sauter à la fin
+            video.addEventListener('seeked', () => {
+                if (video.currentTime > video.duration - 3 && !hasFinished) {
+                    video.currentTime = Math.max(0, video.currentTime - 10);
+                    showToast("Regardez la vidéo jusqu'à la fin", "warning");
+                }
+            });
+            
+            // Désactiver le clic droit
+            video.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+            
+            // Empêcher les contrôles de vitesse
+            video.addEventListener('ratechange', () => {
+                if (video.playbackRate !== 1) {
+                    video.playbackRate = 1;
+                    showToast("Vitesse normale requise", "warning");
+                }
+            });
+            
+            // Gestion de la touche Échap pour quitter
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    if (hasFinished) {
+                        if (!isProcessing) {
+                            isProcessing = true;
+                            closeBtn.disabled = true;
+                            closeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                            claimAdRewardFullscreen(ad._id, ad.click_url, exitFullscreen);
+                        }
+                    } else {
+                        if (confirm("Êtes-vous sûr de vouloir quitter ? Vous ne recevrez pas de récompense.")) {
+                            exitFullscreen();
+                        }
+                    }
+                }
+            };
+            
+            document.addEventListener('keydown', handleEscape);
+            
+            // Nettoyer l'event listener quand on quitte
+            const originalExitFullscreen = exitFullscreen;
+            exitFullscreen = function() {
+                document.removeEventListener('keydown', handleEscape);
+                originalExitFullscreen();
+            };
+        }
+        
+        // Nouvelle fonction pour réclamer la récompense en mode plein écran
+        async function claimAdRewardFullscreen(adId, clickUrl, exitCallback) {
+            try {
+                const result = await apiFetch('/api/earn/complete_ad', {
+                    method: 'POST',
+                    body: JSON.stringify({ ad_id: adId })
+                });
+                
+                if (result.success) {
+                    showToast(`Récompense réclamée ! +${result.reward} pièce(s)`, "success");
+                    await updateUserSection();
+                    
+                    // Quitter le mode plein écran
+                    exitCallback();
+                    
+                    // Gérer la redirection si un lien est fourni
+                    const redirectUrl = result.click_url || clickUrl;
+                    if (redirectUrl) {
+                        setTimeout(() => {
+                            if (confirm("Voulez-vous visiter le site partenaire ?")) {
+                                window.open(redirectUrl, '_blank');
+                            }
+                        }, 1000);
+                    }
+                    
+                } else {
+                    showToast(result.error || "Erreur lors de la réclamation", "error");
+                    exitCallback();
+                }
+            } catch (error) {
+                console.error("Erreur lors de la réclamation:", error);
+                showToast(error.error || "Erreur lors de la réclamation", "error");
+                exitCallback();
+            }
+        }
+        
+        // Fonction pour empêcher le scroll lors du chargement de vidéo (à ajouter aussi)
+        function preventScrollDuringLoad() {
+            // Assurer que le scroll fonctionne normalement sur mobile
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                document.body.style.height = 'auto';
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.height = 'auto';
+                document.documentElement.style.overflow = 'auto';
+            }
+        }
+        
+        // Appeler cette fonction au chargement de la page
+        document.addEventListener('DOMContentLoaded', preventScrollDuringLoad);
+        
+        // Aussi l'appeler lors du redimensionnement
+        window.addEventListener('resize', preventScrollDuringLoad);
         
         function setupAdPlayer(ad) {
             const video = document.getElementById('ad-video');

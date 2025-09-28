@@ -2612,6 +2612,8 @@ video::-ms-media-controls {
     color: white !important;
     font-size: 1.1em !important;
     margin: 0 !important;
+    flex: 1 !important;
+    text-align: left !important;
 }
 
 .fullscreen-video-timer {
@@ -2623,6 +2625,11 @@ video::-ms-media-controls {
     font-weight: 700 !important;
     font-size: 1em !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    text-align: center !important;
+    min-width: 60px !important;
 }
 
 .fullscreen-close-btn {
@@ -2681,6 +2688,12 @@ video::-ms-media-controls {
     }
 }
 
+@keyframes countdownPulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 rgba(88, 101, 242, 0.7); }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(88, 101, 242, 0.7); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(88, 101, 242, 0.7); }
+}
+
 .fullscreen-ad-container {
     animation: fullscreenSlideIn 0.3s ease-out;
 }
@@ -2716,5 +2729,23 @@ body.fullscreen-mode {
     
     .fullscreen-video-wrapper {
         padding: 70px 10px 10px 10px !important;
+    }
+}
+/* Supprimer les règles iOS Safari qui bloquent le scroll */
+@supports (-webkit-touch-callout: none) {
+    body {
+        position: static !important;
+        overflow: auto !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    
+    #app-container {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        overflow: visible !important;
     }
 }

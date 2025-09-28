@@ -616,10 +616,11 @@
                     <div class="admin-layout">
                         <aside class="admin-sidebar">
                             <div class="admin-sidebar-header">StrexBot Admin</div>
-        
+                
                             <nav class="admin-nav">
                                 <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
                                 <a href="#" class="admin-nav-link" data-page="offer"><i class="fas fa-gift"></i> <span>Offre</span></a>
+                                <a href="#" class="admin-nav-link" data-page="lootbox"><i class="fas fa-treasure-chest"></i> <span>Lootbox</span></a>
                                 <a href="#" class="admin-nav-link" data-page="ads"><i class="fas fa-video"></i> <span>Publicités</span></a>
                                 <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Configuration</span></a>
                             </nav>
@@ -696,6 +697,69 @@
                             <button class="btn btn-primary" onclick="createGlobalOffer()">Lancer l'Offre</button>
                         </div>
                     </div>`;
+            else if (page === 'lootbox') {
+                contentArea.innerHTML = `
+                    <h2>Gestion des Lootbox</h2>
+                    
+                    <!-- Statistiques -->
+                    <div class="maintenance-card">
+                        <h3>📊 Statistiques</h3>
+                        <div id="lootbox-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
+                                <h4 style="margin: 0; color: var(--primary-color);" id="stats-total-sent">0</h4>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Total envoyées</p>
+                            </div>
+                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
+                                <h4 style="margin: 0; color: var(--success-color);" id="stats-total-opened">0</h4>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Total ouvertes</p>
+                            </div>
+                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
+                                <h4 style="margin: 0; color: var(--warning-color);" id="stats-coins-distributed">0</h4>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Pièces distribuées</p>
+                            </div>
+                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
+                                <h4 style="margin: 0; color: var(--accent-color);" id="stats-open-rate">0%</h4>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Taux d'ouverture</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Envoyer une nouvelle lootbox -->
+                    <div class="maintenance-card" style="margin-top: 20px;">
+                        <h3>📦 Envoyer une Lootbox</h3>
+                        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                            <div>
+                                <label>Type de lootbox :</label>
+                                <select id="lootbox-type" class="admin-input" style="margin-top: 5px;">
+                                    <option value="simple">📦 Simple</option>
+                                    <option value="rare">✨ Rare</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label>Nombre de pièces (0 = vide) :</label>
+                                <input type="number" id="lootbox-coins" class="admin-input" min="0" value="0" placeholder="Ex: 10" style="margin-top: 5px;">
+                            </div>
+                            
+                            <button id="send-lootbox-btn" class="admin-btn" onclick="sendLootbox()" style="background: var(--success-color); align-self: flex-start;">
+                                <i class="fas fa-paper-plane"></i> Envoyer la Lootbox
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Historique des lootbox -->
+                    <div class="maintenance-card" style="margin-top: 20px;">
+                        <h3>📝 Historique des Lootbox</h3>
+                        <div id="lootbox-history" style="margin-top: 15px;">
+                            <p>Chargement de l'historique...</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Charger les données
+                loadLootboxStats();
+                loadLootboxHistory();
+            }
             } else if (page === 'ads') {
                 contentArea.innerHTML = `
                     <h2>Gestion des Publicités</h2>
@@ -881,6 +945,103 @@
                     handleUserSearch({ target: document.getElementById('user-search-input') });
                 }
                 input.value = '';
+            }
+        }
+
+        async function sendLootbox() {
+            const type = document.getElementById('lootbox-type').value;
+            const coins = parseInt(document.getElementById('lootbox-coins').value) || 0;
+            const button = document.getElementById('send-lootbox-btn');
+            
+            if (coins < 0) {
+                showToast("Le nombre de pièces ne peut pas être négatif", "error");
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+            
+            try {
+                const result = await apiFetch('/api/admin/lootbox/send', {
+                    method: 'POST',
+                    body: JSON.stringify({ type, coins })
+                });
+                
+                if (result.success) {
+                    showToast(result.message, "success");
+                    document.getElementById('lootbox-coins').value = '0';
+                    loadLootboxStats();
+                    loadLootboxHistory();
+                }
+            } catch (error) {
+                showToast(error.error || "Erreur lors de l'envoi", "error");
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer la Lootbox';
+            }
+        }
+        
+        async function loadLootboxStats() {
+            try {
+                const stats = await apiFetch('/api/admin/lootbox/stats');
+                
+                document.getElementById('stats-total-sent').textContent = stats.total_sent || 0;
+                document.getElementById('stats-total-opened').textContent = stats.total_opened || 0;
+                document.getElementById('stats-coins-distributed').textContent = (stats.total_coins_distributed || 0) + ' 🪙';
+                document.getElementById('stats-open-rate').textContent = (stats.open_rate || 0) + '%';
+            } catch (error) {
+                console.error("Erreur lors du chargement des statistiques:", error);
+            }
+        }
+        
+        async function loadLootboxHistory() {
+            const container = document.getElementById('lootbox-history');
+            
+            try {
+                const history = await apiFetch('/api/admin/lootbox/history');
+                
+                if (history && history.length > 0) {
+                    container.innerHTML = `
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            ${history.map(lootbox => {
+                                const typeIcon = lootbox.type === 'rare' ? '✨' : '📦';
+                                const statusIcon = lootbox.opened ? '✅' : '⏳';
+                                const date = new Date(lootbox.created_at).toLocaleString();
+                                
+                                return `
+                                    <div class="lootbox-history-item" style="
+                                        background: var(--secondary-color);
+                                        padding: 15px;
+                                        border-radius: 8px;
+                                        margin-bottom: 10px;
+                                        border-left: 4px solid ${lootbox.type === 'rare' ? '#7c3aed' : '#10b981'};
+                                    ">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                            <span style="font-weight: 600;">
+                                                ${typeIcon} Lootbox ${lootbox.type} 
+                                                ${statusIcon} ${lootbox.opened ? 'Ouverte' : 'En attente'}
+                                            </span>
+                                            <span style="font-size: 0.9em; color: var(--text-muted-color);">${date}</span>
+                                        </div>
+                                        
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <span>Récompense: <strong>${lootbox.coins > 0 ? lootbox.coins + ' 🪙' : 'Vide'}</strong></span>
+                                            ${lootbox.opened ? `
+                                                <span style="color: var(--success-color); font-size: 0.9em;">
+                                                    Ouverte par: ${lootbox.opened_by_username || 'Inconnu'}
+                                                </span>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted-color);">Aucune lootbox dans l\'historique.</p>';
+                }
+            } catch (error) {
+                container.innerHTML = '<p style="color: var(--error-color);">Erreur lors du chargement de l\'historique.</p>';
             }
         }
         

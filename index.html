@@ -697,11 +697,10 @@
                             <button class="btn btn-primary" onclick="createGlobalOffer()">Lancer l'Offre</button>
                         </div>
                     </div>`;
-            } else if (page === 'lootbox') {
+            } else if (page === 'lootbox') { // L'accolade a été ajoutée à la fin de 'offer' et celle en trop après ce bloc a été supprimée.
                 contentArea.innerHTML = `
                     <h2>Gestion des Lootbox</h2>
                     
-                    <!-- Statistiques -->
                     <div class="maintenance-card">
                         <h3>📊 Statistiques</h3>
                         <div id="lootbox-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
@@ -724,7 +723,6 @@
                         </div>
                     </div>
                     
-                    <!-- Envoyer une nouvelle lootbox -->
                     <div class="maintenance-card" style="margin-top: 20px;">
                         <h3>📦 Envoyer une Lootbox</h3>
                         <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
@@ -747,7 +745,6 @@
                         </div>
                     </div>
                     
-                    <!-- Historique des lootbox -->
                     <div class="maintenance-card" style="margin-top: 20px;">
                         <h3>📝 Historique des Lootbox</h3>
                         <div id="lootbox-history" style="margin-top: 15px;">
@@ -759,7 +756,6 @@
                 // Charger les données
                 loadLootboxStats();
                 loadLootboxHistory();
-            }
             } else if (page === 'ads') {
                 contentArea.innerHTML = `
                     <h2>Gestion des Publicités</h2>

@@ -662,7 +662,7 @@
                                 <h3>Cooldown des Publicités</h3>
                                 <p>Temps d'attente entre deux publicités (en secondes).</p>
                                 <div class="cooldown-input-group">
-                                    <input type="number" id="ads-cooldown-input" class="admin-input" min="30" max="3600" value="300" placeholder="300">
+                                    <input type="number" id="ads-cooldown-input" class="admin-input" min="0" max="3600" value="300" placeholder="300">
                                     <span class="cooldown-unit">secondes</span>
                                 </div>
                                 <div class="cooldown-presets">
@@ -801,12 +801,12 @@
             
             // Event listeners
             cooldownInput.addEventListener('input', (e) => {
-                updateCooldownDisplay(parseInt(e.target.value) || 300);
+                updateCooldownDisplay(parseInt(e.target.value) || 0);
             });
             
             saveBtn.addEventListener('click', async () => {
                 const maintenance = maintenanceCheckbox.checked;
-                const cooldown = parseInt(cooldownInput.value) || 300;
+                const cooldown = parseInt(cooldownInput.value) || 0;
                 
                 if (cooldown < 30 || cooldown > 3600) {
                     showToast('Le cooldown doit être entre 30 secondes et 1 heure', 'error');

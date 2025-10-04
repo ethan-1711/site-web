@@ -1,3147 +1,864 @@
-<!DOCTYPE html>
-<html lang="fr">
+<artifact identifier="strexbot-new-design" type="text/html" title="StrexBot - Nouveau Design Gratuit">
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StrexBot</title>
+    <title>StrexBot - Bot Discord Gratuit</title>
     <link rel="icon" type="image/png" href="/halloween s rond.png">
-    <link rel="stylesheet" href="/style.css?v=1.0.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-    <meta name="description" content="StrexBot - Bot Discord pour développer et gérer votre serveur avec des commandes avancées. Système de pièces, cadeaux et récompenses quotidiennes.">
-    <meta name="keywords" content="strexbot, bot discord, serveur discord, commandes discord, bot français">
-    <meta name="author" content="StrexBot">
-    <meta name="robots" content="index, follow">
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a28;
+            --accent: #5865f2;
+            --accent-hover: #4752c4;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border: #2d2d44;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
 
-    <!-- Open Graph amélioré -->
-    <meta property="og:title" content="StrexBot - Bot Discord">
-    <meta property="og:description" content="Le meilleur bot Discord pour développer votre serveur avec des commandes avancées, système de récompenses.">
-    <meta property="og:site_name" content="StrexBot">
-    <meta property="og:locale" content="fr_FR">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="StrexBot - Bot Discord">
-    <meta name="twitter:description" content="Bot Discord avancé avec système de pièces et récompenses">
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    <meta name="theme-color" content="#f59e0b">
+        /* Navigation */
+        nav {
+            background: rgba(26, 26, 40, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.2rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .logo img {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: var(--bg-card);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-profile:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero .accent {
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(88, 101, 242, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* Features Grid */
+        .features {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(26, 26, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 50px rgba(88, 101, 242, 0.2);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        /* Stats */
+        .stats {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            background: rgba(26, 26, 40, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            text-align: center;
+        }
+
+        .stat-item h2 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            max-width: 1400px;
+            margin: 6rem auto 0;
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Admin Panel */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-sidebar h2 {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        .admin-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .admin-nav-link {
+            padding: 1rem 1.2rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .admin-nav-link:hover,
+        .admin-nav-link.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .admin-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 3rem;
+        }
+
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .admin-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .user-search-result {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info-admin {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar-admin {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-ban {
+            background: var(--error);
+        }
+
+        .btn-unban {
+            background: var(--success);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-secondary);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-sidebar {
+                display: none;
+            }
+
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="app-container"></div>
+    <div id="app"></div>
     <div id="toast-container"></div>
-    
-    <div id="my-codes-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('my-codes-modal')">&times;</button>
-            <h2><i class="fas fa-list"></i> Mes Codes Cadeaux Actifs</h2>
-            <div id="my-codes-list"></div>
-        </div>
-    </div>
-
-    <script type="text/javascript">
-        window.$crisp=[];
-        window.CRISP_WEBSITE_ID="a9464da0-7c27-4793-b733-690b11a13b19";
-        (function(){
-            d=document;s=d.createElement("script");
-            s.src="https://client.crisp.chat/l.js";
-            s.async=1;
-            d.getElementsByTagName("head")[0].appendChild(s);
-        })();
-    </script>
-
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "d5c2d482-5e8c-4c25-9238-739c77c25d9c",
-        });
-      });
-    </script>
-
-    <div id="create-gift-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('create-gift-modal')">&times;</button>
-            <h2><i class="fas fa-gift"></i> Créer un Code Cadeau</h2>
-            <div class="gift-creation-content">
-                <p>Créez un code cadeau unique pour partager vos pièces avec vos amis!</p>
-                <div class="amount-selector">
-                    <label for="gift-amount">Montant à offrir</label>
-                    <input type="number" step="0.01" id="gift-amount" min="0.01" placeholder="Ex: 10.50">
-                    <div class="amount-buttons">
-                        <button onclick="setGiftAmount(5)">5</button>
-                        <button onclick="setGiftAmount(10)">10</button>
-                        <button onclick="setGiftAmount(25)">25</button>
-                        <button onclick="setGiftAmount(50)">50</button>
-                    </div>
-                </div>
-                <button class="btn-create-gift" onclick="createGift()">
-                    <i class="fas fa-magic"></i> Créer le Code
-                </button>
-            </div>
-        </div>
-    </div>
 
     <script>
-        // --- Configuration ---
         const API_URL = 'https://api-s5et.onrender.com';
         const SITE_URL = 'https://strexbot.xyz';
         const DISCORD_CLIENT_ID = '1379440380860174506';
 
-        // --- Démarrage de l'Application ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            window.addEventListener('popstate', handleUrlChange);
-            handleTokenRedirect();
-            try {
-                const statusRes = await fetch(`${API_URL}/api/status`);
-                const statusData = await statusRes.json();
-                if (statusData.maintenance) {
-                    const token = localStorage.getItem('jwt_token');
-                    let isAdmin = false;
-                    if (token) {
-                        try {
-                            const userRes = await fetch(`${API_URL}/api/user_data`, { headers: { 'Authorization': `Bearer ${token}` } });
-                            if (userRes.ok) isAdmin = (await userRes.json()).is_admin;
-                        } catch {}
-                    }
-                    if (isAdmin) handleUrlChange();
-                    else renderMaintenancePage();
-                } else {
-                    handleUrlChange();
-                }
-            } catch (error) {
-                console.error("Erreur au démarrage:", error);
-                handleUrlChange();
-            }
-        });
-
-        function handleTokenRedirect() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const error = urlParams.get('error');
-            if (token) {
-                localStorage.setItem('jwt_token', token);
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else if (error) {
-                showToast("La connexion a échoué.", "error");
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-
-        // --- Routeur JavaScript ---
-        function handleUrlChange() {
-            // Récupérer le chemin depuis l'URL ou le paramètre
-            const urlParams = new URLSearchParams(window.location.search);
-            const pathFromParam = urlParams.get('path');
-            const path = pathFromParam || window.location.pathname;
-        
-            if (pathFromParam) {
-                // Nettoyer l'URL en supprimant le paramètre
-                window.history.replaceState({}, '', '/' + pathFromParam);
-            }
-        
-            // Votre logique existante...
-            if (path.startsWith('/redeem/')) {
-                const code = path.split('/redeem/')[1];
-                renderGiftsPage(code);
-            } else if (path.startsWith('/invite/')) {
-                const inviterId = path.split('/invite/')[1];
-                renderInvitePage(inviterId);
-            } else if (path.startsWith('/admin')) {
-                renderAdminPage();
-            } else if (path.startsWith('/gifts')) {
-                renderGiftsPage();
-            } else if (path.startsWith('/history')) {
-                renderHistoryPage();
-            } else if (path.startsWith('/buy')) {
-                renderBuyPage();
-            } else if (path.startsWith('/daily')) {
-                renderDailyPage();
-            } else if (path.startsWith('/earn')) {
-                renderEarnPage();
-            } else {
-                renderHomePage();
-            }
-        }
-
+        // Router
         function navigate(path) {
             window.history.pushState({}, '', path);
-            handleUrlChange();
+            render();
         }
 
-        // --- Fonctions de Rendu des Pages ---
-        function renderMaintenancePage() {
-            document.title = 'StrexBot - Maintenance';
-            document.getElementById('app-container').innerHTML = `<div class="error-page"><h1>Maintenance</h1><p>Le site est actuellement en cours de maintenance pour rendre nos service meilleur.</p></div>`;
-        }
+        window.addEventListener('popstate', render);
 
-        async function generateInviteLink() {
-            try {
-                const result = await apiFetch('/api/my_invite_link');
-                if (result.success) {
-                    document.getElementById('invite-link-input').value = result.invite_link;
-                    document.getElementById('invite-link-display').style.display = 'block';
-                }
-            } catch (error) {
-                showToast("Erreur lors de la génération du lien", "error");
-            }
-        }
+        // Render
+        async function render() {
+            const path = window.location.pathname;
+            const app = document.getElementById('app');
 
-        function copyInviteLink() {
-            const input = document.getElementById('invite-link-input');
-            input.select();
-            navigator.clipboard.writeText(input.value);
-            showToast("Lien d'invitation copié!", "success");
-        }
-        
-        async function renderHomePage() {
-            document.title = 'StrexBot - Accueil';
-            document.getElementById('app-container').innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                        </div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <header class="hero">
-                        <h1 class="hero-title">
-                            Le meilleur moyen de développer<br>votre serveur
-                        </h1>
-                        <p>Avec StrexBot, obtenez des commandes à portée de main.</p>
-                        <div id="global-offer-container"></div>
-                    </header>
-                    <main>
-                        <section class="features fade-in-section">
-                            <!-- Supprimer <div id="global-offer-container"></div> d'ici -->
-                            <div class="feature-item"><i class="fas fa-rocket"></i><h3>Rapide et Efficace</h3><p>Utilisez des préfixes rapides pour des réponses instantanées.</p></div>
-                            <div class="feature-item"><i class="fas fa-shield-alt"></i><h3>Sûr et Sécurisé</h3><p>Notre système est conçu pour être sûr pour votre serveur et vos données.</p></div>
-                            <div class="feature-item"><i class="fas fa-users"></i><h3>Communauté Active</h3><p>Nous nous concentrons sur la qualité du bot et des commandes.</p></div>
-                         </section>
-                         <section class="stats fade-in-section">
-                            <div class="stat-item"><h2>+10</h2><p>Serveurs</p></div>
-                            <div class="stat-item"><h2>+34</h2><p>Utilisateurs</p></div>
-                            <div class="stat-item"><h2>+44</h2><p>Membres Délivrés</p></div>
-                         </section>
-                    </main>
-                    <footer class="footer"><p>&copy; 2025 StrexBot. Tous droits réservés.</p></footer>
-                </div>
-            `;
-            updateUserSection();
-            setupScrollAnimations();
-            loadGlobalOffer();
-        }
-        
-        // Version corrigée qui évite l'erreur null
-        async function redeemGiftCode(directCode = null) {
-            console.log('redeemGiftCode appelée avec:', directCode);
-    
-            let code;
-    
-            if (directCode) {
-                // Si un code direct est fourni, l'utiliser
-                code = directCode;
+            if (path.startsWith('/admin')) {
+                await renderAdmin();
             } else {
-                // Sinon, essayer de récupérer depuis l'input (seulement s'il existe)
-                const inputElement = document.getElementById('redeem-code-input');
-                if (inputElement) {
-                    code = inputElement.value.trim();
-                } else {
-                    code = '';
-                }
-            }
-    
-            console.log('Code final:', code);
-
-            if (!code) {
-                console.log('Aucun code trouvé');
-                showToast("Veuillez entrer un code.", "error");
-                return;
-            }
-
-            // Désactiver le bouton pendant le traitement
-            const button = event?.target;
-            if (button) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
-            }
-
-            try {
-                console.log('Envoi de la requête API...');
-                const result = await apiFetch('/api/gifts/redeem', { 
-                    method: 'POST', 
-                    body: JSON.stringify({ code }) 
-                });
-
-                console.log('Résultat API:', result);
-
-                if (result && result.success) {
-                    showToast(result.message, 'success');
-
-                    // Si on est sur une page de redeem directe, rediriger vers l'accueil
-                    if (window.location.pathname.startsWith('/redeem/')) {
-                        setTimeout(() => navigate('/'), 2000);
-                    } else {
-                        // Vider l'input seulement s'il existe
-                        const inputElement = document.getElementById('redeem-code-input');
-                        if (inputElement) {
-                            inputElement.value = '';
-                        }
-                    }
-
-                    await updateUserSection();
-                }
-            } catch (error) {
-                console.error('Erreur lors de la réclamation:', error);
-                showToast(error.error || "Une erreur est survenue.", "error");
-            } finally {
-                // Réactiver le bouton
-                if (button) {
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-gift"></i> Réclamer mon cadeau';
-                }
-            }
-        }
-        // Nouvelle fonction pour récupérer les infos d'un code cadeau
-        async function getGiftCodeInfo(code) {
-            try {
-                // Vous devrez créer cette route API qui retourne juste les infos du code sans le réclamer
-                const response = await apiFetch(`/api/gifts/info/${code}`);
-                return response;
-            } catch (error) {
-                return { valid: false, amount: 0 };
+                await renderHome();
             }
         }
 
-        // 2. Version corrigée de renderGiftsPage avec la partie redeem
-        async function renderGiftsPage(prefilledCode = '') {
-            document.title = 'StrexBot - Cadeaux';
-            const container = document.getElementById('app-container');
-            const userData = await apiFetch('/api/user_data').catch(() => null);
+        // Home Page
+        async function renderHome() {
+            const userData = await getUserData();
+            
+            document.getElementById('app').innerHTML = `
+                <nav>
+                    <div class="nav-container">
+                        <div class="logo" onclick="navigate('/')">
+                            <img src="/halloween s rond.png" alt="StrexBot">
+                            <span>StrexBot</span>
+                        </div>
+                        <div class="user-section" id="user-section"></div>
+                    </div>
+                </nav>
 
-            if (!userData) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
+                <div class="hero">
+                    <h1>Le bot Discord <span class="accent">100% gratuit</span></h1>
+                    <p>Profitez de toutes les fonctionnalités sans aucune limitation. Développez votre serveur avec StrexBot, maintenant totalement gratuit.</p>
+                    <div class="cta-buttons">
+                        <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&permissions=8&scope=bot" target="_blank" class="btn-primary">
+                            <i class="fab fa-discord"></i>
+                            Ajouter le bot
+                        </a>
+                        <a href="https://discord.gg/your-server" target="_blank" class="btn-secondary">
+                            Rejoindre le Discord
+                        </a>
+                    </div>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Ultra Rapide</h3>
+                        <p>Commandes qui répondent instantanément pour une expérience fluide.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3>100% Sécurisé</h3>
+                        <p>Vos données sont protégées avec les meilleurs standards de sécurité.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-gift"></i></div>
+                        <h3>Totalement Gratuit</h3>
+                        <p>Toutes les fonctionnalités disponibles sans débourser un centime.</p>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <h2>10+</h2>
+                        <p>Serveurs</p>
+                    </div>
+                    <div class="stat-item">
+                        <h2>34+</h2>
+                        <p>Utilisateurs</p>
+                    </div>
+                    <div class="stat-item">
+                        <h2>100%</h2>
+                        <p>Gratuit</p>
+                    </div>
+                </div>
+
+                <footer>
+                    <p>&copy; 2025 StrexBot. Tous droits réservés.</p>
+                </footer>
+            `;
+
+            updateUserSection(userData);
+        }
+
+        // Admin Panel
+        async function renderAdmin() {
+            const userData = await getUserData();
+            
+            if (!userData || !userData.is_admin) {
+                document.getElementById('app').innerHTML = '<div style="text-align:center;padding:4rem;"><h1>Accès refusé</h1></div>';
                 return;
             }
 
-            // SI C'EST UNE PAGE DE REDEEM DIRECTE
-            if (prefilledCode && prefilledCode.startsWith('ST-')) {
-                // Récupérer les infos du code cadeau
-                const giftInfo = await getGiftCodeInfo(prefilledCode);
-
-                container.innerHTML = `
-                    <div class="container">
-                        <nav>
-                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                                <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                            </div>
-                            <div id="user-section"></div>
+            document.getElementById('app').innerHTML = `
+                <div class="admin-layout">
+                    <aside class="admin-sidebar">
+                        <h2>Admin Panel</h2>
+                        <nav class="admin-nav">
+                            <a href="#" class="admin-nav-link active" data-page="users">
+                                <i class="fas fa-users"></i>
+                                <span>Utilisateurs</span>
+                            </a>
+                            <a href="#" class="admin-nav-link" data-page="maintenance">
+                                <i class="fas fa-tools"></i>
+                                <span>Maintenance</span>
+                            </a>
                         </nav>
-                        <main class="redeem-landing">
-                            <div class="redeem-hero">
-                                <div class="gift-icon-large">🎁</div>
-                                <h1>${giftInfo && giftInfo.valid ? 'Cadeau trouvé !' : 'Cadeau invalide'}</h1>
-                                <p>${giftInfo && giftInfo.valid ? 'Un cadeau vous attend !' : 'Ce code cadeau n\'est plus disponible'}</p>
-                            </div>
-            
-                            <div class="gift-preview-card">
-                                ${giftInfo && giftInfo.valid ? 
-                                    `<div class="gift-amount-display">
-                                        <img src="/Coin.png" class="gift-coin-large">
-                                        <span class="gift-amount-number">${giftInfo.amount}</span>
-                                        <span class="gift-amount-text">pièces</span>
-                                    </div>
-                    
-                                    <div class="gift-code-display">
-                                        <span class="gift-code">Code: ${prefilledCode}</span>
-                                    </div>
-                    
-                                    <button class="btn-claim-gift-large" onclick="claimDirectGift('${prefilledCode}')">
-                                        <i class="fas fa-gift"></i> Réclamer mon cadeau
-                                    </button>` :
-                                    `<div class="gift-error">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        ${giftInfo ? giftInfo.error : 'Code invalide'}
-                                    </div>`
-                                }
-                
-                                <p class="gift-footer">
-                                    <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')">
-                                        Gérer mes propres codes cadeaux
-                                    </a>
-                                </p>
-                            </div>
-                        </main>
-                    </div>
-                `;
-                updateUserSection();
-                return;
-            }
-
-            // PAGE GIFTS NORMALE - REMETTEZ VOTRE CONTENU ORIGINAL ICI
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                        </div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main class="gifts-main">
-                        <div class="gifts-hero">
-                            <h1><i class="fas fa-gift gradient-icon"></i> Centre des Cadeaux</h1>
-                            <p>Partagez la joie avec vos amis en créant des codes cadeaux personnalisés !</p>
-                        </div>
-
-                        <div class="gifts-content">
-                            <div class="gift-card primary-card">
-                                <div class="card-header">
-                                    <i class="fas fa-magic"></i>
-                                    <h3>Créer un Cadeau</h3>
-                                    <button class="btn-my-codes" onclick="showMyCodes()">
-                                        <i class="fas fa-list"></i> Mes codes (<span id="codes-count-header">...</span>)
-                                    </button>
-                                </div>
-                                <p>Transformez vos pièces en cadeaux magiques à partager !</p>
-                                <div class="balance-display">
-                                    <img src="/Coin.png" class="balance-coin">
-                                    <span id="user-balance">${userData.coins.toLocaleString()}</span>‎‎ pièces disponibles
-                                </div>
-                                <button class="btn-gift-action" onclick="openModal('create-gift-modal')">
-                                    <i class="fas fa-plus-circle"></i> Créer un Code
-                                </button>
-                            </div>
-
-                            <!-- AJOUTEZ ICI LE RESTE DE VOTRE CONTENU GIFTS ORIGINAL -->
-                        </div>
-                    </main>
+                        <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-nav-link" style="margin-top:auto;">
+                            <i class="fas fa-home"></i>
+                            <span>Accueil</span>
+                        </a>
+                    </aside>
+                    <main class="admin-content" id="admin-content"></main>
                 </div>
             `;
-            updateUserSection();
-            loadMyCodes();
+
+            loadAdminPage('users');
+            setupAdminNav();
         }
 
-        function claimDirectGift(code) {
-            redeemGiftCode(code);
-        }
-
-        // 3. Votre fonction redeemGiftCode corrigée
-        async function redeemGiftCode(directCode = null) {
-            console.log('redeemGiftCode appelée avec:', directCode);
-    
-            let code;
-    
-            if (directCode) {
-                code = directCode;
-            } else {
-                const inputElement = document.getElementById('redeem-code-input');
-                if (inputElement) {
-                    code = inputElement.value.trim();
-                } else {
-                    code = '';
-                }
-            }
-    
-            console.log('Code final:', code);
-            if (!code) {
-                showToast("Veuillez entrer un code.", "error");
-                return;
-            }
-
-            const button = event?.target;
-            if (button) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
-            }
-
-            try {
-                const result = await apiFetch('/api/gifts/redeem', { 
-                    method: 'POST', 
-                    body: JSON.stringify({ code }) 
-                });
-
-                if (result && result.success) {
-                    showToast(result.message, 'success');
-
-                    if (result && result.success) {
-                        showToast(result.message, 'success');
-    
-                        // Si on est sur une page de redeem directe, rafraîchir ET rediriger
-                        if (window.location.pathname.startsWith('/redeem/')) {
-                            setTimeout(() => {
-                                navigate('/');
-                                location.reload(); // AJOUTEZ CETTE LIGNE
-                            }, 2000);
-                        } else {
-                            const inputElement = document.getElementById('redeem-code-input');
-                            if (inputElement) {
-                                inputElement.value = '';
-                            }
-                        }
-    
-                        await updateUserSection();
-                    }
-
-                    if (window.location.pathname.startsWith('/redeem/')) {
-                        setTimeout(() => navigate('/'), 2000);
-                    } else {
-                        const inputElement = document.getElementById('redeem-code-input');
-                        if (inputElement) {
-                            inputElement.value = '';
-                        }
-                    }
-
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-            } finally {
-                if (button) {
-                    button.disabled = false;
-                    button.innerHTML = '<i class="fas fa-gift"></i> Réclamer mon cadeau';
-                }
-            }
-        }
-
-        async function renderHistoryPage() {
-            document.title = 'StrexBot - Historique';
-            const container = document.getElementById('app-container');
-            
-            // Affiche une structure de base pendant le chargement
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main>
-                        <div class="account-main">
-                            <h1><i class="fas fa-history"></i> Mon Historique</h1>
-                            <div class="transactions-list" id="transactions-list">
-                                <p>Chargement de l'historique...</p>
-                            </div>
-                        </div>
-                    </main>
-                </div>`;
-            updateUserSection();
-        
-            // Récupère et affiche les transactions
-            try {
-                const transactions = await apiFetch('/api/user/transactions');
-                const listContainer = document.getElementById('transactions-list');
-        
-                if (transactions && transactions.length > 0) {
-                    listContainer.innerHTML = transactions.map(t => {
-                        const date = new Date(t.timestamp);
-                        const amountClass = t.amount >= 0 ? 'positive' : 'negative';
-                        const sign = t.amount >= 0 ? '+' : '';
-        
-                        return `
-                        <div class="transaction-item">
-                            <div class="transaction-details">
-                                <span class="transaction-reason">${t.reason}</span>
-                                <span class="transaction-timestamp">${date.toLocaleString()}</span>
-                            </div>
-                            <span class="transaction-amount ${amountClass}">${sign}${t.amount}</span>
-                        </div>`;
-                    }).join('');
-                } else {
-                    listContainer.innerHTML = '<p>Aucune transaction récente.</p>';
-                }
-            } catch (error) {
-                document.getElementById('transactions-list').innerHTML = '<p>Erreur lors du chargement de l\'historique.</p>';
-            }
-        }
-
-        async function renderDailyPage() {
-            document.title = 'StrexBot - Récompense Quotidienne';
-            const container = document.getElementById('app-container');
-             if (!localStorage.getItem('jwt_token')) {
-                container.innerHTML = `<div class="error-page"><h1>Veuillez vous connecter</h1><p>Vous devez être connecté pour accéder à cette page.</p><a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a></div>`;
-                return;
-            }
-            
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                        </div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main class="daily-main">
-                        <div class="daily-hero">
-                            <h1><img src="/Coin.png" class="daily-title-coin"> Récompense Quotidienne</h1>
-                            <p>Revenez chaque jour pour réclamer une pièce gratuite et augmenter votre solde !</p>
-                        </div>
-                        <div id="daily-card-container">
-                             <div class="daily-card"><p>Chargement...</p></div>
-                        </div>
-                    </main>
-                </div>
-            `;
-            updateUserSection();
-            loadDailyStatus();
-        }
-        
-        async function renderAccountPage() {
-            document.title = 'StrexBot - Mon Compte';
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
-                 <div class="container">
-                     <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;"><img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot</div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main>
-                        <div class="error-page" style="margin-top: 20px;">
-                             <h1><i class="fas fa-user-circle"></i> Mon Compte</h1>
-                             <p>Cette page est en cours de construction. Revenez bientôt !</p>
-                        </div>
-                    </main>
-                </div>`;
-            updateUserSection();
-        }
-        
-        async function renderAdminPage() {
-            document.title = 'StrexBot - Administration';
-            const container = document.getElementById('app-container');
-            try {
-                const userData = await apiFetch('/api/user_data');
-                if (!userData || !userData.is_admin) throw new Error('Non admin');
-        
-                container.innerHTML = `
-                    <div class="admin-layout">
-                        <aside class="admin-sidebar">
-                            <div class="admin-sidebar-header">StrexBot Admin</div>
-                
-                            <nav class="admin-nav">
-                                <a href="#" class="admin-nav-link active" data-page="users"><i class="fas fa-users"></i> <span>Utilisateurs</span></a>
-                                <a href="#" class="admin-nav-link" data-page="offer"><i class="fas fa-gift"></i> <span>Offre</span></a>
-                                <a href="#" class="admin-nav-link" data-page="lootbox"><i class="fa fa-paper-plane" aria-hidden="true"></i> <span>Lootbox</span></a>
-                                <a href="#" class="admin-nav-link" data-page="ads"><i class="fas fa-video"></i> <span>Publicités</span></a>
-                                <a href="#" class="admin-nav-link" data-page="maintenance"><i class="fas fa-tools"></i> <span>Configuration</span></a>
-                            </nav>
-                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-back-home">Accueil</a>
-                        </aside>
-                        <main id="admin-main-content" class="admin-main"></main>
-                    </div>
-                `;
-                loadAdminPage('users');
-                setupAdminNav();
-            } catch (e) {
-                container.innerHTML = `<div class="error-page"><h1>Accès refusé</h1><p>Vous n'avez pas les permissions nécessaires.</p></div>`;
-            }
-        }
-        
-        function loadAdminPage(page) {
-            const contentArea = document.getElementById('admin-main-content');
-            if (!contentArea) return;
-            
-            if (page === 'users') {
-                contentArea.innerHTML = `<h2>Gestion des Utilisateurs</h2><input type="text" id="user-search-input" class="admin-input" placeholder="Rechercher par ID ou pseudo..."><div id="user-search-results" class="search-results-container"></div>`;
-                document.getElementById('user-search-input').addEventListener('input', handleUserSearch);
-            } else if (page === 'maintenance') {
-                contentArea.innerHTML = `
-                    <h2>Configuration du Site</h2>
-                    <div class="config-section">
-                        <div class="maintenance-card">
-                            <div class="maintenance-toggle">
-                                <h3>Mode Maintenance</h3>
-                                <p>Lorsque la maintenance est activée, seuls les administrateurs peuvent se connecter au site.</p>
-                                <label class="switch">
-                                    <input type="checkbox" id="maintenance-checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="maintenance-card" style="margin-top: 20px;">
-                            <div class="cooldown-config">
-                                <h3>Cooldown des Publicités</h3>
-                                <p>Temps d'attente entre deux publicités (en secondes).</p>
-                                <div class="cooldown-input-group">
-                                    <input type="number" id="ads-cooldown-input" class="admin-input" min="0" max="3600" value="300" placeholder="300">
-                                    <span class="cooldown-unit">secondes</span>
-                                </div>
-                                <div class="cooldown-presets">
-                                    <button class="preset-btn" onclick="setCooldown(60)">1 min</button>
-                                    <button class="preset-btn" onclick="setCooldown(300)">5 min</button>
-                                    <button class="preset-btn" onclick="setCooldown(600)">10 min</button>
-                                    <button class="preset-btn" onclick="setCooldown(1800)">30 min</button>
-                                </div>
-                                <div class="cooldown-display" id="cooldown-display">5 minutes</div>
-                            </div>
-                        </div>
-                        
-                        <button id="save-config-btn" class="admin-btn save-config-btn">
-                            <i class="fas fa-save"></i> Enregistrer la Configuration
-                        </button>
-                    </div>
-                `;
-                loadConfigStatus();
-            } else if (page === 'offer') {
-                contentArea.innerHTML = `
-                    <h2>Lancer une Offre Globale</h2>
-                    <div class="account-card">
-                        <p>Créez une offre que les membres pourrons réclamer sur la page d'accueil.</p>
-                        <div id="create-offer-form">
-                            <label for="offer-amount">Montant en pièces :</label>
-                            <input type="number" id="offer-amount" class="admin-input" min="0.01" placeholder="Ex: 100">
-                            
-                            <label for="offer-message">Message de l'offre :</label>
-                            <input type="text" id="offer-message" class="admin-input" placeholder="Ex: Soyez rapide !">
-                            
-                            <button class="btn btn-primary" onclick="createGlobalOffer()">Lancer l'Offre</button>
-                        </div>
-                    </div>`;
-            } else if (page === 'lootbox') { // L'accolade a été ajoutée à la fin de 'offer' et celle en trop après ce bloc a été supprimée.
-                contentArea.innerHTML = `
-                    <h2>Gestion des Lootbox</h2>
-                    
-                    <div class="maintenance-card">
-                        <h3>📊 Statistiques</h3>
-                        <div id="lootbox-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
-                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
-                                <h4 style="margin: 0; color: var(--primary-color);" id="stats-total-sent">0</h4>
-                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Total envoyées</p>
-                            </div>
-                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
-                                <h4 style="margin: 0; color: var(--success-color);" id="stats-total-opened">0</h4>
-                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Total ouvertes</p>
-                            </div>
-                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
-                                <h4 style="margin: 0; color: var(--warning-color);" id="stats-coins-distributed">0</h4>
-                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Pièces distribuées</p>
-                            </div>
-                            <div class="stat-card" style="background: var(--secondary-color); padding: 15px; border-radius: 8px; text-align: center;">
-                                <h4 style="margin: 0; color: var(--accent-color);" id="stats-open-rate">0%</h4>
-                                <p style="margin: 5px 0 0 0; font-size: 0.9em;">Taux d'ouverture</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="maintenance-card" style="margin-top: 20px;">
-                        <h3>📦 Envoyer une Lootbox</h3>
-                        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-                            <div>
-                                <label>Type de lootbox :</label>
-                                <select id="lootbox-type" class="admin-input" style="margin-top: 5px;">
-                                    <option value="simple">📦 Simple</option>
-                                    <option value="rare">✨ Rare</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label>Nombre de pièces (0 = vide) :</label>
-                                <input type="number" id="lootbox-coins" class="admin-input" min="0" value="0" placeholder="Ex: 10" style="margin-top: 5px;">
-                            </div>
-                            
-                            <button id="send-lootbox-btn" class="admin-btn" onclick="sendLootbox()" style="background: var(--success-color); align-self: flex-start;">
-                                <i class="fas fa-paper-plane"></i> Envoyer la Lootbox
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="maintenance-card" style="margin-top: 20px;">
-                        <h3>📝 Historique des Lootbox</h3>
-                        <div id="lootbox-history" style="margin-top: 15px;">
-                            <p>Chargement de l'historique...</p>
-                        </div>
-                    </div>
-                `;
-                
-                // Charger les données
-                loadLootboxStats();
-                loadLootboxHistory();
-            } else if (page === 'ads') {
-                contentArea.innerHTML = `
-                    <h2>Gestion des Publicités</h2>
-                    <div class="admin-card">
-                        <h3>Ajouter une publicité</h3>
-                        <form id="ad-upload-form" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label>Titre de la publicité :</label>
-                                <input type="text" id="ad-title" name="title" class="admin-input" placeholder="Ex: Publicité partenaire" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Lien de redirection (optionnel) :</label>
-                                <input type="url" id="ad-click-url" name="click_url" class="admin-input" placeholder="https://example.com">
-                                <small style="color: var(--text-muted-color);">Si renseigné, l'utilisateur sera redirigé vers ce lien après avoir regardé la publicité</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Fichier vidéo :</label>
-                                <div class="file-upload-area" id="file-upload-area">
-                                    <input type="file" id="ad-file" name="video_file" accept="video/*" required style="display: none;">
-                                    <div class="upload-placeholder">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <p>Cliquez pour sélectionner une vidéo</p>
-                                        <small>MP4, MOV, AVI, MKV, WEBM - Max 100MB</small>
-                                    </div>
-                                    <div class="upload-progress" style="display: none;">
-                                        <div class="progress-bar">
-                                            <div class="progress-fill"></div>
-                                        </div>
-                                        <span class="progress-text">0%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Récompense (pièces) :</label>
-                                <input type="number" id="ad-reward" name="reward_amount" class="admin-input" value="1" min="0.1" step="0.1" required>
-                            </div>
-                            
-                            <button type="submit" class="admin-btn">
-                                <i class="fas fa-upload"></i> Uploader la publicité
-                            </button>
-                        </form>
-                    </div>
-                    <div id="ads-list"></div>
-                `;
-                
-                setupFileUpload();
-                loadAdsList();
-            }
-        }
-        // --- Fonctions de l'Admin Panel ---
         function setupAdminNav() {
             document.querySelectorAll('.admin-nav-link').forEach(link => {
-                link.addEventListener('click', e => {
-                    e.preventDefault();
-                    document.querySelector('.admin-nav-link.active')?.classList.remove('active');
-                    e.currentTarget.classList.add('active');
-                    loadAdminPage(e.currentTarget.dataset.page);
+                link.addEventListener('click', (e) => {
+                    const page = e.currentTarget.dataset.page;
+                    if (page) {
+                        e.preventDefault();
+                        document.querySelectorAll('.admin-nav-link').forEach(l => l.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        loadAdminPage(page);
+                    }
                 });
             });
         }
 
-        // 2. Nouvelle fonction pour gérer le cooldown
-        function setCooldown(seconds) {
-            document.getElementById('ads-cooldown-input').value = seconds;
-            updateCooldownDisplay(seconds);
-        }
-        
-        function updateCooldownDisplay(seconds) {
-            const display = document.getElementById('cooldown-display');
-            if (!display) return;
+        function loadAdminPage(page) {
+            const content = document.getElementById('admin-content');
             
-            if (seconds < 60) {
-                display.textContent = `${seconds} secondes`;
-            } else if (seconds < 3600) {
-                const minutes = Math.floor(seconds / 60);
-                display.textContent = `${minutes} minute${minutes > 1 ? 's' : ''}`;
-            } else {
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                display.textContent = `${hours}h${minutes > 0 ? ` ${minutes}min` : ''}`;
+            if (page === 'users') {
+                content.innerHTML = `
+                    <div class="admin-card">
+                        <h2>Gestion des Utilisateurs</h2>
+                        <input type="text" id="user-search" class="admin-input" placeholder="Rechercher par ID ou pseudo..." style="margin-top:1rem;">
+                        <div id="user-results" style="margin-top:2rem;"></div>
+                    </div>
+                `;
+                document.getElementById('user-search').addEventListener('input', searchUsers);
+            } else if (page === 'maintenance') {
+                content.innerHTML = `
+                    <div class="admin-card">
+                        <h2>Mode Maintenance</h2>
+                        <p style="color:var(--text-secondary);margin:1rem 0;">Activer le mode maintenance empêche les utilisateurs non-admin de se connecter.</p>
+                        <div style="display:flex;align-items:center;gap:1rem;margin-top:2rem;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="maintenance-toggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span>Mode Maintenance</span>
+                        </div>
+                        <button class="admin-btn" onclick="saveMaintenance()" style="margin-top:2rem;">Sauvegarder</button>
+                    </div>
+                `;
+                loadMaintenanceStatus();
             }
         }
-        
-        // 3. Nouvelle fonction pour charger la configuration
-        async function loadConfigStatus() {
-            const maintenanceCheckbox = document.getElementById('maintenance-checkbox');
-            const cooldownInput = document.getElementById('ads-cooldown-input');
-            const saveBtn = document.getElementById('save-config-btn');
-            
-            try {
-                const data = await apiFetch('/api/admin/config');
-                if (data) {
-                    maintenanceCheckbox.checked = data.maintenance_enabled;
-                    cooldownInput.value = data.ads_cooldown;
-                    updateCooldownDisplay(data.ads_cooldown);
-                }
-            } catch (error) {
-                console.error('Erreur lors du chargement de la configuration:', error);
-            }
-            
-            // Event listeners
-            cooldownInput.addEventListener('input', (e) => {
-                updateCooldownDisplay(parseInt(e.target.value) || 0);
-            });
-            
-            saveBtn.addEventListener('click', async () => {
-                const maintenance = maintenanceCheckbox.checked;
-                const cooldown = parseInt(cooldownInput.value) || 0;
-                
-                if (cooldown < 30 || cooldown > 3600) {
-                    showToast('Le cooldown doit être entre 30 secondes et 1 heure', 'error');
-                    return;
-                }
-                
-                try {
-                    const result = await apiFetch('/api/admin/config', {
-                        method: 'POST', 
-                        body: JSON.stringify({ 
-                            maintenance_enabled: maintenance,
-                            ads_cooldown: cooldown
-                        })
-                    });
-                    if (result && result.success) {
-                        showToast('Configuration mise à jour !', 'success');
-                    }
-                } catch (error) {
-                    showToast(error.error || 'Erreur lors de la sauvegarde', 'error');
-                }
-            });
-        }
-        
-        async function handleUserSearch(event) {
-            const query = event.target.value.trim();
-            const resultsContainer = document.getElementById('user-search-results');
+
+        async function searchUsers(e) {
+            const query = e.target.value.trim();
             if (query.length < 3) {
-                resultsContainer.innerHTML = '';
+                document.getElementById('user-results').innerHTML = '';
                 return;
             }
-            const users = await apiFetch(`/api/admin/search_users?q=${encodeURIComponent(query)}`);
-            if (users && Array.isArray(users)) {
-                resultsContainer.innerHTML = users.map(user => `
-                    <div class="user-card" id="user-card-${user.user_id}">
-                        <div class="user-card-info">
-                            <img src="${user.avatar_url}" class="user-card-avatar">
-                            <div class="user-card-details">
-                                <strong>${user.username}</strong>
-                                <small>ID: ${user.user_id}</small>
-                                <span class="user-card-coins" id="coins-${user.user_id}"><img src="/Coin.png" class="coin-mini"> ${user.coins}</span>
+
+            try {
+                const users = await apiFetch(`/api/admin/search_users?q=${encodeURIComponent(query)}`);
+                const html = users.map(user => `
+                    <div class="user-search-result">
+                        <div class="user-info-admin">
+                            <img src="${user.avatar_url}" class="user-avatar-admin">
+                            <div>
+                                <div style="font-weight:600;">${user.username}</div>
+                                <div style="color:var(--text-secondary);font-size:0.9rem;">ID: ${user.user_id}</div>
                             </div>
                         </div>
-                        <div class="user-card-actions">
-                             <input type="number" step="0.01" class="admin-input small-input" id="coins-input-${user.user_id}" placeholder="Montant">
-                             <button class="admin-btn action-btn" onclick="updateUser('${user.user_id}', 'set_coins')">Définir</button>
-                             <button class="admin-btn add-btn" onclick="updateUser('${user.user_id}', 'add_coins')">+</button>
-                             <button class="admin-btn remove-btn" onclick="updateUser('${user.user_id}', 'remove_coins')">-</button>
-                             <button class="admin-btn ${user.banned ? 'unban-btn' : 'ban-btn'}" onclick="updateUser('${user.user_id}', '${user.banned ? 'unban' : 'ban'}')">${user.banned ? 'Débannir' : 'Bannir'}</button>
+                        <div class="user-actions">
+                            <button class="admin-btn ${user.banned ? 'btn-unban' : 'btn-ban'}" onclick="toggleBan('${user.user_id}', ${user.banned})">
+                                ${user.banned ? 'Débannir' : 'Bannir'}
+                            </button>
                         </div>
                     </div>
                 `).join('');
-            } else {
-                resultsContainer.innerHTML = '<p>Aucun utilisateur trouvé.</p>';
-            }
-        }
-        
-        async function updateUser(userId, action) {
-            const input = document.getElementById(`coins-input-${userId}`);
-            const value = (action.includes('coins')) ? input.value : null;
-            if (action.includes('coins') && (!value || parseFloat(value) < 0)) {
-                showToast("Veuillez entrer un montant valide.", "error");
-                return;
-            }
-            const result = await apiFetch(`/api/admin/update_user/${userId}`, {
-                method: 'POST',
-                body: JSON.stringify({ action, value })
-            });
-            if (result) {
-                showToast("Utilisateur mis à jour !", "success");
-                document.getElementById(`coins-${userId}`).innerHTML = `<img src="/Coin.png" class="coin-mini"> ${result.coins}`;
-                if (action === 'ban' || action === 'unban') {
-                    handleUserSearch({ target: document.getElementById('user-search-input') });
-                }
-                input.value = '';
+                document.getElementById('user-results').innerHTML = html;
+            } catch (error) {
+                showToast('Erreur de recherche', 'error');
             }
         }
 
-        async function sendLootbox() {
-            const type = document.getElementById('lootbox-type').value;
-            const coins = parseInt(document.getElementById('lootbox-coins').value) || 0;
-            const button = document.getElementById('send-lootbox-btn');
-            
-            if (coins < 0) {
-                showToast("Le nombre de pièces ne peut pas être négatif", "error");
-                return;
-            }
-            
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
-            
+        async function toggleBan(userId, currentlyBanned) {
+            const action = currentlyBanned ? 'unban' : 'ban';
             try {
-                const result = await apiFetch('/api/admin/lootbox/send', {
+                await apiFetch(`/api/admin/update_user/${userId}`, {
                     method: 'POST',
-                    body: JSON.stringify({ type, coins })
+                    body: JSON.stringify({ action })
                 });
-                
-                if (result.success) {
-                    showToast(result.message, "success");
-                    document.getElementById('lootbox-coins').value = '0';
-                    loadLootboxStats();
-                    loadLootboxHistory();
-                }
+                showToast(`Utilisateur ${currentlyBanned ? 'débanni' : 'banni'}`, 'success');
+                document.getElementById('user-search').dispatchEvent(new Event('input'));
             } catch (error) {
-                showToast(error.error || "Erreur lors de l'envoi", "error");
-            } finally {
-                button.disabled = false;
-                button.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer la Lootbox';
+                showToast('Erreur', 'error');
             }
         }
-        
-        async function loadLootboxStats() {
-            try {
-                const stats = await apiFetch('/api/admin/lootbox/stats');
-                
-                document.getElementById('stats-total-sent').textContent = stats.total_sent || 0;
-                document.getElementById('stats-total-opened').textContent = stats.total_opened || 0;
-                document.getElementById('stats-coins-distributed').textContent = (stats.total_coins_distributed || 0) + ' 🪙';
-                document.getElementById('stats-open-rate').textContent = (stats.open_rate || 0) + '%';
-            } catch (error) {
-                console.error("Erreur lors du chargement des statistiques:", error);
-            }
-        }
-        
-        async function loadLootboxHistory() {
-            const container = document.getElementById('lootbox-history');
-            
-            try {
-                const history = await apiFetch('/api/admin/lootbox/history');
-                
-                if (history && history.length > 0) {
-                    container.innerHTML = `
-                        <div style="max-height: 400px; overflow-y: auto;">
-                            ${history.map(lootbox => {
-                                const typeIcon = lootbox.type === 'rare' ? '✨' : '📦';
-                                const statusIcon = lootbox.opened ? '✅' : '⏳';
-                                const date = new Date(lootbox.created_at).toLocaleString();
-                                
-                                return `
-                                    <div class="lootbox-history-item" style="
-                                        background: var(--secondary-color);
-                                        padding: 15px;
-                                        border-radius: 8px;
-                                        margin-bottom: 10px;
-                                        border-left: 4px solid ${lootbox.type === 'rare' ? '#7c3aed' : '#10b981'};
-                                    ">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                            <span style="font-weight: 600;">
-                                                ${typeIcon} Lootbox ${lootbox.type} 
-                                                ${statusIcon} ${lootbox.opened ? 'Ouverte' : 'En attente'}
-                                            </span>
-                                            <span style="font-size: 0.9em; color: var(--text-muted-color);">${date}</span>
-                                        </div>
-                                        
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <span>Récompense: <strong>${lootbox.coins > 0 ? lootbox.coins + ' 🪙' : 'Vide'}</strong></span>
-                                            ${lootbox.opened ? `
-                                                <span style="color: var(--success-color); font-size: 0.9em;">
-                                                    Ouverte par: ${lootbox.opened_by_username || 'Inconnu'}
-                                                </span>
-                                            ` : ''}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-muted-color);">Aucune lootbox dans l\'historique.</p>';
-                }
-            } catch (error) {
-                container.innerHTML = '<p style="color: var(--error-color);">Erreur lors du chargement de l\'historique.</p>';
-            }
-        }
-        
+
         async function loadMaintenanceStatus() {
-            const checkbox = document.getElementById('maintenance-checkbox');
-            const saveBtn = document.getElementById('save-maintenance-btn');
-            
             try {
                 const data = await apiFetch('/api/admin/maintenance');
-                if (data) checkbox.checked = data.maintenance_enabled;
-            } catch {}
-            
-            saveBtn.addEventListener('click', async () => {
-                const enabled = checkbox.checked;
-                const result = await apiFetch('/api/admin/maintenance', {
-                    method: 'POST', 
+                document.getElementById('maintenance-toggle').checked = data.maintenance_enabled;
+            } catch (error) {
+                console.error('Erreur chargement maintenance');
+            }
+        }
+
+        async function saveMaintenance() {
+            const enabled = document.getElementById('maintenance-toggle').checked;
+            try {
+                await apiFetch('/api/admin/maintenance', {
+                    method: 'POST',
                     body: JSON.stringify({ enabled })
                 });
-                if (result) showToast('Statut de maintenance mis à jour !', 'success');
-            });
-        }
-        
-        // --- Fonctions des Cadeaux ---
-        function setGiftAmount(amount) {
-            document.getElementById('gift-amount').value = amount;
-        }
-
-        async function createGift() {
-            const amountInput = document.getElementById('gift-amount');
-            const amount = parseFloat(amountInput.value);
-            
-            if (!amount || amount <= 0) {
-                showToast("Veuillez entrer un montant valide.", "error");
-                return;
-            }
-            
-            try {
-                const result = await apiFetch('/api/gifts/create', { method: 'POST', body: JSON.stringify({ amount }) });
-                if (result && result.success) {
-                    showToast('Code cadeau créé avec succès !', 'success');
-                    amountInput.value = '';
-                    closeModal('create-gift-modal');
-                    await showMyCodes();
-                    await updateUserSection();
-                }
+                showToast('Maintenance mise à jour', 'success');
             } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
+                showToast('Erreur', 'error');
             }
         }
 
-        async function loadMyCodes() {
-            try {
-                const codes = await apiFetch('/api/gifts/my_codes');
-                const count = codes.length || 0;
-        
-                // Mettre à jour le compteur dans la carte "Mes Codes"
-                const countBadge = document.getElementById('my-codes-count');
-                if (countBadge) {
-                    countBadge.innerText = count;
-                }
-        
-                // Mettre à jour le compteur dans le header de la carte "Créer un Cadeau"
-                const headerCount = document.getElementById('codes-count-header');
-                if (headerCount) {
-                    headerCount.innerText = count;
-                }
-            } catch {
-                const countBadge = document.getElementById('my-codes-count');
-                if (countBadge) countBadge.innerText = '0';
-        
-                const headerCount = document.getElementById('codes-count-header');
-                if (headerCount) headerCount.innerText = '0';
-            }
-        }
-
-        async function showMyCodes() {
-            const listContainer = document.getElementById('my-codes-list');
-            const modal = document.getElementById('my-codes-modal');
-            listContainer.innerHTML = '<p>Chargement des codes...</p>';
-            openModal('my-codes-modal');
-
-            try {
-                const codes = await apiFetch('/api/gifts/my_codes');
-                if (codes && Array.isArray(codes) && codes.length > 0) {
-                    listContainer.innerHTML = codes.map(code => {
-                        const expires = new Date(code.expires_at + 'Z');
-                        return `
-                        <div class="my-code-item">
-                            <div class="my-code-details">
-                                <span class="code-text" onclick="copyToClipboard('${code.redeem_link}')" title="Cliquer pour copier le lien">${code.code} <i class="fas fa-copy"></i></span>
-                                <span><img src="/Coin.png" class="coin-mini"> ${code.amount}</span>
-                                <small>Expire le: ${expires.toLocaleString()}</small>
-                            </div>
-                            <button class="btn-delete" onclick="deleteGift('${code.code}')"><i class="fas fa-trash"></i></button>
-                        </div>`
-                    }).join('');
-                } else {
-                    listContainer.innerHTML = '<p>Vous n\'avez aucun code cadeau actif.</p>';
-                }
-            } catch {
-                listContainer.innerHTML = '<p>Erreur lors du chargement des codes.</p>';
-            }
-        }
-        
-        async function redeemGiftCode(directCode = null) {
-            let code; // AJOUTEZ CETTE LIGNE
-    
-            if (directCode) {
-                code = directCode;
-            } else {
-                const inputElement = document.getElementById('redeem-code-input');
-                if (inputElement) {
-                    code = inputElement.value.trim();
-                } else {
-                    code = '';
-                }
-            }
-    
-            if (!code) {
-                showToast("Veuillez entrer un code.", "error");
-                return;
-            }
-    
-            try {
-                const result = await apiFetch('/api/gifts/redeem', { 
-                    method: 'POST', 
-                    body: JSON.stringify({ code }) 
-                });
-        
-                if (result && result.success) {
-                    showToast(result.message, 'success');
-            
-                    // REMPLACEZ codeInput.value = ''; PAR :
-                    const inputElement = document.getElementById('redeem-code-input');
-                    if (inputElement) {
-                        inputElement.value = '';
-                    }
-            
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-            }
-        }
-        
-        async function deleteGift(code) {
-            if (!confirm("Voulez-vous vraiment supprimer ce code ? Les pièces vous seront remboursées.")) return;
-            
-            try {
-                const result = await apiFetch('/api/gifts/delete', { method: 'POST', body: JSON.stringify({ code }) });
-                if (result && result.success) {
-                    showToast(result.message, 'success');
-                    await showMyCodes();
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-            }
-        }
-        
-        // --- Fonctions Daily Reward ---
-        async function loadDailyStatus() {
-            const container = document.getElementById('daily-card-container');
-            try {
-                const status = await apiFetch('/api/daily/status');
-                if (status.can_claim) {
-                    container.innerHTML = `
-                    <div class="daily-card">
-                        <div class="daily-coin-animation">
-                            <div class="coin-glow"></div>
-                            <img src="/Coin.png" alt="Pièce" class="daily-coin available">
-                        </div>
-                        <h2>Votre pièce quotidienne vous attend !</h2>
-                        <p>Cliquez sur le bouton ci-dessous pour réclamer votre récompense.</p>
-                        <button id="claim-btn" class="btn-claim-daily" onclick="claimDaily()">
-                            <i class="fas fa-hand-holding-usd"></i> Réclamer 1 pièce
-                        </button>
-                    </div>`;
-                } else {
-                     container.innerHTML = `
-                    <div class="daily-card">
-                         <div class="daily-coin-animation">
-                            <img src="/Coin.png" alt="Pièce" class="daily-coin claimed">
-                        </div>
-                        <h2>Déjà réclamé !</h2>
-                        <p>Vous avez déjà récupéré votre pièce aujourd'hui. Revenez demain !</p>
-                        <div id="countdown-timer" class="countdown"></div>
-                    </div>`;
-                    startCountdown(status.next_claim);
-                }
-            } catch (error) {
-                 container.innerHTML = `<div class="daily-card"><p>Erreur lors du chargement du statut.</p></div>`;
-            }
-        }
-
-        async function claimDaily() {
-            const claimBtn = document.getElementById('claim-btn');
-            claimBtn.disabled = true;
-            claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Réclamation...';
-
-            try {
-                const result = await apiFetch('/api/daily/claim', { method: 'POST' });
-                if (result && result.success) {
-                    showToast(result.message, 'success');
-                    await loadDailyStatus();
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", 'error');
-                claimBtn.disabled = false;
-                claimBtn.innerHTML = '<i class="fas fa-hand-holding-usd"></i> Réclamer 1 pièce';
-            }
-        }
-
-        function startCountdown(endDate) {
-            const countdownElement = document.getElementById('countdown-timer');
-            const interval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = new Date(endDate).getTime() - now;
-                
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                countdownElement.innerHTML = `Prochaine récompense dans : <strong>${hours}h ${minutes}m ${seconds}s</strong>`;
-                
-                if (distance < 0) {
-                    clearInterval(interval);
-                    loadDailyStatus();
-                }
-            }, 1000);
-        }
-
-        // --- Fonctions Utilitaires ---
-        function openModal(modalId) { document.getElementById(modalId).style.display = 'flex'; }
-        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-        
-        async function updateUserSection() {
-            const userSection = document.getElementById('user-section');
-            if (!userSection) return;
-            const token = localStorage.getItem('jwt_token');
-            if (!token) {
-                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-                 const scope = encodeURIComponent('identify guilds');
-                 userSection.innerHTML = `<a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify+guilds" class="btn btn-primary"><i class="fab fa-discord"></i> Se connecter</a>`;
-                 return;
-            }
-            try {
-                const userData = await apiFetch('/api/user_data');
-                if (userData) {
-                    const adminShieldHtml = userData.is_admin ? `<a href="/admin" onclick="event.preventDefault(); navigate('/admin')" class="admin-shield" title="Panneau Admin"><i class="fas fa-user-shield"></i></a>` : '';
-                    userSection.innerHTML = `
-                        <div class="user-profile">
-                            ${adminShieldHtml}
-                            <div class="user-balance" onclick="navigate('/daily')" title="Récompense quotidienne">
-                                <img src="/Coin.png" class="coin-icon"><span>${userData.coins.toLocaleString()}</span>
-                            </div>
-                            <div class="user-info" onclick="toggleDropdown()">
-                                <img src="${userData.avatar_url}" class="user-avatar">
-                                <i class="fas fa-chevron-down dropdown-arrow"></i>
-                            </div>
-                            <div class="dropdown-menu" id="dropdown-menu">
-                                <div class="dropdown-header"><img src="${userData.avatar_url}" class="dropdown-avatar"><span>${userData.username}</span></div>
-                                <a href="/history" onclick="event.preventDefault(); navigate('/history')"><i class="fas fa-history"></i> Historique</a>
-                                <a href="/earn" onclick="event.preventDefault(); navigate('/earn')"><i class="fas fa-video"></i> Gagner</a>
-                                <a href="/buy" onclick="event.preventDefault(); navigate('/buy')"><i class="fas fa-shopping-cart"></i> Acheter</a>
-                                <a href="/gifts" onclick="event.preventDefault(); navigate('/gifts')"><i class="fas fa-gift"></i> Cadeaux</a>
-                                <a href="/daily" onclick="event.preventDefault(); navigate('/daily')"><i class="fas fa-calendar-check"></i> Quotidien</a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</a>
-                            </div>
-                        </div>`;
-                    
-                    const balanceElement = document.getElementById('user-balance');
-                    if (balanceElement) balanceElement.innerText = userData.coins.toLocaleString();
-                } else {
-                    logout();
-                }
-            } catch { logout(); }
-        }
-
-        // Remplacez votre renderBuyPage() par cette version qui gère la reconnexion :
-
-        async function renderBuyPage() {
-            document.title = 'StrexBot - Boutique';
-            const container = document.getElementById('app-container');
-        
-            const token = localStorage.getItem('jwt_token');
-            if (!token) {
-                container.innerHTML = `<div class="error-page">
-                    <h1>Veuillez vous connecter</h1>
-                    <p>Vous devez être connecté pour accéder à la boutique.</p>
-                    <a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a>
-                </div>`;
-                return;
-            }
-        
-            try {
-                const servers = await apiFetch('/api/user/guilds');
-                
-                container.innerHTML = `
-                    <div class="container">
-                        <nav>
-                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                                <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                            </div>
-                            <div id="user-section"></div>
-                        </nav>
-                        <main class="buy-main">
-                            <div class="buy-hero">
-                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
-                                <p>Achetez des crédits pour vos serveurs avec vos pièces.</p>
-                            </div>
-                            
-                            <div class="servers-list">
-                                ${Array.isArray(servers) && servers.length > 0 ? servers.map(s => `
-                                    <div class="server-card">
-                                        <div class="server-header">
-                                            ${s.icon ? 
-                                                `<img src="${s.icon}" class="server-icon" alt="${s.name}">` : 
-                                                '<div class="server-icon-placeholder"><i class="fas fa-server"></i></div>'
-                                            }
-                                            <div class="server-info">
-                                                <h3>${s.name}</h3>
-                                                <p>Crédits actuels: <strong>${s.current_credits || 0}</strong></p>
-                                            </div>
-                                        </div>
-                                        
-                                        ${!s.bot_present ? `
-                                            <div class="bot-not-present">
-                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent</p>
-                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">Inviter le bot</button>
-                                            </div>
-                                        ` : `
-                                            <div class="credits-purchase">
-                                                <input type="text" class="credits-input" value="Montant" readonly>
-                                                <div class="credits-actions">
-                                                    <button class="btn-buy-credits" onclick="buyCredits('${s.id}', '${s.name}')">
-                                                        <i class="fas fa-shopping-cart"></i> Acheter 10 crédits (1 pièce)
-                                                    </button>
-                                                    ${s.current_credits > 0 ? `
-                                                        <button class="btn-refund-credits" onclick="refundCredits('${s.id}', '${s.name}')">
-                                                            <i class="fas fa-undo"></i> Rembourser
-                                                        </button>
-                                                    ` : ''}
-                                                </div>
-                                            </div>
-                                        `}
-                                        <div id="buy-result-${s.id}"></div>
-                                    </div>
-                                `).join('') : `
-                                    <div class="error-page">
-                                        <h2>Aucun serveur trouvé</h2>
-                                        <p>Vous devez avoir la permission "Gérer le serveur".</p>
-                                    </div>
-                                `}
-                            </div>
-                        </main>
-                    </div>
-                `;
-                updateUserSection();
-            } catch (error) {
-                console.error("Erreur boutique:", error);
-                
-                // Vérifier si c'est un problème de token Discord expiré
-                if (error.error && (error.error === "discord_token_expired" || error.error === "no_discord_token")) {
-                    const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-                    const scope = encodeURIComponent('identify guilds');
-                    
-                    container.innerHTML = `
-                        <div class="container">
-                            <nav>
-                                <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                                    <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                                </div>
-                                <div id="user-section"></div>
-                            </nav>
-                            <main class="error-page" style="margin-top: 50px;">
-                                <h1><i class="fas fa-exclamation-triangle"></i> Reconnexion nécessaire</h1>
-                                <p>Votre session Discord a expiré. Vous devez vous reconnecter pour accéder à vos serveurs.</p>
-                                <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=${scope}" class="btn btn-primary">
-                                    <i class="fab fa-discord"></i> Se reconnecter avec Discord
-                                </a>
-                            </main>
-                        </div>
-                    `;
-                    updateUserSection();
-                } else {
-                    container.innerHTML = `
-                        <div class="error-page">
-                            <h1>Erreur</h1>
-                            <p>Impossible de charger la boutique.</p>
-                            <p><strong>Détails:</strong> ${error.error || error.message || 'Erreur inconnue'}</p>
-                        </div>`;
-                }
-            }
-        }
-
-        // Ajoutez ces fonctions dans votre index (4).html :
-
-        function updateCost(serverId) {
-            const select = document.getElementById(`credits-${serverId}`);
-            const costSpan = document.getElementById(`cost-${serverId}`);
-            const credits = parseInt(select.value);
-            const cost = credits / 10; // 10 crédits = 1 pièce
-            costSpan.textContent = cost;
-        }
-        
-        async function buyCredits(serverId, serverName) {
-            const select = document.getElementById(`credits-${serverId}`);
-            const credits = parseInt(select.value);
-            const cost = credits / 10;
-            
-            if (!confirm(`Acheter ${credits} crédits pour "${serverName}" pour ${cost} pièce(s) ?`)) {
-                return;
-            }
-            
-            const button = event.target;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Achat...';
-            
-            try {
-                const result = await apiFetch('/api/buy_server_credits', {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        guild_id: serverId, 
-                        credits: credits
-                    })
-                });
-                
-                const resultBox = document.getElementById(`buy-result-${serverId}`);
-                if (result.success) {
-                    resultBox.innerHTML = `<p style="color: var(--success-color); margin-top: 10px;">✅ ${result.message}</p>`;
-                    await updateUserSection();
-                    // Recharger la page pour mettre à jour les crédits
-                    setTimeout(() => renderBuyPage(), 1000);
-                } else {
-                    resultBox.innerHTML = `<p style="color: var(--error-color); margin-top: 10px;">❌ ${result.error}</p>`;
-                }
-            } catch (error) {
-                document.getElementById(`buy-result-${serverId}`).innerHTML =
-                    `<p style="color: var(--error-color); margin-top: 10px;">❌ ${error.error || "Erreur lors de l'achat."}</p>`;
-            } finally {
-                button.disabled = false;
-                button.innerHTML = '<i class="fas fa-shopping-cart"></i> Acheter';
-            }
-        }
-
-        async function refundCredits(serverId, serverName) {
-            if (!confirm(`Rembourser tous les crédits de "${serverName}" ?`)) return;
-            
-            try {
-                const result = await apiFetch('/api/refund_credits', {
-                    method: 'POST',
-                    body: JSON.stringify({ guild_id: serverId })
-                });
-                
-                if (result.success) {
-                    showToast(result.message, 'success');
-                    await updateUserSection();
-                    setTimeout(() => renderBuyPage(), 1000);
-                }
-            } catch (error) {
-                showToast(error.error || "Erreur lors du remboursement", "error");
-            }
-        }
-        
-        async function inviteBotToServer() {
-            try {
-                const response = await apiFetch('/api/bot_invite_link');
-                window.open(response.invite_url, '_blank');
-                showToast("Invitez le bot puis rechargez cette page", "success");
-            } catch (error) {
-                showToast("Erreur lors de la récupération du lien", "error");
-            }
-        }
-        
-        async function loadUserServers() {
-            const container = document.getElementById('servers-list');
-            
-            try {
-                const servers = await apiFetch('/api/user/guilds');
-                
-                if (servers && servers.length > 0) {
-                    container.innerHTML = `
-                        <div class="servers-grid">
-                            ${servers.map(server => `
-                                <div class="server-card">
-                                    <div class="server-header">
-                                        ${server.icon ? 
-                                            `<img src="${server.icon}" class="server-icon">` : 
-                                            '<div class="server-icon-placeholder"><i class="fas fa-server"></i></div>'
-                                        }
-                                        <div class="server-info">
-                                            <h3>${server.name}</h3>
-                                            <p>Crédits actuels: <strong>${server.current_credits}</strong></p>
-                                        </div>
-                                    </div>
-                                    
-                                    ${!server.bot_present ? `
-                                        <div class="bot-not-present">
-                                            <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
-                                            <button class="btn-invite-bot" onclick="inviteBotToServer()">
-                                                <i class="fas fa-plus"></i> Inviter le bot
-                                            </button>
-                                        </div>
-                                    ` : `
-                                        <div class="credits-purchase">
-                                            <div class="credits-selector">
-                                                <label>Nombre de crédits à acheter :</label>
-                                                <select id="credits-${server.id}" onchange="updateCost('${server.id}')">
-                                                    <option value="10">10 crédits (1 pièce)</option>
-                                                    <option value="50">50 crédits (5 pièces)</option>
-                                                    <option value="100">100 crédits (10 pièces)</option>
-                                                    <option value="500">500 crédits (50 pièces)</option>
-                                                </select>
-                                            </div>
-                                            <div class="cost-display">
-                                                Coût: <span id="cost-${server.id}">1</span> pièce(s)
-                                            </div>
-                                            <button class="btn-buy-credits" onclick="buyCredits('${server.id}', '${server.name}')">
-                                                <i class="fas fa-shopping-cart"></i> Acheter
-                                            </button>
-                                        </div>
-                                    `}
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = `
-                        <div class="no-servers">
-                            <i class="fas fa-server" style="font-size: 3em; margin-bottom: 20px; color: var(--text-muted-color);"></i>
-                            <h3>Aucun serveur trouvé</h3>
-                            <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                container.innerHTML = `<div class="error-page"><h3>Erreur lors du chargement des serveurs</h3></div>`;
-            }
-        }
-        
-        function updateCost(serverId) {
-            const select = document.getElementById(`credits-${serverId}`);
-            const costSpan = document.getElementById(`cost-${serverId}`);
-            const credits = parseInt(select.value);
-            const cost = credits / 10;
-            costSpan.textContent = cost;
-        }
-        
-        // Remplacez la fonction buyCredits dans index (4).html :
-
-        async function buyCredits(serverId, serverName) {
-            const select = document.getElementById(`commands-${serverId}`);
-            const credits = parseInt(select.value);
-            const cost = credits / 10; // 10 crédits = 1 pièce
-            
-            if (!confirm(`Acheter ${credits} crédits pour "${serverName}" pour ${cost} pièce(s) ?`)) {
-                return;
-            }
-            
-            try {
-                const result = await apiFetch('/api/buy_server_credits', {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        guild_id: serverId, 
-                        credits: credits  // Utiliser "credits" au lieu de "commands_count"
-                    })
-                });
-                
-                const resultBox = document.getElementById(`buy-result-${serverId}`);
-                if (result.success) {
-                    resultBox.innerHTML = `<p class="success">✅ ${result.message}</p>`;
-                    await updateUserSection();
-                    await loadUserServers(); // Recharger pour mettre à jour les crédits affichés
-                } else {
-                    resultBox.innerHTML = `<p class="error">❌ ${result.error}</p>`;
-                }
-            } catch (error) {
-                document.getElementById(`buy-result-${serverId}`).innerHTML =
-                    `<p class="error">❌ ${error.error || "Erreur lors de l'achat."}</p>`;
-            }
-        }
-        
-        async function inviteBotToServer() {
-            try {
-                const response = await apiFetch('/api/bot_invite_link');
-                window.open(response.invite_url, '_blank');
-                showToast("Invitez le bot puis rechargez cette page", "success");
-            } catch (error) {
-                showToast("Erreur lors de la récupération du lien", "error");
-            }
-        }
-    
-
-        async function createGlobalOffer() {
-            const amount = parseInt(document.getElementById('offer-amount').value);
-            const message = document.getElementById('offer-message').value;
-        
-            if (!amount || amount <= 0 || !message) {
-                showToast("Veuillez remplir tous les champs.", "error");
-                return;
-            }
-            
-            try {
-                const result = await apiFetch('/api/admin/create_offer', {
-                    method: 'POST',
-                    body: JSON.stringify({ amount, message })
-                });
-                if (result.success) {
-                    showToast(result.message, "success");
-                    document.getElementById('offer-amount').value = '';
-                    document.getElementById('offer-message').value = '';
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-            }
-        }
-
-        // Colle ce code dans la balise <script> de ton index.html
-        // Dans votre index (10).html, remplacez ces fonctions :
-
-        async function loadGlobalOffer() {
-            const container = document.getElementById('global-offer-container');
-            if (!container) return;
-        
-            try {
-                const token = localStorage.getItem('jwt_token');
-                if (!token) {
-                    container.innerHTML = '';
-                    return;
-                }
-        
-                const offer = await apiFetch('/api/global_offer/status');
-                
-                if (offer && offer.active === true) {
-                    if (offer.already_claimed) {
-                        container.innerHTML = `
-                            <div class="global-offer-box" style="opacity: 0.6;">
-                                <div class="offer-icon">✅</div>
-                                <div class="offer-details">
-                                    <p class="offer-message">Offre déjà réclamée</p>
-                                    <p class="offer-amount">Vous avez déjà reçu ${offer.amount} pièces !</p>
-                                </div>
-                            </div>`;
-                    } else {
-                        container.innerHTML = `
-                            <div class="global-offer-box">
-                                <div class="offer-icon">🎁</div>
-                                <div class="offer-details">
-                                    <p class="offer-message">${offer.message}</p>
-                                    <p class="offer-amount">${offer.amount} pièces à gagner !</p>
-                                </div>
-                                <button class="btn-claim-offer" onclick="claimGlobalOffer()">Réclamer !</button>
-                            </div>`;
-                    }
-                } else {
-                    container.innerHTML = '';
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement de l'offre globale:", error);
-                container.innerHTML = '';
-            }
-        }
-        
-        async function claimGlobalOffer() {
-            const btn = event.target;
-            const offerBox = btn.closest('.global-offer-box');
-        
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        
-            try {
-                const result = await apiFetch('/api/global_offer/claim', { method: 'POST' });
-                if (result.success) {
-                    showToast(result.message, "success");
-            
-                    offerBox.style.transition = 'all 0.5s ease-out';
-                    offerBox.style.transform = 'translateY(-20px)';
-                    offerBox.style.opacity = '0';
-            
-                    setTimeout(() => {
-                        document.getElementById('global-offer-container').innerHTML = '';
-                    }, 500);
-            
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-                offerBox.style.transition = 'all 0.5s ease-out';
-                offerBox.style.transform = 'translateY(-20px)';
-                offerBox.style.opacity = '0';
-                
-                setTimeout(() => {
-                    document.getElementById('global-offer-container').innerHTML = '';
-                }, 500);
-            }
-        }
-        
-        async function renderEarnPage() {
-            document.title = "StrexBot - Gagner des pièces";
-            const container = document.getElementById("app-container");
-            
-            container.innerHTML = `
-                <div class="container">
-                    <nav>
-                        <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                            <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                        </div>
-                        <div id="user-section"></div>
-                    </nav>
-                    <main class="earn-main">
-                        <div class="earn-hero">
-                            <h1><i class="fas fa-video gradient-icon"></i> Gagner avec les pubs</h1>
-                            <p>Regardez des publicités et gagnez des pièces !</p>
-                        </div>
-                        <div id="earn-container">
-                            <div class="earn-loading">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                <p>Chargement...</p>
-                            </div>
-                        </div>
-                    </main>
-                </div>
-            `;
-            
-            updateUserSection();
-            loadEarnStatus();
-        }
-        
-        async function loadEarnStatus() {
-            const container = document.getElementById('earn-container');
-            
-            try {
-                const status = await apiFetch('/api/earn/status');
-                
-                if (status.can_watch) {
-                    container.innerHTML = `
-                        <div class="earn-card">
-                            <div class="earn-info">
-                                <i class="fas fa-play-circle earn-icon"></i>
-                                <h3>Publicité disponible</h3>
-                                <p>Regardez une courte publicité et gagnez des pièces !</p>
-                                <div class="reward-display">
-                                    <img src="/Coin.png" class="coin-icon">
-                                    <span class="reward-amount">+${status.next_reward || 1}</span>
-                                </div>
-                            </div>
-                            <button class="btn-watch-ad" onclick="startWatchingAd()">
-                                <i class="fas fa-play"></i> Regarder une publicité
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    const secondsRemaining = Math.max(0, Math.floor(status.seconds_remaining || 0));
-                    const minutes = Math.floor(secondsRemaining / 60);
-                    const seconds = secondsRemaining % 60;
-                    
-                    container.innerHTML = `
-                        <div class="earn-card cooldown">
-                            <div class="earn-info">
-                                <i class="fas fa-clock earn-icon"></i>
-                                <h3>Cooldown actif</h3>
-                                <p>Vous devez attendre avant de regarder une autre publicité.</p>
-                                <div class="cooldown-display">
-                                    <span id="cooldown-timer">${minutes}:${seconds.toString().padStart(2, '0')}</span>
-                                </div>
-                            </div>
-                            <button class="btn-watch-ad" disabled>
-                                <i class="fas fa-clock"></i> Veuillez attendre
-                            </button>
-                        </div>
-                    `;
-                    
-                    if (secondsRemaining > 0) {
-                        startCooldownTimer(secondsRemaining);
-                    }
-                }
-            } catch (error) {
-                console.error("Erreur lors du chargement:", error);
-                container.innerHTML = `
-                    <div class="earn-card">
-                        <div class="earn-info">
-                            <i class="fas fa-exclamation-triangle earn-icon" style="color: var(--error-color);"></i>
-                            <h3>Erreur</h3>
-                            <p>Impossible de charger les publicités pour le moment.</p>
-                        </div>
-                        <button class="btn-watch-ad" onclick="loadEarnStatus()">
-                            <i class="fas fa-redo"></i> Réessayer
-                        </button>
-                    </div>
-                `;
-            }
-        }
-        
-        function startCooldownTimer(remainingSeconds) {
-            const timer = document.getElementById('cooldown-timer');
-            if (!timer) return;
-            
-            const interval = setInterval(() => {
-                remainingSeconds--;
-                
-                if (remainingSeconds <= 0) {
-                    clearInterval(interval);
-                    loadEarnStatus(); // Recharger automatiquement
-                    return;
-                }
-                
-                const minutes = Math.floor(remainingSeconds / 60);
-                const seconds = remainingSeconds % 60;
-                timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            }, 1000);
-        }
-        
-        async function startWatchingAd() {
-            const container = document.getElementById('earn-container');
-            container.innerHTML = `
-                <div class="earn-card">
-                    <div class="earn-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Chargement de la publicité...</p>
-                    </div>
-                </div>
-            `;
-            
-            try {
-                const result = await apiFetch('/api/earn/get_ad');
-                if (result.success) {
-                    showAdPlayer(result.ad);
-                }
-            } catch (error) {
-                container.innerHTML = `
-                    <div class="earn-card">
-                        <div class="earn-info">
-                            <i class="fas fa-exclamation-triangle earn-icon" style="color: var(--error-color);"></i>
-                            <h3>Erreur</h3>
-                            <p>${error.error || "Erreur lors du chargement"}</p>
-                        </div>
-                        <button class="btn-watch-ad" onclick="loadEarnStatus()">
-                            <i class="fas fa-redo"></i> Réessayer
-                        </button>
-                    </div>
-                `;
-            }
-        }
-    
-        async function loadRandomAd() {
-            const container = document.getElementById('ad-container');
-            
-            try {
-                const result = await apiFetch('/api/earn/get_ad');
-                if (result.success) {
-                    const ad = result.ad;
-                    container.innerHTML = `
-                        <div class="ad-player">
-                            <div class="ad-header">
-                                <h3>${ad.title}</h3>
-                                <p>Récompense: <img src="/Coin.png" class="coin-mini"> ${ad.reward_amount}</p>
-                            </div>
-                            <video id="ad-video" controls preload="metadata" style="width: 100%; max-width: 800px; border-radius: 12px;">
-                                <source src="${ad.video_url}" type="video/mp4">
-                                Votre navigateur ne supporte pas la vidéo.
-                            </video>
-                            <div class="ad-controls">
-                                <button id="claim-reward-btn" class="btn-claim-reward" disabled>
-                                    <i class="fas fa-clock"></i> Regarder jusqu'à la fin
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    
-                    setupVideoPlayer(ad);
-                }
-            } catch (error) {
-                container.innerHTML = `<div class="error-page"><p>Aucune publicité disponible pour le moment.</p></div>`;
-            }
-        }
-        
-        function setupVideoPlayer(ad) {
-            const video = document.getElementById('ad-video');
-            const claimBtn = document.getElementById('claim-reward-btn');
-            let hasWatchedFully = false;
-            let hasLeftPage = false;
-            
-            video.addEventListener('ended', () => {
-                hasWatchedFully = true;
-                claimBtn.disabled = false;
-                claimBtn.innerHTML = '<i class="fas fa-gift"></i> Réclamer la récompense';
-                claimBtn.onclick = () => claimAdReward(ad._id);
-            });
-            
-            // Détecter si l'utilisateur quitte la page
-            window.addEventListener('beforeunload', () => {
-                hasLeftPage = true;
-            });
-            
-            // Empêcher la triche (saut à la fin)
-            video.addEventListener('seeked', () => {
-                if (video.currentTime > video.duration - 5 && !hasWatchedFully) {
-                    video.currentTime = Math.max(0, video.currentTime - 10);
-                }
-            });
-        }
-
-        async function claimGlobalOffer() {
-            const btn = event.target;
-            const offerBox = btn.closest('.global-offer-box');
-    
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-
-            try {
-                const result = await apiFetch('/api/offer/claim', { method: 'POST' });
-                if (result.success) {
-                    showToast(result.message, "success");
-            
-                    // Animation de descente
-                    offerBox.style.transition = 'all 0.5s ease-out';
-                    offerBox.style.transform = 'translateY(-20px)';
-                    offerBox.style.opacity = '0';
-            
-                    setTimeout(() => {
-                        document.getElementById('global-offer-container').innerHTML = '';
-                    }, 500);
-            
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Une erreur est survenue.", "error");
-        
-                // Animation de sortie en cas d'erreur aussi
-                offerBox.style.transition = 'all 0.5s ease-out';
-                offerBox.style.transform = 'translateY(-20px)';
-                offerBox.style.opacity = '0';
-        
-                setTimeout(() => {
-                    document.getElementById('global-offer-container').innerHTML = '';
-                }, 500);
-            }
-        }
-
-        async function renderInvitePage(inviterId) {
-            document.title = 'StrexBot - Invitation';
-            const container = document.getElementById('app-container');
-            const token = localStorage.getItem('jwt_token');
-    
-            if (!token) {
+        // User Section
+        async function updateUserSection(userData) {
+            const section = document.getElementById('user-section');
+            if (!userData) {
                 const redirectUri = encodeURIComponent(`${API_URL}/callback`);
-                container.innerHTML = `
-                    <div class="container">
-                        <div class="invite-card">
-                            <h1>🎁 Invitation StrexBot</h1>
-                            <p>Connectez-vous et vous gagnerez 1 pièce!</p>
-                            <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify guilds.members.read" class="btn btn-primary">Se connecter avec Discord</a>
-                        </div>
-                    </div>`;
-                return;
-            }
-    
-            try {
-                const result = await apiFetch(`/api/invite/${inviterId}`);
-                if (result.status === 'already_registered') {
-                    container.innerHTML = `
-                        <div class="container">
-                            <div class="invite-card">
-                                <h1>✅ Vous êtes déjà enregistré!</h1>
-                            </div>
-                        </div>`;
-                } else if (result.status === 'can_claim') {
-                    container.innerHTML = `
-                        <div class="container">
-                            <div class="invite-card">
-                                <h1>🎉 Invitation de ${result.inviter_username}</h1>
-                                <p>Réclamez votre récompense!</p>
-                                <button class="btn btn-primary" onclick="claimInviteReward('${inviterId}')">Réclamer 1 pièce</button>
-                            </div>
-                        </div>`;
-                }
-            } catch (error) {
-                container.innerHTML = `<div class="error-page"><h1>Lien d'invitation invalide</h1></div>`;
-            }
-    
-            updateUserSection();
-        }
-
-        async function claimInviteReward(inviterId) {
-            try {
-                const result = await apiFetch('/api/claim_invite', {
-                    method: 'POST',
-                    body: JSON.stringify({ inviter_id: inviterId })
-                });
-        
-                if (result.success) {
-                    showToast(result.message, 'success');
-                    setTimeout(() => navigate('/'), 2000);
-                    await updateUserSection();
-                }
-            } catch (error) {
-                showToast(error.error || "Erreur", "error");
-            }
-        }
-
-        // Dans le fichier index (4).html, remplacez dans renderBuyPage() :
-
-        async function renderBuyPage() {
-            document.title = 'StrexBot - Boutique';
-            const container = document.getElementById('app-container');
-        
-            const token = localStorage.getItem('jwt_token');
-            if (!token) {
-                container.innerHTML = `<div class="error-page">
-                    <h1>Veuillez vous connecter</h1>
-                    <p>Vous devez être connecté pour accéder à la boutique.</p>
-                    <a href="/" onclick="event.preventDefault(); navigate('/')">Retour à l'accueil</a>
-                </div>`;
-                return;
-            }
-        
-            try {
-                // CHANGEZ CETTE LIGNE :
-                const servers = await apiFetch('/api/user/guilds');
-        
-                container.innerHTML = `
-                    <div class="container">
-                        <nav>
-                            <div class="nav-brand" onclick="navigate('/')" style="cursor: pointer;">
-                                <img src="/halloween s rond.png" alt="Logo" class="nav-logo"> StrexBot
-                            </div>
-                            <div id="user-section"></div>
-                        </nav>
-                        <main class="gifts-main">
-                            <div class="gifts-hero">
-                                <h1><i class="fas fa-shopping-cart gradient-icon"></i> Boutique</h1>
-                                <p>Achetez des crédits pour vos serveurs avec vos pièces.</p>
-                            </div>
-        
-                            <div class="gifts-content">
-                                ${servers.length > 0 ? servers.map(s => `
-                                    <div class="gift-card">
-                                        <div class="card-header">
-                                            <i class="fas fa-server"></i>
-                                            <h3>${s.name}</h3>
-                                        </div>
-                                        <p>Achetez des commandes supplémentaires pour ce serveur.</p>
-                                        <div class="balance-display">
-                                            <span>Crédits actuels: <strong>${s.current_credits || 0}</strong></span>
-                                        </div>
-                                        ${!s.bot_present ? `
-                                            <div class="bot-not-present">
-                                                <p><i class="fas fa-exclamation-triangle"></i> Le bot n'est pas présent sur ce serveur</p>
-                                                <button class="btn-invite-bot" onclick="inviteBotToServer()">
-                                                    <i class="fas fa-plus"></i> Inviter le bot
-                                                </button>
-                                            </div>
-                                        ` : `
-                                            <div class="balance-display">
-                                                <img src="/Coin.png" class="balance-coin">
-                                                <input type="number" id="commands-${s.id}" min="1" value="10" style="width:80px; text-align:center;">
-                                                <span>crédits</span>
-                                            </div>
-                                            <button class="btn-gift-action" onclick="buyCredits('${s.id}', '${s.name}')">
-                                                <i class="fas fa-coins"></i> Acheter
-                                            </button>
-                                        `}
-                                        <div id="buy-result-${s.id}"></div>
-                                    </div>
-                                `).join('') : `
-                                    <div class="error-page">
-                                        <h2>Aucun serveur trouvé</h2>
-                                        <p>Vous devez avoir la permission "Gérer le serveur" pour acheter des crédits.</p>
-                                    </div>
-                                `}
-                            </div>
-                        </main>
+                section.innerHTML = `
+                    <a href="https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&response_type=code&redirect_uri=${redirectUri}&scope=identify guilds" class="btn-login">
+                        <i class="fab fa-discord"></i>
+                        Connexion
+                    </a>
+                `;
+            } else {
+                section.innerHTML = `
+                    ${userData.is_admin ? `<div class="admin-badge" onclick="navigate('/admin')"><i class="fas fa-shield-alt"></i> Admin</div>` : ''}
+                    <div class="user-profile">
+                        <img src="${userData.avatar_url}" class="user-avatar">
+                        <span class="user-name">${userData.username}</span>
                     </div>
                 `;
-                updateUserSection();
-            } catch (e) {
-                console.error("Erreur lors du chargement de la boutique:", e);
-                container.innerHTML = `<div class="error-page"><h1>Erreur</h1><p>Impossible de charger la boutique.</p></div>`;
             }
         }
 
-        async function createAd() {
-            const title = document.getElementById('ad-title').value;
-            const url = document.getElementById('ad-url').value;
-            const reward = parseFloat(document.getElementById('ad-reward').value);
-            
-            if (!title || !url || !reward) {
-                showToast("Veuillez remplir tous les champs", "error");
-                return;
-            }
-            
-            try {
-                const result = await apiFetch('/api/admin/ads', {
-                    method: 'POST',
-                    body: JSON.stringify({ title, video_url: url, reward_amount: reward })
-                });
-                
-                if (result.success) {
-                    showToast("Publicité ajoutée avec succès", "success");
-                    document.getElementById('ad-title').value = '';
-                    document.getElementById('ad-url').value = '';
-                    document.getElementById('ad-reward').value = '1';
-                    loadAdsList();
-                }
-            } catch (error) {
-                showToast(error.error || "Erreur", "error");
-            }
-        }
-        
-        async function loadAdsList() {
-            const container = document.getElementById('ads-list');
-            
-            try {
-                const ads = await apiFetch('/api/admin/ads');
-                
-                container.innerHTML = `
-                    <div class="admin-card">
-                        <h3>Publicités existantes (${ads.length})</h3>
-                        ${ads.length > 0 ? ads.map(ad => `
-                            <div class="ad-item" id="ad-item-${ad._id}">
-                                <div class="ad-details">
-                                    <div class="ad-title-edit">
-                                        <strong class="ad-title-display">${ad.title}</strong>
-                                        <input type="text" class="ad-title-input" value="${ad.title}" style="display: none;">
-                                    </div>
-                                    <div class="ad-reward-edit">
-                                        <small class="ad-reward-display">Récompense: ${ad.reward_amount} pièce(s)</small>
-                                        <input type="number" class="ad-reward-input" value="${ad.reward_amount}" step="0.1" min="0.1" style="display: none;">
-                                    </div>
-                                    <div class="ad-url-edit">
-                                        <small class="ad-url-display">Lien: ${ad.click_url || 'Aucun'}</small>
-                                        <input type="url" class="ad-url-input" value="${ad.click_url || ''}" placeholder="https://example.com" style="display: none;">
-                                    </div>
-                                    <a href="${ad.video_url}" target="_blank" class="ad-preview">Voir la vidéo</a>
-                                </div>
-                                <div class="ad-actions">
-                                    <button class="admin-btn edit-btn" onclick="editAd('${ad._id}')">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </button>
-                                    <button class="admin-btn save-btn" onclick="saveAd('${ad._id}')" style="display: none;">
-                                        <i class="fas fa-save"></i> Sauvegarder
-                                    </button>
-                                    <button class="admin-btn cancel-btn" onclick="cancelEdit('${ad._id}')" style="display: none;">
-                                        <i class="fas fa-times"></i> Annuler
-                                    </button>
-                                    <button class="admin-btn remove-btn" onclick="deleteAd('${ad._id}')">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('') : '<p>Aucune publicité configurée.</p>'}
-                    </div>
-                `;
-            } catch (error) {
-                container.innerHTML = '<div class="admin-card"><p style="color: var(--error-color);">Erreur lors du chargement des publicités.</p></div>';
-            }
-        }
-        
-        // 3. Modifier les fonctions d'édition
-        function editAd(adId) {
-            const item = document.getElementById(`ad-item-${adId}`);
-            const titleDisplay = item.querySelector('.ad-title-display');
-            const titleInput = item.querySelector('.ad-title-input');
-            const rewardDisplay = item.querySelector('.ad-reward-display');
-            const rewardInput = item.querySelector('.ad-reward-input');
-            const urlDisplay = item.querySelector('.ad-url-display');
-            const urlInput = item.querySelector('.ad-url-input');
-            const editBtn = item.querySelector('.edit-btn');
-            const saveBtn = item.querySelector('.save-btn');
-            const cancelBtn = item.querySelector('.cancel-btn');
-            
-            // Afficher les champs d'édition
-            titleDisplay.style.display = 'none';
-            titleInput.style.display = 'block';
-            rewardDisplay.style.display = 'none';
-            rewardInput.style.display = 'block';
-            urlDisplay.style.display = 'none';
-            urlInput.style.display = 'block';
-            
-            // Changer les boutons
-            editBtn.style.display = 'none';
-            saveBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
-            
-            titleInput.focus();
-        }
-        
-        function cancelEdit(adId) {
-            const item = document.getElementById(`ad-item-${adId}`);
-            const titleDisplay = item.querySelector('.ad-title-display');
-            const titleInput = item.querySelector('.ad-title-input');
-            const rewardDisplay = item.querySelector('.ad-reward-display');
-            const rewardInput = item.querySelector('.ad-reward-input');
-            const urlDisplay = item.querySelector('.ad-url-display');
-            const urlInput = item.querySelector('.ad-url-input');
-            const editBtn = item.querySelector('.edit-btn');
-            const saveBtn = item.querySelector('.save-btn');
-            const cancelBtn = item.querySelector('.cancel-btn');
-            
-            // Réinitialiser les valeurs
-            titleInput.value = titleDisplay.textContent;
-            rewardInput.value = rewardDisplay.textContent.match(/[\d.]+/)[0];
-            
-            // Afficher les éléments d'affichage
-            titleDisplay.style.display = 'block';
-            titleInput.style.display = 'none';
-            rewardDisplay.style.display = 'block';
-            rewardInput.style.display = 'none';
-            urlDisplay.style.display = 'block';
-            urlInput.style.display = 'none';
-            
-            // Changer les boutons
-            editBtn.style.display = 'inline-block';
-            saveBtn.style.display = 'none';
-            cancelBtn.style.display = 'none';
-        }
-        
-        async function saveAd(adId) {
-            const item = document.getElementById(`ad-item-${adId}`);
-            const titleInput = item.querySelector('.ad-title-input');
-            const rewardInput = item.querySelector('.ad-reward-input');
-            const urlInput = item.querySelector('.ad-url-input');
-            const saveBtn = item.querySelector('.save-btn');
-            
-            const title = titleInput.value.trim();
-            const reward = parseFloat(rewardInput.value);
-            const clickUrl = urlInput.value.trim();
-            
-            if (!title || !reward || reward <= 0) {
-                showToast("Veuillez remplir tous les champs correctement", "error");
-                return;
-            }
-            
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-            
-            try {
-                const result = await apiFetch(`/api/admin/ads/${adId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ 
-                        title, 
-                        reward_amount: reward,
-                        click_url: clickUrl || null
-                    })
-                });
-                
-                if (result.success) {
-                    showToast("Publicité modifiée avec succès", "success");
-                    loadAdsList(); // Recharger la liste
-                }
-            } catch (error) {
-                showToast(error.error || "Erreur lors de la modification", "error");
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save"></i> Sauvegarder';
-            }
-        }
-        
-        async function deleteAd(adId) {
-            if (!confirm("Êtes-vous sûr de vouloir supprimer cette publicité ?")) return;
-            
-            try {
-                const result = await apiFetch(`/api/admin/ads/${adId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (result.success) {
-                    showToast("Publicité supprimée avec succès", "success");
-                    loadAdsList();
-                }
-            } catch (error) {
-                showToast("Erreur lors de la suppression", "error");
-            }
-        }
-        
-        // === NOUVELLES FONCTIONS POUR LE MODE PLEIN ÉCRAN ===
-
-        // === NOUVELLES FONCTIONS POUR LE MODE PLEIN ÉCRAN ===
-
-        // Remplacez la fonction showAdPlayer dans votre index.html par cette version :
-        function showAdPlayer(ad) {
-            const container = document.getElementById('earn-container');
-            
-            // Créer le container plein écran
-            container.innerHTML = `
-                <div class="fullscreen-ad-container" id="fullscreen-container">
-                    <div class="fullscreen-ad-header">
-                        <h3>Publicité : ${ad.title || 'Publicité'}</h3>
-                        <div class="fullscreen-video-timer" id="fullscreen-timer">--:--</div>
-                        <button class="fullscreen-close-btn" id="fullscreen-close-btn" disabled title="Regardez jusqu'à la fin">
-                            <i class="fas fa-clock"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="fullscreen-video-wrapper">
-                        <video 
-                            id="fullscreen-video" 
-                            class="fullscreen-video"
-                            autoplay 
-                            preload="metadata" 
-                            controlslist="nodownload nofullscreen noremoteplayback"
-                            disablepictureinpicture
-                            oncontextmenu="return false;"
-                            playsinline
-                        >
-                            <source src="${ad.video_url}" type="video/mp4">
-                            Votre navigateur ne supporte pas la vidéo.
-                        </video>
-                    </div>
-                </div>
-            `;
-            
-            // Activer le mode plein écran
-            document.body.classList.add('fullscreen-mode');
-            
-            setupFullscreenPlayer(ad);
-        }
-        
-        // Nouvelle fonction pour gérer le lecteur plein écran
-        function setupFullscreenPlayer(ad) {
-            const video = document.getElementById('fullscreen-video');
-            const closeBtn = document.getElementById('fullscreen-close-btn');
-            const timer = document.getElementById('fullscreen-timer');
-            const container = document.getElementById('fullscreen-container');
-            let hasFinished = false;
-            let isProcessing = false;
-            
-            // Fonction pour quitter le mode plein écran
-            function exitFullscreen() {
-                document.body.classList.remove('fullscreen-mode');
-                loadEarnStatus(); // Revenir à la page normale
-            }
-            
-            // Fonction pour mettre à jour le timer
-            function updateTimer() {
-                if (video.duration && timer) {
-                    const remaining = Math.max(0, Math.ceil(video.duration - video.currentTime));
-                    const minutes = Math.floor(remaining / 60);
-                    const seconds = remaining % 60;
-                    timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                    
-                    if (remaining === 0 && !hasFinished) {
-                        hasFinished = true;
-                        closeBtn.disabled = false;
-                        closeBtn.title = "Cliquez pour réclamer votre récompense";
-                        closeBtn.classList.add('active');
-                        closeBtn.innerHTML = '<i class="fas fa-check"></i>';
-                        timer.textContent = "Fini !";
-                    }
-                }
-            }
-            
-            // Auto-play avec gestion d'erreurs
-            const playVideo = async () => {
-                try {
-                    await video.play();
-                    console.log("Vidéo démarrée automatiquement");
-                } catch (e) {
-                    console.log("Auto-play bloqué par le navigateur");
-                    showToast("Appuyez sur la vidéo pour démarrer", "warning");
-                    
-                    // Ajouter un overlay cliquable
-                    const overlay = document.createElement('div');
-                    overlay.style.cssText = `
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0,0,0,0.8);
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        cursor: pointer;
-                        z-index: 10001;
-                    `;
-                    overlay.innerHTML = '<i class="fas fa-play-circle" style="font-size: 4em; margin-bottom: 20px;"></i><p style="font-size: 1.2em; margin: 0;">Appuyez pour démarrer</p>';
-                    
-                    container.appendChild(overlay);
-                    
-                    overlay.addEventListener('click', async () => {
-                        try {
-                            await video.play();
-                            overlay.remove();
-                        } catch (err) {
-                            showToast("Impossible de démarrer la vidéo", "error");
-                        }
-                    });
-                }
-            };
-            
-            // Event listeners
-            video.addEventListener('loadedmetadata', () => {
-                updateTimer();
-                playVideo();
-            });
-            
-            video.addEventListener('timeupdate', updateTimer);
-            
-            video.addEventListener('ended', () => {
-                hasFinished = true;
-                closeBtn.disabled = false;
-                closeBtn.title = "Cliquez pour réclamer votre récompense";
-                closeBtn.classList.add('active');
-                closeBtn.innerHTML = '<i class="fas fa-check"></i>';
-                timer.textContent = "Fini !";
-                timer.classList.add('finished');
-            });
-            
-            // Click sur le bouton de fermeture
-            closeBtn.addEventListener('click', function() {
-                if (hasFinished && !isProcessing) {
-                    isProcessing = true;
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    
-                    claimAdRewardFullscreen(ad._id, ad.click_url, exitFullscreen);
-                } else if (!hasFinished) {
-                    // Permettre de quitter même si pas fini (mais sans récompense)
-                    if (confirm("Êtes-vous sûr de vouloir quitter ? Vous ne recevrez pas de récompense.")) {
-                        exitFullscreen();
-                    }
-                }
-            });
-            
-            // Empêcher de sauter à la fin
-            video.addEventListener('seeked', () => {
-                if (video.currentTime > video.duration - 3 && !hasFinished) {
-                    video.currentTime = Math.max(0, video.currentTime - 10);
-                    showToast("Regardez la vidéo jusqu'à la fin", "warning");
-                }
-            });
-            
-            // Désactiver le clic droit
-            video.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-            });
-            
-            // Empêcher les contrôles de vitesse
-            video.addEventListener('ratechange', () => {
-                if (video.playbackRate !== 1) {
-                    video.playbackRate = 1;
-                    showToast("Vitesse normale requise", "warning");
-                }
-            });
-            
-            // Gestion de la touche Échap pour quitter
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    if (hasFinished) {
-                        if (!isProcessing) {
-                            isProcessing = true;
-                            closeBtn.disabled = true;
-                            closeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                            claimAdRewardFullscreen(ad._id, ad.click_url, exitFullscreen);
-                        }
-                    } else {
-                        if (confirm("Êtes-vous sûr de vouloir quitter ? Vous ne recevrez pas de récompense.")) {
-                            exitFullscreen();
-                        }
-                    }
-                }
-            };
-            
-            document.addEventListener('keydown', handleEscape);
-            
-            // Nettoyer l'event listener quand on quitte
-            const originalExitFullscreen = exitFullscreen;
-            exitFullscreen = function() {
-                document.removeEventListener('keydown', handleEscape);
-                originalExitFullscreen();
-            };
-        }
-        
-        // Nouvelle fonction pour réclamer la récompense en mode plein écran
-        async function claimAdRewardFullscreen(adId, clickUrl, exitCallback) {
-            try {
-                const result = await apiFetch('/api/earn/complete_ad', {
-                    method: 'POST',
-                    body: JSON.stringify({ ad_id: adId })
-                });
-                
-                if (result.success) {
-                    showToast(`Récompense réclamée ! +${result.reward} pièce(s)`, "success");
-                    await updateUserSection();
-                    
-                    // Gérer la redirection automatique si un lien est fourni
-                    const redirectUrl = result.click_url || clickUrl;
-                    if (redirectUrl) {
-                        // Affichage du compte à rebours de redirection
-                        showRedirectionCountdown(redirectUrl, exitCallback);
-                    } else {
-                        // Pas de redirection, quitter normalement
-                        setTimeout(() => {
-                            exitCallback();
-                        }, 1500);
-                    }
-                    
-                } else {
-                    showToast(result.error || "Erreur lors de la réclamation", "error");
-                    exitCallback();
-                }
-            } catch (error) {
-                console.error("Erreur lors de la réclamation:", error);
-                showToast(error.error || "Erreur lors de la réclamation", "error");
-                exitCallback();
-            }
-        }
-        
-        // Fonction pour afficher le compte à rebours de redirection
-        function showRedirectionCountdown(redirectUrl, exitCallback) {
-            const container = document.getElementById('fullscreen-container');
-            
-            // Remplacer le contenu par le compte à rebours
-            container.innerHTML = `
-                <div class="fullscreen-ad-container" style="background: linear-gradient(135deg, #1a1a22 0%, #2c2c34 100%); align-items: center; justify-content: center;">
-                    <div style="text-align: center; color: white;">
-                        <i class="fas fa-external-link-alt" style="font-size: 4em; color: var(--primary-color); margin-bottom: 30px;"></i>
-                        <h2 style="font-size: 2em; margin-bottom: 20px;">Redirection en cours...</h2>
-                        <p style="font-size: 1.2em; color: var(--text-muted-color); margin-bottom: 30px;">
-                            Vous allez être redirigé vers le site partenaire
-                        </p>
-                        <div id="redirect-countdown" style="
-                            font-size: 4em; 
-                            font-weight: 800; 
-                            color: var(--primary-color); 
-                            background: var(--secondary-color); 
-                            border: 3px solid var(--primary-color); 
-                            border-radius: 50%; 
-                            width: 100px; 
-                            height: 100px; 
-                            display: flex; 
-                            align-items: center; 
-                            justify-content: center; 
-                            margin: 0 auto;
-                            animation: countdownPulse 1s infinite;
-                        ">3</div>
-                    </div>
-                </div>
-            `;
-            
-            let countdown = 3;
-            const countdownElement = document.getElementById('redirect-countdown');
-            
-            const interval = setInterval(() => {
-                countdown--;
-                if (countdownElement) {
-                    countdownElement.textContent = countdown;
-                }
-                
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    // Redirection automatique obligatoire
-                    window.open(redirectUrl, '_blank');
-                    // Quitter le mode plein écran après redirection
-                    setTimeout(() => {
-                        exitCallback();
-                    }, 500);
-                }
-            }, 1000);
-        }
-        
-        // Fonction pour empêcher le scroll lors du chargement de vidéo (à ajouter aussi)
-        function preventScrollDuringLoad() {
-            // Assurer que le scroll fonctionne normalement sur mobile
-            const isMobile = window.innerWidth <= 768;
-            if (isMobile) {
-                document.body.style.height = 'auto';
-                document.body.style.overflow = 'auto';
-                document.documentElement.style.height = 'auto';
-                document.documentElement.style.overflow = 'auto';
-            }
-        }
-        
-        // Appeler cette fonction au chargement de la page
-        document.addEventListener('DOMContentLoaded', preventScrollDuringLoad);
-        
-        // Aussi l'appeler lors du redimensionnement
-        window.addEventListener('resize', preventScrollDuringLoad);
-        
-        function setupAdPlayer(ad) {
-            const video = document.getElementById('ad-video');
-            const closeBtn = document.getElementById('ad-close-btn');
-            const timer = document.getElementById('video-timer');
-            let hasFinished = false;
-            let isProcessing = false;
-            
-            // Fonction pour mettre à jour le timer
-            function updateTimer() {
-                if (video.duration && timer) {
-                    const remaining = Math.max(0, Math.ceil(video.duration - video.currentTime));
-                    const minutes = Math.floor(remaining / 60);
-                    const seconds = remaining % 60;
-                    timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                    
-                    if (remaining === 0 && !hasFinished) {
-                        hasFinished = true;
-                        closeBtn.disabled = false;
-                        closeBtn.title = "Cliquez pour réclamer votre récompense";
-                        closeBtn.classList.add('active');
-                        closeBtn.innerHTML = '<i class="fas fa-check"></i>';
-                        timer.textContent = "Fini !";
-                    }
-                }
-            }
-            
-            // Auto-play forcé avec gestion d'erreurs
-            const playVideo = async () => {
-                try {
-                    await video.play();
-                    console.log("Vidéo démarrée automatiquement");
-                } catch (e) {
-                    console.log("Auto-play bloqué par le navigateur");
-                    showToast("Cliquez sur la vidéo pour démarrer", "warning");
-                    
-                    // Ajouter un overlay cliquable
-                    const overlay = document.createElement('div');
-                    overlay.className = 'video-play-overlay';
-                    overlay.innerHTML = '<i class="fas fa-play-circle"></i><p>Cliquez pour démarrer</p>';
-                    overlay.style.cssText = `
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background: rgba(0,0,0,0.8);
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        cursor: pointer;
-                        border-radius: 12px;
-                        z-index: 10;
-                    `;
-                    
-                    overlay.querySelector('i').style.fontSize = '4em';
-                    overlay.querySelector('p').style.margin = '10px 0 0 0';
-                    
-                    video.parentElement.style.position = 'relative';
-                    video.parentElement.appendChild(overlay);
-                    
-                    overlay.addEventListener('click', async () => {
-                        try {
-                            await video.play();
-                            overlay.remove();
-                        } catch (err) {
-                            showToast("Impossible de démarrer la vidéo", "error");
-                        }
-                    });
-                }
-            };
-            
-            video.addEventListener('loadedmetadata', () => {
-                updateTimer();
-                playVideo();
-            });
-            
-            video.addEventListener('timeupdate', updateTimer);
-            
-            closeBtn.addEventListener('click', function() {
-                if (hasFinished && !isProcessing) {
-                    isProcessing = true;
-                    this.disabled = true;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                    
-                    claimAdReward(ad._id, ad.click_url);
-                }
-            });
-        
-            video.addEventListener('ended', () => {
-                hasFinished = true;
-                closeBtn.disabled = false;
-                closeBtn.title = "Cliquez pour réclamer votre récompense";
-                closeBtn.classList.add('active');
-                closeBtn.innerHTML = '<i class="fas fa-check"></i>';
-                timer.textContent = "Fini !";
-                timer.classList.add('finished');
-            });
-            
-            // Empêcher de sauter à la fin
-            video.addEventListener('seeked', () => {
-                if (video.currentTime > video.duration - 3 && !hasFinished) {
-                    video.currentTime = Math.max(0, video.currentTime - 10);
-                    showToast("Regardez la vidéo jusqu'à la fin", "warning");
-                }
-            });
-            
-            // Désactiver le clic droit
-            video.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-            });
-            
-            // Empêcher les contrôles de vitesse
-            video.addEventListener('ratechange', () => {
-                if (video.playbackRate !== 1) {
-                    video.playbackRate = 1;
-                    showToast("Vitesse normale requise", "warning");
-                }
-            });
-            
-            // Empêcher la pause trop longue
-            let pauseTimeout;
-            video.addEventListener('pause', () => {
-                if (!hasFinished) {
-                    pauseTimeout = setTimeout(() => {
-                        if (video.paused && !hasFinished) {
-                            showToast("Reprenez la lecture pour continuer", "warning");
-                        }
-                    }, 10000);
-                }
-            });
-            
-            video.addEventListener('play', () => {
-                if (pauseTimeout) {
-                    clearTimeout(pauseTimeout);
-                }
-            });
-        }
-        
-        async function claimAdReward(adId, clickUrl = null) {
-            try {
-                const result = await apiFetch('/api/earn/complete_ad', {
-                    method: 'POST',
-                    body: JSON.stringify({ ad_id: adId })
-                });
-                
-                if (result.success) {
-                    showToast(`Récompense réclamée ! +${result.reward} pièce(s)`, "success");
-                    await updateUserSection();
-                    
-                    // Récupérer l'URL depuis la réponse de l'API
-                    const redirectUrl = result.click_url || clickUrl;
-                    
-                    // Afficher le message de succès
-                    const container = document.getElementById('earn-container');
-                    container.innerHTML = `
-                        <div class="earn-card success">
-                            <div class="earn-info">
-                                <i class="fas fa-check-circle earn-icon" style="color: var(--success-color);"></i>
-                                <h3>Récompense réclamée !</h3>
-                                <p>Vous avez gagné ${result.reward} pièce(s) !</p>
-                                ${redirectUrl ? `
-                                    <div style="margin-top: 20px;">
-                                        <p>Redirection vers le site partenaire...</p>
-                                        <div id="redirect-countdown">3</div>
-                                    </div>
-                                ` : ''}
-                                <div class="reward-display">
-                                    <img src="/Coin.png" class="coin-icon">
-                                    <span class="reward-amount" style="color: var(--success-color);">+${result.reward}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Gérer la redirection si un lien est fourni
-                    if (redirectUrl) {
-                        let countdown = 3;
-                        const countdownElement = document.getElementById('redirect-countdown');
-                        
-                        const interval = setInterval(() => {
-                            countdown--;
-                            if (countdownElement) {
-                                countdownElement.textContent = countdown;
-                            }
-                            
-                            if (countdown <= 0) {
-                                clearInterval(interval);
-                                window.open(redirectUrl, '_blank');
-                                setTimeout(() => {
-                                    loadEarnStatus();
-                                }, 1000);
-                            }
-                        }, 1000);
-                    } else {
-                        setTimeout(() => {
-                            loadEarnStatus();
-                        }, 2000);
-                    }
-                    
-                } else {
-                    showToast(result.error || "Erreur lors de la réclamation", "error");
-                    loadEarnStatus();
-                }
-            } catch (error) {
-                console.error("Erreur lors de la réclamation:", error);
-                showToast(error.error || "Erreur lors de la réclamation", "error");
-                loadEarnStatus();
-            }
-        }
-        
-        async function buyCommands(guildId) {
-            const commandsCount = parseInt(document.getElementById(`commands-${guildId}`).value);
-        
-            try {
-                const result = await apiFetch('/api/buy_commands', {
-                    method: 'POST',
-                    body: JSON.stringify({ guild_id: guildId, commands_count: commandsCount })
-                });
-        
-                const resultBox = document.getElementById(`buy-result-${guildId}`);
-                if (result.success) {
-                    resultBox.innerHTML = `<p class="success">✅ ${result.message} (coût: ${result.cost} pièces)</p>`;
-                    await updateUserSection();
-                } else {
-                    resultBox.innerHTML = `<p class="error">❌ ${result.error}</p>`;
-                }
-            } catch (error) {
-                document.getElementById(`buy-result-${guildId}`).innerHTML =
-                    `<p class="error">❌ Erreur lors de l'achat.</p>`;
-            }
-        }
+        // API
         async function apiFetch(endpoint, options = {}) {
             const token = localStorage.getItem('jwt_token');
             const defaultOptions = { headers: { 'Content-Type': 'application/json' } };
             if (token) defaultOptions.headers['Authorization'] = `Bearer ${token}`;
-            const mergedOptions = { ...defaultOptions, ...options };
             
-            const response = await fetch(`${API_URL}${endpoint}`, mergedOptions);
-            const responseData = await response.json();
-            if (!response.ok) throw responseData;
-            return responseData;
+            const response = await fetch(`${API_URL}${endpoint}`, { ...defaultOptions, ...options });
+            const data = await response.json();
+            if (!response.ok) throw data;
+            return data;
         }
-        
-        function logout() { localStorage.removeItem('jwt_token'); navigate('/'); }
-        
+
+        async function getUserData() {
+            try {
+                return await apiFetch('/api/user_data');
+            } catch {
+                return null;
+            }
+        }
+
+        // Toast
         function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.innerHTML = message;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'fadeOut 0.5s forwards';
-                setTimeout(() => toast.remove(), 500);
-            }, 3000);
-        }
-        
-        function toggleDropdown() { document.getElementById('dropdown-menu')?.classList.toggle('show'); }
-
-        function setupFileUpload() {
-            const uploadArea = document.getElementById('file-upload-area');
-            const fileInput = document.getElementById('ad-file');
-            const form = document.getElementById('ad-upload-form');
-            
-            // Click sur la zone d'upload
-            uploadArea.addEventListener('click', () => {
-                if (!uploadArea.classList.contains('uploading')) {
-                    fileInput.click();
-                }
-            });
-            
-            // Drag & Drop
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('drag-over');
-            });
-            
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('drag-over');
-            });
-            
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('drag-over');
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    fileInput.files = files;
-                    handleFileSelect(files[0]);
-                }
-            });
-            
-            // Sélection de fichier
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFileSelect(e.target.files[0]);
-                }
-            });
-            
-            // Soumission du formulaire
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                uploadAd();
-            });
-        }
-        
-        function handleFileSelect(file) {
-            const uploadArea = document.getElementById('file-upload-area');
-            const placeholder = uploadArea.querySelector('.upload-placeholder');
-            
-            // Vérifier la taille
-            if (file.size > 100 * 1024 * 1024) {
-                showToast("Fichier trop volumineux (max 100MB)", "error");
-                return;
-            }
-            
-            // Vérifier le format
-            const allowedTypes = ['video/mp4', 'video/mov', 'video/avi', 'video/mkv', 'video/webm'];
-            if (!allowedTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|avi|mkv|webm)$/i)) {
-                showToast("Format de fichier non supporté", "error");
-                return;
-            }
-            
-            // Afficher les infos du fichier
-            placeholder.innerHTML = `
-                <i class="fas fa-video"></i>
-                <p><strong>${file.name}</strong></p>
-                <small>${(file.size / 1024 / 1024).toFixed(2)} MB</small>
-            `;
-            
-            uploadArea.classList.add('file-selected');
-        }
-        
-        async function uploadAd() {
-            const form = document.getElementById('ad-upload-form');
-            const uploadArea = document.getElementById('file-upload-area');
-            const progressDiv = uploadArea.querySelector('.upload-progress');
-            const progressBar = progressDiv.querySelector('.progress-fill');
-            const progressText = progressDiv.querySelector('.progress-text');
-            const submitBtn = form.querySelector('button[type="submit"]');
-            
-            // Créer FormData manuellement pour s'assurer que tous les champs sont inclus
-            const formData = new FormData();
-            
-            // Ajouter tous les champs manuellement
-            const title = document.getElementById('ad-title').value.trim();
-            const clickUrl = document.getElementById('ad-click-url').value.trim();
-            const reward = document.getElementById('ad-reward').value;
-            const fileInput = document.getElementById('ad-file');
-            
-            if (!title) {
-                showToast("Veuillez entrer un titre", "error");
-                return;
-            }
-            
-            if (!fileInput.files[0]) {
-                showToast("Veuillez sélectionner un fichier", "error");
-                return;
-            }
-            
-            if (!reward || reward <= 0) {
-                showToast("Veuillez entrer une récompense valide", "error");
-                return;
-            }
-            
-            // Ajouter les données au FormData
-            formData.append('title', title);
-            formData.append('reward_amount', reward);
-            formData.append('video_file', fileInput.files[0]);
-            
-            // Ajouter click_url seulement s'il n'est pas vide
-            if (clickUrl) {
-                formData.append('click_url', clickUrl);
-            }
-            
-            console.log('FormData contents:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
-            
-            // Afficher la barre de progression
-            uploadArea.classList.add('uploading');
-            progressDiv.style.display = 'block';
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Upload en cours...';
-            
-            try {
-                const xhr = new XMLHttpRequest();
-                
-                // Progress handler
-                xhr.upload.addEventListener('progress', (e) => {
-                    if (e.lengthComputable) {
-                        const percent = Math.round((e.loaded / e.total) * 100);
-                        progressBar.style.width = percent + '%';
-                        progressText.textContent = percent + '%';
-                    }
-                });
-                
-                // Completion handler
-                xhr.addEventListener('load', () => {
-                    console.log('XHR Response Status:', xhr.status);
-                    console.log('XHR Response Text:', xhr.responseText);
-                    
-                    if (xhr.status === 200) {
-                        try {
-                            const result = JSON.parse(xhr.responseText);
-                            console.log('Parsed result:', result);
-                            
-                            if (result.success) {
-                                showToast("Publicité ajoutée avec succès", "success");
-                                form.reset();
-                                resetUploadArea();
-                                loadAdsList();
-                            } else {
-                                showToast(result.error || "Erreur lors de l'upload", "error");
-                            }
-                        } catch (parseError) {
-                            console.error('JSON Parse Error:', parseError);
-                            showToast("Erreur de traitement de la réponse", "error");
-                        }
-                    } else {
-                        console.error('HTTP Error:', xhr.status, xhr.statusText);
-                        showToast(`Erreur HTTP ${xhr.status}: ${xhr.statusText}`, "error");
-                    }
-                    
-                    // Reset UI
-                    uploadArea.classList.remove('uploading');
-                    progressDiv.style.display = 'none';
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
-                });
-                
-                xhr.addEventListener('error', (e) => {
-                    console.error('XHR Error:', e);
-                    showToast("Erreur de connexion", "error");
-                    
-                    // Reset UI
-                    uploadArea.classList.remove('uploading');
-                    progressDiv.style.display = 'none';
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
-                });
-                
-                // Envoyer la requête
-                const token = localStorage.getItem('jwt_token');
-                xhr.open('POST', `${API_URL}/api/admin/ads`);
-                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-                
-                // Ne pas définir Content-Type pour FormData, le navigateur le fait automatiquement
-                
-                console.log('Sending FormData to:', `${API_URL}/api/admin/ads`);
-                xhr.send(formData);
-                
-            } catch (error) {
-                console.error('Upload Error:', error);
-                showToast("Erreur lors de l'upload", "error");
-                
-                // Reset UI
-                uploadArea.classList.remove('uploading');
-                progressDiv.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-upload"></i> Uploader la publicité';
-            }
-        }
-        
-        function resetUploadArea() {
-            const uploadArea = document.getElementById('file-upload-area');
-            const placeholder = uploadArea.querySelector('.upload-placeholder');
-            
-            placeholder.innerHTML = `
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Cliquez pour sélectionner une vidéo</p>
-                <small>MP4, MOV, AVI, MKV, WEBM - Max 100MB</small>
-            `;
-            
-            uploadArea.classList.remove('file-selected');
-        }
-        
-        function setupScrollAnimations() {
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        if (entry.target.classList.contains('features')) {
-                            // Animation séquentielle pour mobile
-                            const isMobile = window.innerWidth <= 768;
-                            const featureItems = entry.target.querySelectorAll('.feature-item');
-                            
-                            if (isMobile) {
-                                featureItems.forEach((item, index) => {
-                                    setTimeout(() => {
-                                        item.classList.add('visible');
-                                    }, index * 200); // 200ms de délai entre chaque carte
-                                });
-                            } else {
-                                featureItems.forEach(item => {
-                                    item.classList.add('visible');
-                                });
-                            }
-                            entry.target.classList.add('visible');
-                        } else {
-                            entry.target.classList.add('visible');
-                        }
-                    }
-                });
-            }, { threshold: 0.1 });
-    
-            document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el));
+            toast.textContent = message;
+            document.getElementById('toast-container').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Lien de partage copié !", "success");
-            }, () => {
-                showToast("Erreur de copie", "error");
-            });
+        // Token handling
+        function handleToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                localStorage.setItem('jwt_token', token);
+                window.history.replaceState({}, '', window.location.pathname);
+            }
         }
-        
-        window.onclick = e => { if (!e.target.closest('.user-profile')) document.querySelector('.dropdown-menu.show')?.classList.remove('show'); };
+
+        // Init
+        handleToken();
+        render();
     </script>
 </body>
 </html>
+</artifact>

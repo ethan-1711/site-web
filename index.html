@@ -544,6 +544,60 @@
             .admin-content {
                 margin-left: 0;
             }
+            /* Maintenance Page */
+            .maintenance-page {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                text-align: center;
+            }
+            
+            .maintenance-icon {
+                font-size: 8rem;
+                color: var(--warning);
+                margin-bottom: 2rem;
+                animation: float 3s ease-in-out infinite;
+            }
+            
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-20px); }
+            }
+            
+            .maintenance-page h1 {
+                font-size: 3rem;
+                font-weight: 900;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, var(--warning), #fbbf24);
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            
+            .maintenance-page p {
+                font-size: 1.3rem;
+                color: var(--text-secondary);
+                max-width: 600px;
+                line-height: 1.7;
+            }
+            
+            .maintenance-status {
+                margin-top: 3rem;
+                background: rgba(245, 158, 11, 0.1);
+                border: 1px solid var(--warning);
+                border-radius: 12px;
+                padding: 1.5rem 2rem;
+            }
+            
+            .maintenance-status p {
+                font-size: 1rem;
+                margin: 0;
+                color: var(--warning);
+                font-weight: 600;
+            }
         }
     </style>
 </head>
@@ -568,12 +622,54 @@
         async function render() {
             const path = window.location.pathname;
             const app = document.getElementById('app');
-
+        
+            // Vérifier la maintenance
+            try {
+                const statusRes = await fetch(`${API_URL}/api/status`);
+                const statusData = await statusRes.json();
+                
+                if (statusData.maintenance) {
+                    const userData = await getUserData();
+                    
+                    // Si admin, afficher le site normalement
+                    if (userData && userData.is_admin) {
+                        if (path.startsWith('/admin')) {
+                            await renderAdmin();
+                        } else {
+                            await renderHome();
+                        }
+                    } else {
+                        // Si pas admin, afficher la page maintenance
+                        renderMaintenance();
+                    }
+                    return;
+                }
+            } catch (error) {
+                console.error("Erreur vérification maintenance:", error);
+            }
+        
+            // Site normal
             if (path.startsWith('/admin')) {
                 await renderAdmin();
             } else {
                 await renderHome();
             }
+        }
+
+        // Maintenance Page
+        function renderMaintenance() {
+            document.getElementById('app').innerHTML = `
+                <div class="maintenance-page">
+                    <div class="maintenance-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h1>Maintenance en cours</h1>
+                    <p>Notre site est actuellement en maintenance pour améliorer nos services. Nous serons de retour très bientôt !</p>
+                    <div class="maintenance-status">
+                        <p><i class="fas fa-clock"></i> Le site reviendra sous peu</p>
+                    </div>
+                </div>
+            `;
         }
 
         // Home Page

@@ -412,31 +412,82 @@
             border-top: 1px solid var(--border);
         }
         
-        /* Admin Panel */
+        /* Admin Panel - VERSION AMÉLIORÉE */
         .admin-layout {
             display: flex;
             min-height: 100vh;
+            background: var(--bg-primary);
+        }
+        
+        /* Menu hamburger (mobile) */
+        .admin-mobile-header {
+            display: none;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        
+        .hamburger-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 24px;
+        }
+        
+        .hamburger-icon span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
         }
         
         .admin-sidebar {
             width: 280px;
             background: var(--bg-card);
             border-right: 1px solid var(--border);
-            padding: 2rem;
+            padding: 0;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        
+        .admin-sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border);
         }
         
         .admin-sidebar h2 {
-            margin-bottom: 2rem;
+            margin: 0;
             font-size: 1.5rem;
+            font-weight: 800;
         }
         
         .admin-nav {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            padding: 1.5rem;
+            flex: 1;
         }
         
         .admin-nav-link {
@@ -451,16 +502,41 @@
             font-weight: 500;
         }
         
-        .admin-nav-link:hover,
+        .admin-nav-link:hover {
+            background: rgba(88, 101, 242, 0.1);
+            color: var(--accent);
+        }
+        
         .admin-nav-link.active {
             background: var(--accent);
             color: white;
+        }
+        
+        .admin-nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        /* Bouton "Retour à l'accueil" en bas */
+        .admin-sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
         }
         
         .admin-content {
             margin-left: 280px;
             flex: 1;
             padding: 3rem;
+            max-width: 100%;
+        }
+        
+        .admin-content h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
         }
         
         .admin-card {
@@ -469,6 +545,18 @@
             border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.1);
+        }
+        
+        .admin-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
         }
         
         .admin-input {
@@ -480,11 +568,13 @@
             color: var(--text-primary);
             font-family: inherit;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
         
         .admin-input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1);
         }
         
         .admin-btn {
@@ -496,10 +586,13 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: inherit;
         }
         
         .admin-btn:hover {
             background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
         }
         
         .user-search-result {
@@ -511,6 +604,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .user-search-result:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
         }
         
         .user-info-admin {
@@ -523,6 +622,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
+            border: 2px solid var(--accent);
         }
         
         .user-actions {
@@ -618,7 +718,7 @@
         
         /* Responsive */
         @media (max-width: 768px) {
-            /* Navigation mobile - TOUT sur une ligne */
+            /* Navigation mobile */
             nav {
                 padding: 0.8rem 1rem;
             }
@@ -658,7 +758,7 @@
             }
         
             .user-name {
-                display: none; /* Cacher le nom sur mobile pour gagner de la place */
+                display: none;
             }
         
             .user-menu {
@@ -672,7 +772,7 @@
                 font-size: 0.8rem;
             }
         
-            /* Hero mobile - 2 lignes + texte plus grand */
+            /* Hero mobile */
             .hero {
                 padding: 3rem 1.5rem 2rem;
             }
@@ -680,7 +780,7 @@
             .hero h1 {
                 font-size: 2.2rem;
                 line-height: 1.2;
-                white-space: normal; /* Permet 2 lignes */
+                white-space: normal;
             }
         
             .hero p {
@@ -702,7 +802,7 @@
                 font-size: 1rem;
             }
         
-            /* Features et Stats - MÊME LARGEUR */
+            /* Features et Stats */
             .features, .stats {
                 grid-template-columns: 1fr;
                 padding: 0 1.5rem;
@@ -772,9 +872,20 @@
                 font-size: 0.9rem;
             }
         
-            /* Admin mobile */
+            /* Admin mobile avec hamburger */
+            .admin-mobile-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        
             .admin-sidebar {
-                display: none;
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+        
+            .admin-sidebar.open {
+                transform: translateX(0);
             }
         
             .admin-content {
@@ -786,7 +897,7 @@
                 padding: 1.5rem;
             }
         
-            .admin-card h2 {
+            .admin-card h2, .admin-content h2 {
                 font-size: 1.3rem;
             }
         
@@ -811,7 +922,6 @@
             }
         }
         
-        /* Très petits écrans */
         @media (max-width: 480px) {
             .hero h1 {
                 font-size: 1.9rem;
@@ -984,6 +1094,44 @@
                 document.getElementById('app').innerHTML = '<div style="text-align:center;padding:4rem;"><h1>Accès refusé</h1></div>';
                 return;
             }
+
+            document.getElementById('app').innerHTML = `
+                <div class="admin-mobile-header">
+                    <button class="hamburger-btn" onclick="toggleAdminMenu()">
+                        <div class="hamburger-icon">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <span>Menu</span>
+                    </button>
+                    <h2 style="margin:0; font-size:1.2rem;">Admin Panel</h2>
+                </div>
+                <div class="admin-layout">
+                    <aside class="admin-sidebar">
+                        <div class="admin-sidebar-header">
+                            <h2>Admin Panel</h2>
+                        </div>
+                        <nav class="admin-nav">
+                            <a href="#" class="admin-nav-link active" data-page="users">
+                                <i class="fas fa-users"></i>
+                                <span>Utilisateurs</span>
+                            </a>
+                            <a href="#" class="admin-nav-link" data-page="maintenance">
+                                <i class="fas fa-tools"></i>
+                                <span>Maintenance</span>
+                            </a>
+                        </nav>
+                        <div class="admin-sidebar-footer">
+                            <a href="/" onclick="event.preventDefault(); navigate('/')" class="admin-nav-link">
+                                <i class="fas fa-home"></i>
+                                <span>Retour à l'accueil</span>
+                            </a>
+                        </div>
+                    </aside>
+                    <main class="admin-content" id="admin-content"></main>
+                </div>
+            `;
 
             document.getElementById('app').innerHTML = `
                 <div class="admin-layout">
@@ -1190,6 +1338,20 @@
                 `;
             }
         }
+
+        // Fonction pour toggle le menu admin sur mobile
+        function toggleAdminMenu() {
+            const sidebar = document.querySelector('.admin-sidebar');
+            sidebar.classList.toggle('open');
+        }
+        
+        // Fermer le menu quand on clique sur un lien (mobile)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && e.target.classList.contains('admin-nav-link')) {
+                const sidebar = document.querySelector('.admin-sidebar');
+                sidebar?.classList.remove('open');
+            }
+        });
 
         // API
         async function apiFetch(endpoint, options = {}) {

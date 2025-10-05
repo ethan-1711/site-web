@@ -618,75 +618,75 @@
         
         /* Responsive */
         @media (max-width: 768px) {
-            /* Navigation mobile */
+            /* Navigation mobile - TOUT sur une ligne */
             nav {
-                padding: 1rem;
+                padding: 0.8rem 1rem;
             }
         
             .nav-container {
-                flex-wrap: wrap;
-                gap: 0.8rem;
+                gap: 0.5rem;
             }
         
             .logo {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                gap: 0.5rem;
             }
         
             .logo img {
-                width: 35px;
-                height: 35px;
-            }
-        
-            .user-section {
-                gap: 0.5rem;
-                flex-wrap: wrap;
-            }
-        
-            .admin-badge {
-                padding: 0.4rem 0.7rem;
-                font-size: 0.75rem;
-            }
-        
-            .user-profile {
-                padding: 0.4rem 0.8rem;
-                gap: 0.5rem;
-            }
-        
-            .user-avatar {
                 width: 30px;
                 height: 30px;
             }
         
+            .user-section {
+                gap: 0.4rem;
+            }
+        
+            .admin-badge {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.7rem;
+                gap: 0.3rem;
+            }
+        
+            .user-profile {
+                padding: 0.3rem 0.6rem;
+                gap: 0.4rem;
+            }
+        
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+            }
+        
             .user-name {
-                font-size: 0.85rem;
+                display: none; /* Cacher le nom sur mobile pour gagner de la place */
             }
         
             .user-menu {
-                top: 50px;
+                top: 45px;
                 right: 0;
-                left: auto;
-                min-width: 160px;
+                min-width: 150px;
             }
         
             .btn-login {
-                padding: 0.6rem 1rem;
-                font-size: 0.85rem;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
             }
         
-            /* Hero mobile */
+            /* Hero mobile - 2 lignes + texte plus grand */
             .hero {
-                padding: 2.5rem 1.2rem 2rem;
+                padding: 3rem 1.5rem 2rem;
             }
         
             .hero h1 {
-                font-size: 1.6rem;
-                line-height: 1.3;
-                white-space: nowrap;
+                font-size: 2.2rem;
+                line-height: 1.2;
+                white-space: normal; /* Permet 2 lignes */
             }
         
             .hero p {
-                font-size: 0.95rem;
-                margin: 0 auto 1.5rem;
+                font-size: 1.1rem;
+                margin: 0 auto 2rem;
+                line-height: 1.6;
             }
         
             .cta-buttons {
@@ -699,15 +699,16 @@
                 width: 100%;
                 justify-content: center;
                 padding: 1rem 1.5rem;
-                font-size: 0.95rem;
+                font-size: 1rem;
             }
         
-            /* Features mobile - même largeur que stats */
-            .features {
+            /* Features et Stats - MÊME LARGEUR */
+            .features, .stats {
                 grid-template-columns: 1fr;
-                padding: 0 1.2rem;
-                margin: 2rem auto;
-                gap: 1.2rem;
+                padding: 0 1.5rem;
+                margin: 2rem 1.5rem;
+                gap: 1.5rem;
+                max-width: calc(100% - 3rem);
             }
         
             .feature-card {
@@ -721,19 +722,11 @@
             }
         
             .feature-card h3 {
-                font-size: 1.25rem;
+                font-size: 1.3rem;
             }
         
             .feature-card p {
-                font-size: 0.95rem;
-            }
-        
-            /* Stats mobile - même largeur que features */
-            .stats {
-                grid-template-columns: 1fr;
-                padding: 2rem 1.2rem;
-                margin: 2rem auto;
-                gap: 1.8rem;
+                font-size: 1rem;
             }
         
             .stat-item h2 {
@@ -741,14 +734,14 @@
             }
         
             .stat-item p {
-                font-size: 0.95rem;
+                font-size: 1rem;
             }
         
             /* Footer mobile */
             footer {
                 margin: 3rem auto 0;
                 padding: 1.5rem;
-                font-size: 0.85rem;
+                font-size: 0.9rem;
             }
         
             /* Maintenance mobile */
@@ -757,16 +750,16 @@
             }
         
             .maintenance-icon {
-                font-size: 4.5rem;
+                font-size: 5rem;
                 margin-bottom: 1.5rem;
             }
         
             .maintenance-page h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
         
             .maintenance-page p {
-                font-size: 1rem;
+                font-size: 1.1rem;
                 line-height: 1.6;
             }
         
@@ -776,7 +769,7 @@
             }
         
             .maintenance-status p {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
             }
         
             /* Admin mobile */
@@ -821,31 +814,23 @@
         /* Très petits écrans */
         @media (max-width: 480px) {
             .hero h1 {
-                font-size: 1.4rem;
+                font-size: 1.9rem;
             }
         
             .hero p {
-                font-size: 0.9rem;
-            }
-        
-            .features, .stats {
-                padding: 0 1rem;
-            }
-        
-            .feature-card {
-                padding: 1.5rem;
+                font-size: 1rem;
             }
         
             .maintenance-icon {
-                font-size: 3.5rem;
+                font-size: 4rem;
             }
         
             .maintenance-page h1 {
-                font-size: 1.5rem;
+                font-size: 1.7rem;
             }
         
             .maintenance-page p {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
         }
     </style>
